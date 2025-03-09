@@ -11,4 +11,11 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    port: 5199,
+    // You can also set it to open the browser automatically
+    open: true,
+    // Uncomment to allow external access (from other devices on your network)
+    // host: '0.0.0.0',
+  },
 })
