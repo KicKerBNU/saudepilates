@@ -3,6 +3,7 @@ import Home from '../components/Home.vue'
 import Pricing from '../components/Pricing.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
+import Contact from '../views/Contact.vue'
 import AdminDashboard from '../views/admin/Dashboard.vue'
 import ProfessorDashboard from '../views/professor/Dashboard.vue'
 import StudentDashboard from '../views/student/Dashboard.vue'
@@ -27,6 +28,11 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: Register
+  },
+  {
+    path: '/contact',
+    name: 'Contact',
+    component: Contact
   },
   {
     path: '/admin',
