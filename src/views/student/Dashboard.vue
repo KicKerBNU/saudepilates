@@ -2,12 +2,7 @@
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center">
-          <h1 class="text-3xl font-bold text-gray-900">Dashboard do Aluno</h1>
-          <button @click="logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md">
-            Sair
-          </button>
-        </div>
+        <h1 class="text-3xl font-bold text-gray-900">Dashboard do Aluno</h1>
       </div>
     </header>
     
@@ -42,12 +37,5 @@ onMounted(async () => {
   }
 });
 
-const logout = async () => {
-  try {
-    await authStore.logout();
-    router.push('/login');
-  } catch (error) {
-    console.error('Error logging out:', error);
-  }
-};
+// Logout functionality removed - now handled in NavBar
 </script>

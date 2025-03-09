@@ -21,8 +21,8 @@
                 </span>
               </div>
               <div class="mt-4 flex justify-center text-6xl font-extrabold text-gray-900">
-                <span class="ml-1 mr-3 text-xl font-medium text-gray-500 leading-loose">$</span>
-                5
+                <span class="ml-1 mr-3 text-xl font-medium text-gray-500 leading-loose">R$</span>
+                50
                 <span class="ml-1 text-xl font-medium text-gray-500 leading-loose">/mês</span>
               </div>
               <p class="mt-5 text-lg text-gray-500 text-center">
