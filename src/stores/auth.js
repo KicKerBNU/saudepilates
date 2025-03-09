@@ -372,6 +372,125 @@ export const useAuthStore = defineStore('auth', {
       } finally {
         this.loading = false;
       }
+    },
+
+    // Plans Management
+    async getPlans() {
+      if (!this.userProfile?.companyId) {
+        throw new Error('No company ID found for current user');
+      }
+
+      this.loading = true;
+      this.error = null;
+
+      try {
+        const plansRef = collection(db, 'plans');
+        const q = query(plansRef, where('companyId', '==', this.userProfile.companyId));
+        const querySnapshot = await getDocs(q);
+
+        return querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+      } catch (error) {
+        console.error('Error fetching plans:', error);
+        this.error = error.message;
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async addPlan(planData) {
+      if (!this.userProfile?.companyId) {
+        throw new Error('No company ID found for current user');
+      }
+
+      if (!this.isAdmin) {
+        throw new Error('Only admins can add plans');
+      }
+
+      this.loading = true;
+      this.error = null;
+
+      try {
+        const plansRef = collection(db, 'plans');
+        const newPlan = {
+          ...planData,
+          companyId: this.userProfile.companyId,
+          createdAt: new Date().toISOString()
+        };
+
+        const docRef = await addDoc(plansRef, newPlan);
+        return {
+          id: docRef.id,
+          ...newPlan
+        };
+      } catch (error) {
+        console.error('Error adding plan:', error);
+        this.error = error.message;
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async updatePlan(planId, planData) {
+      if (!this.userProfile?.companyId) {
+        throw new Error('No company ID found for current user');
+      }
+
+      if (!this.isAdmin) {
+        throw new Error('Only admins can update plans');
+      }
+
+      this.loading = true;
+      this.error = null;
+
+      try {
+        const planRef = doc(db, 'plans', planId);
+        const dataToUpdate = {
+          ...planData,
+          updatedAt: new Date().toISOString()
+        };
+
+        await updateDoc(planRef, dataToUpdate);
+        return {
+          id: planId,
+          ...dataToUpdate
+        };
+      } catch (error) {
+        console.error('Error updating plan:', error);
+        this.error = error.message;
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async deletePlan(planId) {
+      if (!this.userProfile?.companyId) {
+        throw new Error('No company ID found for current user');
+      }
+
+      if (!this.isAdmin) {
+        throw new Error('Only admins can delete plans');
+      }
+
+      this.loading = true;
+      this.error = null;
+
+      try {
+        const planRef = doc(db, 'plans', planId);
+        await deleteDoc(planRef);
+        return true;
+      } catch (error) {
+        console.error('Error deleting plan:', error);
+        this.error = error.message;
+        throw error;
+      } finally {
+        this.loading = false;
+      }
     }
   }
 });

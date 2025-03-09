@@ -9,7 +9,7 @@
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       <!-- Dashboard Stats Overview -->
       <div class="px-4 py-6 sm:px-0">
-        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           <!-- Students Stats -->
           <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="px-4 py-5 sm:p-6">
@@ -101,6 +101,38 @@
               <div class="text-sm">
                 <router-link to="/admin/payments" class="font-medium text-indigo-600 hover:text-indigo-500">
                   Ver todos os pagamentos <span aria-hidden="true">&rarr;</span>
+                </router-link>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plans Stats -->
+          <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                  <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt class="text-sm font-medium text-gray-500 truncate">
+                      Total de Planos
+                    </dt>
+                    <dd class="flex items-baseline">
+                      <div class="text-2xl font-semibold text-gray-900">
+                        {{ totalPlans }}
+                      </div>
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-4 sm:px-6">
+              <div class="text-sm">
+                <router-link :to="{name: 'PlansManagement'}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                  Ver todos os planos <span aria-hidden="true">&rarr;</span>
                 </router-link>
               </div>
             </div>
@@ -207,6 +239,24 @@
               </div>
             </div>
           </router-link>
+
+          <router-link :to="{name: 'PlansManagement'}" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
+            <div class="px-4 py-5 sm:p-6">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                  <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                  <h3 class="text-lg font-medium text-gray-900">Gerenciar Planos</h3>
+                  <p class="mt-1 text-sm text-gray-500">
+                    Adicione e gerencie planos da sua empresa.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </router-link>
         </div>
       </div>
     </main>
@@ -227,6 +277,7 @@ const totalStudents = ref(0);
 const totalProfessors = ref(0);
 const monthlyRevenue = ref(0);
 const recentPayments = ref([]);
+const totalPlans = ref(0);
 
 // Check if user is admin, if not redirect
 onMounted(async () => {
@@ -239,7 +290,8 @@ onMounted(async () => {
   await Promise.all([
     fetchStudents(),
     fetchProfessors(),
-    fetchPayments()
+    fetchPayments(),
+    fetchPlans()
   ]);
 });
 
@@ -288,6 +340,18 @@ const fetchPayments = async () => {
     recentPayments.value = payments.slice(0, 5);
   } catch (error) {
     console.error('Error fetching payments:', error);
+  }
+};
+
+const fetchPlans = async () => {
+  try {
+    // Use authStore to get plans for the current company
+    const plans = await authStore.getPlans();
+    totalPlans.value = plans.length;
+    console.log('Fetched plans count:', plans.length);
+  } catch (error) {
+    console.error('Error fetching plans:', error);
+    totalPlans.value = 0;
   }
 };
 

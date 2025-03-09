@@ -9,6 +9,7 @@ import ProfessorsManagement from '../views/admin/ProfessorsManagement.vue'
 import StudentsManagement from '../views/admin/StudentsManagement.vue'
 import ProfessorDashboard from '../views/professor/Dashboard.vue'
 import StudentDashboard from '../views/student/Dashboard.vue'
+import PlansManagement from '../views/admin/PlansManagement.vue'
 
 const routes = [
   {
@@ -52,6 +53,12 @@ const routes = [
     path: '/admin/students',
     name: 'StudentsManagement',
     component: StudentsManagement,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin/plans',
+    name: 'PlansManagement',
+    component: PlansManagement,
     meta: { requiresAuth: true, role: 'admin' }
   },
   {

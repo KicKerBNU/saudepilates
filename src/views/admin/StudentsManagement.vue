@@ -94,6 +94,20 @@
                     <h4 class="text-lg font-medium text-gray-900">{{ student.name }}</h4>
                     <p class="text-sm text-gray-500">{{ student.email }}</p>
                     <p v-if="student.phone" class="text-sm text-gray-500">{{ student.phone }}</p>
+                    <div class="flex items-center space-x-2 mt-1">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="{
+                        'bg-green-100 text-green-800': student.planId,
+                        'bg-gray-100 text-gray-800': !student.planId
+                      }">
+                        {{ plansList.find(p => p.id === student.planId)?.title || 'Sem plano' }}
+                      </span>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="{
+                        'bg-blue-100 text-blue-800': student.professorId,
+                        'bg-gray-100 text-gray-800': !student.professorId
+                      }">
+                        Professor: {{ professorsList.find(p => p.id === student.professorId)?.name || 'Não atribuído' }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -182,6 +196,36 @@
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="(00) 00000-0000"
               />
+            </div>
+
+            <div class="mb-4">
+              <label for="planId" class="block text-sm font-medium text-gray-700 mb-1">Plano *</label>
+              <select
+                id="planId"
+                v-model="newStudent.planId"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="" disabled>Selecione um plano</option>
+                <option v-for="plan in plansList" :key="plan.id" :value="plan.id">
+                  {{ plan.title }} - {{ plan.sessionsPerWeek }} sessões/semana - R$ {{ plan.price.toFixed(2) }}/mês
+                </option>
+              </select>
+            </div>
+
+            <div class="mb-4">
+              <label for="professorId" class="block text-sm font-medium text-gray-700 mb-1">Professor *</label>
+              <select
+                id="professorId"
+                v-model="newStudent.professorId"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="" disabled>Selecione um professor</option>
+                <option v-for="professor in professorsList" :key="professor.id" :value="professor.id">
+                  {{ professor.name }}
+                </option>
+              </select>
             </div>
             
             <div class="mb-4">
@@ -356,6 +400,36 @@
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+
+            <div class="mb-4">
+              <label for="edit-planId" class="block text-sm font-medium text-gray-700 mb-1">Plano *</label>
+              <select
+                id="edit-planId"
+                v-model="editingStudent.planId"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="" disabled>Selecione um plano</option>
+                <option v-for="plan in plansList" :key="plan.id" :value="plan.id">
+                  {{ plan.title }} - {{ plan.sessionsPerWeek }} sessões/semana - R$ {{ plan.price.toFixed(2) }}/mês
+                </option>
+              </select>
+            </div>
+
+            <div class="mb-4">
+              <label for="edit-professorId" class="block text-sm font-medium text-gray-700 mb-1">Professor *</label>
+              <select
+                id="edit-professorId"
+                v-model="editingStudent.professorId"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="" disabled>Selecione um professor</option>
+                <option v-for="professor in professorsList" :key="professor.id" :value="professor.id">
+                  {{ professor.name }}
+                </option>
+              </select>
+            </div>
             
             <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
               <button
@@ -405,17 +479,23 @@ const studentToDelete = ref(null);
 
 // Data
 const studentsList = ref([]);
+const plansList = ref([]);
+const professorsList = ref([]);
 const newStudent = reactive({
   name: '',
   email: '',
   phone: '',
-  password: ''
+  password: '',
+  planId: '',
+  professorId: ''
 });
 const editingStudent = reactive({
   id: '',
   name: '',
   email: '',
-  phone: ''
+  phone: '',
+  planId: '',
+  professorId: ''
 });
 const confirmPassword = ref('');
 
@@ -429,13 +509,18 @@ onMounted(async () => {
     return;
   }
   
-  await fetchStudents();
+  await Promise.all([
+    fetchStudents(),
+    fetchPlans(),
+    fetchProfessors()
+  ]);
 });
 
 // Methods
 const fetchStudents = async () => {
   loading.value = true;
   error.value = '';
+  console.log('Fetching professors...'); // Debug log
   
   try {
     // Fetch students from the auth store where role is student
@@ -449,7 +534,33 @@ const fetchStudents = async () => {
   }
 };
 
-const openAddStudentModal = () => {
+const fetchPlans = async () => {
+  try {
+    plansList.value = await authStore.getPlans();
+    console.log('Plans loaded:', plansList.value);
+  } catch (err) {
+    console.error('Error fetching plans:', err);
+    error.value = 'Erro ao carregar planos. Tente novamente.';
+  }
+};
+
+const fetchProfessors = async () => {
+  try {
+    console.log('Fetching professors...');
+    const professors = await authStore.getUsersByCompany('professor');
+    console.log('Professors loaded:', professors);
+    professorsList.value = professors;
+  } catch (err) {
+    console.error('Error fetching professors:', err);
+    error.value = 'Erro ao carregar professores. Tente novamente.';
+  }
+};
+
+const openAddStudentModal = async () => {
+  // Ensure professors are loaded first
+  if (professorsList.value.length === 0) {
+    await fetchProfessors();
+  }
   showAddStudentModal.value = true;
 };
 
@@ -461,16 +572,25 @@ const closeAddStudentModal = () => {
   newStudent.email = '';
   newStudent.phone = '';
   newStudent.password = '';
+  newStudent.planId = '';
+  newStudent.professorId = '';
   confirmPassword.value = '';
   error.value = '';
 };
 
-const openEditStudentModal = (student) => {
+const openEditStudentModal = async (student) => {
+  // Ensure professors are loaded first
+  if (professorsList.value.length === 0) {
+    await fetchProfessors();
+  }
+
   // Populate edit form with student data
   editingStudent.id = student.id;
   editingStudent.name = student.name;
   editingStudent.email = student.email;
   editingStudent.phone = student.phone || '';
+  editingStudent.planId = student.planId || '';
+  editingStudent.professorId = student.professorId || '';
   
   // Show modal
   showEditStudentModal.value = true;
@@ -490,25 +610,40 @@ const closeEditStudentModal = () => {
 const updateStudent = async () => {
   isUpdating.value = true;
   error.value = '';
+  console.log('Updating student with data:', editingStudent);
   
+  if (!editingStudent.planId) {
+    error.value = 'Por favor, selecione um plano';
+    return;
+  }
+
   try {
     // Update user in Firebase
     await authStore.updateUser(editingStudent.id, {
       name: editingStudent.name,
       email: editingStudent.email,
-      phone: editingStudent.phone
+      phone: editingStudent.phone,
+      planId: editingStudent.planId,
+      professorId: editingStudent.professorId
     });
     
     // Update the local list
     const index = studentsList.value.findIndex(s => s.id === editingStudent.id);
     if (index !== -1) {
-      studentsList.value[index] = {
+      const updatedStudent = {
         ...studentsList.value[index],
         name: editingStudent.name,
         email: editingStudent.email,
-        phone: editingStudent.phone
+        phone: editingStudent.phone,
+        planId: editingStudent.planId,
+        professorId: editingStudent.professorId
       };
+      console.log('Updating local student data:', updatedStudent);
+      studentsList.value[index] = updatedStudent;
     }
+    
+    // Refresh the students list to ensure we have the latest data
+    await fetchStudents();
     
     // Close the modal
     closeEditStudentModal();
@@ -568,6 +703,20 @@ const registerStudent = async () => {
     isCreating.value = false;
     return;
   }
+
+  // Validate plan selection
+  if (!newStudent.planId) {
+    error.value = 'Por favor, selecione um plano';
+    isCreating.value = false;
+    return;
+  }
+
+  // Validate professor selection
+  if (!newStudent.professorId) {
+    error.value = 'Por favor, selecione um professor';
+    isCreating.value = false;
+    return;
+  }
   
   try {
     // Create student user with company relationship
@@ -577,7 +726,9 @@ const registerStudent = async () => {
       'student', 
       {
         name: newStudent.name,
-        phone: newStudent.phone
+        phone: newStudent.phone,
+        planId: newStudent.planId,
+        professorId: newStudent.professorId
       }
     );
     
