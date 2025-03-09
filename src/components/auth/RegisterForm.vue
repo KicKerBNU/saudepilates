@@ -1,12 +1,25 @@
 <template>
   <div class="max-w-md w-full mx-auto bg-white rounded-lg shadow-md overflow-hidden p-6">
-    <h2 class="text-2xl font-bold text-gray-900 text-center mb-6">Cadastro de Usuário</h2>
+    <h2 class="text-2xl font-bold text-gray-900 text-center mb-6">Cadastro de Administrador</h2>
+    <p class="text-center text-gray-600 mb-4">Crie sua conta de administrador e comece a gerenciar sua empresa</p>
     
     <div v-if="error" class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
       {{ error }}
     </div>
     
     <form @submit.prevent="handleRegister">
+      <div class="mb-4">
+        <label for="companyName" class="block text-sm font-medium text-gray-700 mb-1">Nome da Empresa</label>
+        <input 
+          type="text" 
+          id="companyName" 
+          v-model="companyData.name" 
+          required
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Studio Pilates"
+        />
+      </div>
+      
       <div class="mb-4">
         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
         <input 
@@ -43,20 +56,7 @@
         />
       </div>
       
-      <div class="mb-4">
-        <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Tipo de Usuário</label>
-        <select 
-          id="role" 
-          v-model="userData.role" 
-          required
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option disabled value="">Selecione um tipo</option>
-          <option value="admin">Administrador</option>
-          <option value="professor">Professor</option>
-          <option value="student">Aluno</option>
-        </select>
-      </div>
+
       
       <div class="mb-4">
         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
@@ -111,8 +111,11 @@ const userData = reactive({
   name: '',
   email: '',
   phone: '',
-  role: '',
   password: ''
+});
+
+const companyData = reactive({
+  name: ''
 });
 
 const confirmPassword = ref('');
@@ -129,6 +132,13 @@ const handleRegister = async () => {
   error.value = '';
   isLoading.value = true;
   
+  // Validate company name
+  if (!companyData.name.trim()) {
+    error.value = 'Nome da empresa é obrigatório';
+    isLoading.value = false;
+    return;
+  }
+  
   // Validate passwords match
   if (userData.password !== confirmPassword.value) {
     error.value = 'As senhas não coincidem';
@@ -137,19 +147,13 @@ const handleRegister = async () => {
   }
   
   try {
-    await authStore.register(userData.email, userData.password, userData.role, {
+    await authStore.register(userData.email, userData.password, companyData, {
       name: userData.name,
       phone: userData.phone
     });
     
-    // Redirect based on role - using correct paths
-    if (authStore.isAdmin) {
-      router.push('/admin');
-    } else if (authStore.isProfessor) {
-      router.push('/professor');
-    } else if (authStore.isStudent) {
-      router.push('/student');
-    }
+    // Redirect to admin dashboard
+    router.push('/admin');
   } catch (err) {
     // Set specific error messages based on Firebase error codes
     if (err.code === 'auth/email-already-in-use') {

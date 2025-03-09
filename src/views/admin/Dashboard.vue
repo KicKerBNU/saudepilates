@@ -35,7 +35,7 @@
             </div>
             <div class="bg-gray-50 px-4 py-4 sm:px-6">
               <div class="text-sm">
-                <router-link to="/admin/students" class="font-medium text-indigo-600 hover:text-indigo-500">
+                <router-link :to="{name: 'StudentsManagement'}" class="font-medium text-indigo-600 hover:text-indigo-500">
                   Ver todos os alunos <span aria-hidden="true">&rarr;</span>
                 </router-link>
               </div>
@@ -67,7 +67,7 @@
             </div>
             <div class="bg-gray-50 px-4 py-4 sm:px-6">
               <div class="text-sm">
-                <router-link to="/admin/professors" class="font-medium text-indigo-600 hover:text-indigo-500">
+                <router-link :to="{name: 'ProfessorsManagement'}" class="font-medium text-indigo-600 hover:text-indigo-500">
                   Ver todos os professores <span aria-hidden="true">&rarr;</span>
                 </router-link>
               </div>
@@ -154,7 +154,7 @@
       <div class="mt-8 px-4 sm:px-0">
         <h2 class="text-lg font-medium text-gray-900 mb-4">Ações Rápidas</h2>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <router-link to="/admin/students/new" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
+          <router-link :to="{name: 'StudentsManagement'}" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
             <div class="px-4 py-5 sm:p-6">
               <div class="flex items-center">
                 <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
@@ -163,16 +163,16 @@
                   </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
-                  <h3 class="text-lg font-medium text-gray-900">Cadastrar Novo Aluno</h3>
+                  <h3 class="text-lg font-medium text-gray-900">Gerenciar Alunos</h3>
                   <p class="mt-1 text-sm text-gray-500">
-                    Adicione um novo aluno ao sistema.
+                    Adicione e gerencie alunos da sua empresa.
                   </p>
                 </div>
               </div>
             </div>
           </router-link>
 
-          <router-link to="/admin/professors/new" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
+          <router-link :to="{name: 'ProfessorsManagement'}" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
             <div class="px-4 py-5 sm:p-6">
               <div class="flex items-center">
                 <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
@@ -181,9 +181,9 @@
                   </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
-                  <h3 class="text-lg font-medium text-gray-900">Cadastrar Novo Professor</h3>
+                  <h3 class="text-lg font-medium text-gray-900">Gerenciar Professores</h3>
                   <p class="mt-1 text-sm text-gray-500">
-                    Adicione um novo professor ao sistema.
+                    Adicione e gerencie professores da sua empresa.
                   </p>
                 </div>
               </div>
@@ -217,14 +217,10 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
-import { useStudentsStore } from '../../stores/students';
-import { useProfessorsStore } from '../../stores/professors';
 import { usePaymentsStore } from '../../stores/payments';
 
 const router = useRouter();
 const authStore = useAuthStore();
-const studentsStore = useStudentsStore();
-const professorsStore = useProfessorsStore();
 const paymentsStore = usePaymentsStore();
 
 const totalStudents = ref(0);
@@ -249,19 +245,25 @@ onMounted(async () => {
 
 const fetchStudents = async () => {
   try {
-    const students = await studentsStore.fetchStudents();
+    // Use authStore to get students for the current company
+    const students = await authStore.getUsersByCompany('student');
     totalStudents.value = students.length;
+    console.log('Fetched students count:', students.length);
   } catch (error) {
     console.error('Error fetching students:', error);
+    totalStudents.value = 0;
   }
 };
 
 const fetchProfessors = async () => {
   try {
-    const professors = await professorsStore.fetchProfessors();
+    // Use authStore to get professors for the current company
+    const professors = await authStore.getUsersByCompany('professor');
     totalProfessors.value = professors.length;
+    console.log('Fetched professors count:', professors.length);
   } catch (error) {
     console.error('Error fetching professors:', error);
+    totalProfessors.value = 0;
   }
 };
 

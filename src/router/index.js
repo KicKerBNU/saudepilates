@@ -5,6 +5,8 @@ import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Contact from '../views/Contact.vue'
 import AdminDashboard from '../views/admin/Dashboard.vue'
+import ProfessorsManagement from '../views/admin/ProfessorsManagement.vue'
+import StudentsManagement from '../views/admin/StudentsManagement.vue'
 import ProfessorDashboard from '../views/professor/Dashboard.vue'
 import StudentDashboard from '../views/student/Dashboard.vue'
 
@@ -38,6 +40,18 @@ const routes = [
     path: '/admin',
     name: 'AdminDashboard',
     component: AdminDashboard,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin/professors',
+    name: 'ProfessorsManagement',
+    component: ProfessorsManagement,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin/students',
+    name: 'StudentsManagement',
+    component: StudentsManagement,
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
