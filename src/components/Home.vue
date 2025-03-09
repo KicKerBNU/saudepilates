@@ -1,6 +1,11 @@
 <!-- Home.vue -->
 <template>
   <div class="min-h-screen bg-gray-50">
+    <MetaTags
+      title="SaúdePilates - Sistema de Gestão para Estúdios de Pilates"
+      description="Gerencie seu estúdio de Pilates com eficiência. Software completo com controle de alunos, agendamento de aulas e gestão financeira."
+      keywords="pilates, gestão de estúdio, sistema para pilates, agendamento, controle financeiro, software pilates, controle de alunos"
+    />
     <!-- Hero Section -->
     <div class="relative overflow-hidden">
       <div class="max-w-7xl mx-auto">
@@ -255,5 +260,5 @@
 </template>
 
 <script setup>
-// Component logic can be added here if needed
+import MetaTags from '@/components/MetaTags.vue';
 </script>

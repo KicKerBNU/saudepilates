@@ -11,13 +11,13 @@
             </router-link>
           </div>
           <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-            <router-link to="/" class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-indigo-500 text-sm font-medium">
+            <router-link to="/" :class="[isActiveRoute('/') ? activeClass : inactiveClass]">
               Início
             </router-link>
-            <router-link to="/pricing" class="text-gray-500 hover:text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300 text-sm font-medium">
+            <router-link to="/pricing" :class="[isActiveRoute('/pricing') ? activeClass : inactiveClass]">
               Preços
             </router-link>
-            <router-link to="/contact" class="text-gray-500 hover:text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300 text-sm font-medium">
+            <router-link to="/contact" :class="[isActiveRoute('/contact') ? activeClass : inactiveClass]">
               Contato
             </router-link>
           </div>
@@ -64,12 +64,22 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const showDropdown = ref(false);
+
+// Navigation classes
+const activeClass = "text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-indigo-500 text-sm font-medium";
+const inactiveClass = "text-gray-500 hover:text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300 text-sm font-medium";
+
+// Check if route is active
+const isActiveRoute = (path) => {
+  return route.path === path;
+};
 
 // Close dropdown when clicking outside
 const closeDropdownOnOutsideClick = (event) => {

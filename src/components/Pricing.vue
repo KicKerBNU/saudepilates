@@ -1,5 +1,10 @@
 <!-- Pricing.vue -->
 <template>
+  <MetaTags
+    title="SaúdePilates - Planos e Preços | Software de Gestão para Pilates"
+    description="Conheça nossos planos e preços acessíveis para gestão de estúdios de Pilates. Escolha o plano ideal para o seu negócio e comece a otimizar já a sua gestão."
+    keywords="preços pilates, planos pilates, software pilates preço, gestão pilates custo, assinatura pilates"
+  />
   <div class="min-h-screen bg-gray-50 py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center">
@@ -70,5 +75,5 @@
 </template>
 
 <script setup>
-// Component logic can be added here if needed
+import MetaTags from '@/components/MetaTags.vue';
 </script>
