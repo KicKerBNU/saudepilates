@@ -94,6 +94,11 @@
                     <h4 class="text-lg font-medium text-gray-900">{{ professor.name }}</h4>
                     <p class="text-sm text-gray-500">{{ professor.email }}</p>
                     <p v-if="professor.phone" class="text-sm text-gray-500">{{ professor.phone }}</p>
+                    <p class="text-sm text-gray-500">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Comissão: {{ professor.commission || 0 }}%
+                      </span>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -184,6 +189,21 @@
               />
             </div>
             
+            <div class="mb-4">
+              <label for="commission" class="block text-sm font-medium text-gray-700 mb-1">Comissão (%)</label>
+              <input 
+                type="number" 
+                id="commission" 
+                v-model.number="newProfessor.commission" 
+                required
+                min="0"
+                max="100"
+                step="1"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                placeholder="50"
+              />
+            </div>
+
             <div class="mb-4">
               <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
               <input 
@@ -356,6 +376,20 @@
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+
+            <div class="mb-4">
+              <label for="edit-commission" class="block text-sm font-medium text-gray-700 mb-1">Comissão (%)</label>
+              <input 
+                type="number" 
+                id="edit-commission" 
+                v-model.number="editingProfessor.commission" 
+                required
+                min="0"
+                max="100"
+                step="1"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              />
+            </div>
             
             <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
               <button
@@ -409,13 +443,15 @@ const newProfessor = reactive({
   name: '',
   email: '',
   phone: '',
-  password: ''
+  password: '',
+  commission: 50 // Default commission of 50%
 });
 const editingProfessor = reactive({
   id: '',
   name: '',
   email: '',
-  phone: ''
+  phone: '',
+  commission: 0
 });
 const confirmPassword = ref('');
 
@@ -461,6 +497,7 @@ const closeAddProfessorModal = () => {
   newProfessor.email = '';
   newProfessor.phone = '';
   newProfessor.password = '';
+  newProfessor.commission = 50; // Reset to default commission
   confirmPassword.value = '';
   error.value = '';
 };
@@ -487,7 +524,8 @@ const registerProfessor = async () => {
       'professor', 
       {
         name: newProfessor.name,
-        phone: newProfessor.phone
+        phone: newProfessor.phone,
+        commission: newProfessor.commission
       }
     );
     
@@ -521,6 +559,7 @@ const openEditProfessorModal = (professor) => {
   editingProfessor.name = professor.name;
   editingProfessor.email = professor.email;
   editingProfessor.phone = professor.phone || '';
+  editingProfessor.commission = professor.commission || 50;
   
   showEditProfessorModal.value = true;
 };
@@ -534,6 +573,7 @@ const closeEditProfessorModal = () => {
   editingProfessor.name = '';
   editingProfessor.email = '';
   editingProfessor.phone = '';
+  editingProfessor.commission = 50; // Reset to default commission
 };
 
 const updateProfessor = async () => {
@@ -545,7 +585,8 @@ const updateProfessor = async () => {
     await authStore.updateUser(editingProfessor.id, {
       name: editingProfessor.name,
       email: editingProfessor.email,
-      phone: editingProfessor.phone
+      phone: editingProfessor.phone,
+      commission: editingProfessor.commission
     });
     
     // Update the local list
@@ -555,7 +596,8 @@ const updateProfessor = async () => {
         ...professorsList.value[index],
         name: editingProfessor.name,
         email: editingProfessor.email,
-        phone: editingProfessor.phone
+        phone: editingProfessor.phone,
+        commission: editingProfessor.commission
       };
     }
     

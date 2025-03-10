@@ -8,6 +8,8 @@ import AdminDashboard from '../views/admin/Dashboard.vue'
 import ProfessorsManagement from '../views/admin/ProfessorsManagement.vue'
 import StudentsManagement from '../views/admin/StudentsManagement.vue'
 import ProfessorDashboard from '../views/professor/Dashboard.vue'
+import ProfessorStudents from '../views/professor/Students.vue'
+import ProfessorEarnings from '../views/professor/EarningsHistory.vue'
 import StudentDashboard from '../views/student/Dashboard.vue'
 import PlansManagement from '../views/admin/PlansManagement.vue'
 
@@ -65,6 +67,18 @@ const routes = [
     path: '/professor',
     name: 'ProfessorDashboard',
     component: ProfessorDashboard,
+    meta: { requiresAuth: true, role: 'professor' }
+  },
+  {
+    path: '/professor/students',
+    name: 'ProfessorStudents',
+    component: ProfessorStudents,
+    meta: { requiresAuth: true, role: 'professor' }
+  },
+  {
+    path: '/professor/earnings',
+    name: 'ProfessorEarnings',
+    component: ProfessorEarnings,
     meta: { requiresAuth: true, role: 'professor' }
   },
   {

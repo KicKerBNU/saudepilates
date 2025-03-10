@@ -24,9 +24,17 @@
                     <dt class="text-sm font-medium text-gray-500 truncate">
                       Ganhos do Mês
                     </dt>
-                    <dd class="flex items-baseline">
+                    <dd class="mt-1">
                       <div class="text-2xl font-semibold text-gray-900">
                         R$ {{ monthlyEarnings.toFixed(2) }}
+                      </div>
+                      <div class="mt-2">
+                        <span class="text-sm font-medium text-gray-500">Comissão:</span>
+                        <span class="ml-1 text-sm text-gray-900">{{ commission }}%</span>
+                      </div>
+                      <div class="mt-1">
+                        <span class="text-sm font-medium text-gray-500">Potencial Máximo:</span>
+                        <span class="ml-1 text-sm text-green-600">R$ {{ potentialEarnings.toFixed(2) }}</span>
                       </div>
                     </dd>
                   </dl>
@@ -132,16 +140,21 @@
                           Telefone: {{ student.phone }}
                         </p>
                         <p class="mt-2 flex items-center text-sm text-gray-500">
-                          Status: {{ student.isActive ? 'Ativo' : 'Inativo' }}
+                          Plano: {{ student.planId && !student.plan ? 'Carregando...' : (student.plan?.title || 'Sem plano') }}
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="ml-5 flex-shrink-0">
-                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                    :class="student.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                    {{ student.isActive ? 'Ativo' : 'Inativo' }}
+                  <span v-if="student.planId && !student.plan" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                    Carregando...
+                  </span>
+                  <span v-else-if="student.plan" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                    {{ student.plan.title }} ({{ student.plan.sessionsPerWeek }}x/semana)
+                  </span>
+                  <span v-else class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                    Sem plano
                   </span>
                 </div>
               </div>
@@ -265,10 +278,13 @@ const paymentsStore = usePaymentsStore();
 const attendanceStore = useAttendanceStore();
 
 const monthlyEarnings = ref(0);
+const potentialEarnings = ref(0);
+const commission = ref(0);
 const totalStudents = ref(0);
 const todaysClasses = ref(0);
 const students = ref([]);
 const todayAttendance = ref([]);
+const error = ref(null);
 
 // Check if user is professor, if not redirect
 onMounted(async () => {
@@ -290,25 +306,65 @@ onMounted(async () => {
 
 const fetchEarnings = async () => {
   try {
-    await paymentsStore.fetchProfessorPayments(authStore.userId);
-    
-    // Calculate monthly earnings (current month)
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    
-    monthlyEarnings.value = paymentsStore.currentMonthEarnings(authStore.userId);
-  } catch (error) {
-    console.error('Error fetching earnings:', error);
+    // Get professor's commission rate
+    const userDoc = await getDoc(doc(db, 'users', authStore.userId));
+    const userData = userDoc.data();
+    commission.value = userData?.commission || 50;
+
+    // Calculate actual earnings based on attendance
+    const earnings = await attendanceStore.calculateMonthlyEarnings(authStore.userId);
+    monthlyEarnings.value = earnings;
+
+    // Calculate potential earnings (if all students attended all classes)
+    const students = await studentsStore.fetchStudents();
+    const potentialTotal = students.reduce((total, student) => {
+      if (student.plan?.price && student.plan?.sessionsPerWeek) {
+        const classesPerMonth = student.plan.sessionsPerWeek * 4; // 4 weeks per month
+        const pricePerClass = student.plan.price / classesPerMonth;
+        return total + (pricePerClass * classesPerMonth * (commission.value / 100));
+      }
+      return total;
+    }, 0);
+    potentialEarnings.value = potentialTotal;
+  } catch (err) {
+    error.value = 'Erro ao carregar ganhos: ' + err.message;
   }
 };
 
 const fetchStudents = async () => {
   try {
+    // Fetch students with their plan data
     const professorStudents = await studentsStore.fetchStudents();
-    students.value = professorStudents;
-    totalStudents.value = professorStudents.length;
+    
+    // Ensure plans are loaded for each student
+    if (professorStudents && professorStudents.length > 0) {
+      // For any student with planId but no plan data, fetch plan directly
+      const studentsWithPlans = await Promise.all(professorStudents.map(async (student) => {
+        if (student.planId && (!student.plan || !student.plan.title)) {
+          try {
+            // Directly fetch the plan using planId
+            const plan = await studentsStore.fetchPlanById(student.planId);
+            if (plan) {
+              return { ...student, plan };
+            }
+          } catch (err) {
+            console.error(`Error fetching plan for student ${student.id}:`, err);
+          }
+        }
+        return student;
+      }));
+      
+      // Sort students by name
+      students.value = studentsWithPlans.sort((a, b) => a.name.localeCompare(b.name));
+    } else {
+      // Sort students by name
+      students.value = professorStudents.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    
+    totalStudents.value = students.value.length;
   } catch (error) {
     console.error('Error fetching students:', error);
+    error.value = 'Erro ao carregar alunos: ' + error.message;
   }
 };
 
@@ -318,7 +374,7 @@ const fetchTodayAttendance = async () => {
     await attendanceStore.fetchAttendanceRecords(null, authStore.userId, today, today);
     todayAttendance.value = attendanceStore.attendanceRecords;
   } catch (error) {
-    console.error('Error fetching attendance:', error);
+    error.value = 'Erro ao carregar presença: ' + error.message;
   }
 };
 
@@ -346,10 +402,13 @@ const openAttendanceModal = () => {
 const toggleAttendanceStatus = async (attendanceId, present) => {
   try {
     await attendanceStore.updateAttendanceRecord(attendanceId, { present });
-    // Refresh attendance data
-    fetchTodayAttendance();
+    // Refresh attendance data and earnings
+    await Promise.all([
+      fetchTodayAttendance(),
+      fetchEarnings()
+    ]);
   } catch (error) {
-    console.error('Error updating attendance:', error);
+    error.value = 'Erro ao atualizar presença: ' + error.message;
   }
 };
 

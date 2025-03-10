@@ -421,7 +421,7 @@ async function fetchPlans() {
     const authStore = useAuthStore();
     plansList.value = await authStore.getPlans();
   } catch (error) {
-    console.error('Error fetching plans:', error);
+    error.value = 'Erro ao carregar planos: ' + error.message;
     error.value = error.message;
   }
 }
@@ -507,7 +507,7 @@ async function addPlan() {
     await fetchPlans();
     closeAddPlanModal();
   } catch (err) {
-    console.error('Error adding plan:', err);
+    error.value = 'Erro ao adicionar plano: ' + err.message;
     error.value = err.message || 'Erro ao adicionar plano. Tente novamente.';
   } finally {
     isAdding.value = false;
@@ -526,7 +526,7 @@ async function updatePlan() {
     await fetchPlans();
     closeEditPlanModal();
   } catch (error) {
-    console.error('Error updating plan:', error);
+    error.value = 'Erro ao atualizar plano: ' + error.message;
     error.value = error.message;
   }
 }
@@ -541,7 +541,7 @@ async function deletePlan() {
     await fetchPlans();
     cancelDelete();
   } catch (error) {
-    console.error('Error deleting plan:', error);
+    error.value = 'Erro ao remover plano: ' + error.message;
     error.value = error.message;
   } finally {
     isDeleting.value = false;

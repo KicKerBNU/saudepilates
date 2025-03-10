@@ -79,9 +79,7 @@ export const useAuthStore = defineStore('auth', {
       this.error = null;
       
       try {
-        console.log('Attempting login for:', email);
         const { user } = await signInWithEmailAndPassword(auth, email, password);
-        console.log('Firebase authentication successful:', user.uid);
         
         // Set user state immediately
         this.user = {
@@ -93,10 +91,10 @@ export const useAuthStore = defineStore('auth', {
         // Fetch user profile
         await this.fetchUserProfile(user.uid);
         
-        console.log('Login complete with profile:', this.userProfile);
+
         return user;
       } catch (error) {
-        console.error('Login error:', error.code, error.message);
+
         this.error = error.message;
         throw error;
       } finally {
@@ -118,32 +116,32 @@ export const useAuthStore = defineStore('auth', {
     async fetchUserProfile(userId) {
       // Validate userId first
       if (!userId) {
-        console.error('fetchUserProfile called with invalid userId');
+
         this.error = 'Invalid user ID';
         this.loading = false;
         return;
       }
 
       this.loading = true;
-      console.log('Fetching user profile for ID:', userId);
+      
       
       try {
         // Create document reference
         const userRef = doc(db, 'users', userId);
-        console.log('User document reference created');
+      
         
         // Get the document
         const docSnapshot = await getDoc(userRef);
-        console.log('Document snapshot retrieved:', docSnapshot);
+      
         
         // Check if document exists and has data
         const exists = docSnapshot && typeof docSnapshot.exists === 'function' ? docSnapshot.exists() : false;
-        console.log('Document exists?', exists);
+      
         
         if (exists) {
           // Document exists, get data
           const data = docSnapshot.data();
-          console.log('User profile data:', data);
+
           this.userProfile = data;
           
           // If the user has a companyId, fetch company information
@@ -152,7 +150,7 @@ export const useAuthStore = defineStore('auth', {
           }
         } else {
           // Document doesn't exist, create a basic profile
-          console.log('User profile not found, creating a basic one');
+
           this.error = 'User profile not found';
           
           // Create a basic profile
@@ -164,14 +162,14 @@ export const useAuthStore = defineStore('auth', {
           
           try {
             await setDoc(userRef, basicProfile);
-            console.log('Basic profile created');
+
             this.userProfile = basicProfile;
           } catch (createError) {
-            console.error('Failed to create basic profile:', createError);
+
           }
         }
       } catch (error) {
-        console.error('Error in fetchUserProfile:', error);
+
         this.error = error.message;
       } finally {
         this.loading = false;
@@ -188,13 +186,13 @@ export const useAuthStore = defineStore('auth', {
             id: companyId,
             ...companyDoc.data()
           };
-          console.log('Company info fetched:', this.companyInfo);
+
         } else {
-          console.error('Company not found with ID:', companyId);
+
           this.companyInfo = null;
         }
       } catch (error) {
-        console.error('Error fetching company info:', error);
+
         this.companyInfo = null;
       }
     },
@@ -242,7 +240,7 @@ export const useAuthStore = defineStore('auth', {
       return new Promise((resolve) => {
         // Keep a reference to the unsubscribe function
         this._authUnsubscribe = onAuthStateChanged(auth, async (user) => {
-          console.log('Auth state changed:', user ? 'Authenticated' : 'Not authenticated');
+
           this.loading = true;
           this.user = user;
           
@@ -253,7 +251,7 @@ export const useAuthStore = defineStore('auth', {
               this.userProfile = null;
             }
           } catch (error) {
-            console.error('Error fetching user profile:', error);
+
             this.error = 'Failed to load user profile';
           } finally {
             this.loading = false;
@@ -275,7 +273,7 @@ export const useAuthStore = defineStore('auth', {
     
     async getUsersByCompany(role = null) {
       if (!this.userProfile?.companyId) {
-        console.error('No company ID found for current user');
+
         return [];
       }
       
@@ -308,7 +306,7 @@ export const useAuthStore = defineStore('auth', {
         
         return users;
       } catch (error) {
-        console.error('Error fetching company users:', error);
+
         this.error = error.message;
         return [];
       }
@@ -339,7 +337,7 @@ export const useAuthStore = defineStore('auth', {
         
         return { id: userId, ...dataToUpdate };
       } catch (error) {
-        console.error('Error updating user:', error);
+
         this.error = error.message;
         throw error;
       } finally {
@@ -366,7 +364,7 @@ export const useAuthStore = defineStore('auth', {
         
         return true;
       } catch (error) {
-        console.error('Error deleting user:', error);
+
         this.error = error.message;
         throw error;
       } finally {
@@ -393,7 +391,7 @@ export const useAuthStore = defineStore('auth', {
           ...doc.data()
         }));
       } catch (error) {
-        console.error('Error fetching plans:', error);
+
         this.error = error.message;
         throw error;
       } finally {
@@ -427,7 +425,7 @@ export const useAuthStore = defineStore('auth', {
           ...newPlan
         };
       } catch (error) {
-        console.error('Error adding plan:', error);
+
         this.error = error.message;
         throw error;
       } finally {
@@ -460,7 +458,7 @@ export const useAuthStore = defineStore('auth', {
           ...dataToUpdate
         };
       } catch (error) {
-        console.error('Error updating plan:', error);
+
         this.error = error.message;
         throw error;
       } finally {
@@ -485,7 +483,7 @@ export const useAuthStore = defineStore('auth', {
         await deleteDoc(planRef);
         return true;
       } catch (error) {
-        console.error('Error deleting plan:', error);
+
         this.error = error.message;
         throw error;
       } finally {

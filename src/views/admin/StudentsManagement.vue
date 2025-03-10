@@ -520,14 +520,14 @@ onMounted(async () => {
 const fetchStudents = async () => {
   loading.value = true;
   error.value = '';
-  console.log('Fetching professors...'); // Debug log
+
   
   try {
     // Fetch students from the auth store where role is student
     studentsList.value = await authStore.getUsersByCompany('student');
-    console.log('Students loaded:', studentsList.value);
+
   } catch (err) {
-    console.error('Error fetching students:', err);
+    error.value = 'Erro ao carregar alunos: ' + err.message;
     error.value = 'Erro ao carregar alunos. Tente novamente.';
   } finally {
     loading.value = false;
@@ -537,9 +537,9 @@ const fetchStudents = async () => {
 const fetchPlans = async () => {
   try {
     plansList.value = await authStore.getPlans();
-    console.log('Plans loaded:', plansList.value);
+
   } catch (err) {
-    console.error('Error fetching plans:', err);
+    error.value = 'Erro ao carregar planos: ' + err.message;
     error.value = 'Erro ao carregar planos. Tente novamente.';
   }
 };

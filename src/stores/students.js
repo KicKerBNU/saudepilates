@@ -37,6 +37,44 @@ export const useStudentsStore = defineStore('students', {
   },
   
   actions: {
+    // Fetch a single student by ID
+    fetchStudentById(studentId) {
+      if (!studentId) return Promise.resolve(null);
+      
+      this.loading = true;
+      return getDoc(doc(db, 'users', studentId))
+        .then(docSnap => {
+          if (docSnap.exists()) {
+            return { id: docSnap.id, ...docSnap.data() };
+          }
+          return null;
+        })
+        .catch(error => {
+          console.error('Error fetching student:', error);
+          this.error = error.message;
+          throw error;
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+    
+    // Fetch a single plan by ID
+    fetchPlanById(planId) {
+      if (!planId) return Promise.resolve(null);
+      
+      return getDoc(doc(db, 'plans', planId))
+        .then(docSnap => {
+          if (docSnap.exists()) {
+            return { id: docSnap.id, ...docSnap.data() };
+          }
+          return null;
+        })
+        .catch(error => {
+          console.error('Error fetching plan:', error);
+          throw error;
+        });
+    },
     async fetchStudents() {
       this.loading = true;
       this.error = null;
@@ -48,15 +86,15 @@ export const useStudentsStore = defineStore('students', {
         if (authStore.isAdmin) {
           // Admin can see all students
           studentsQuery = query(
-            collection(db, 'students'),
-            orderBy('createdAt', 'desc')
+            collection(db, 'users'),
+            where('role', '==', 'student')
           );
         } else if (authStore.isProfessor) {
           // Professor can only see assigned students
           studentsQuery = query(
-            collection(db, 'students'),
-            where('professorId', '==', authStore.userId),
-            orderBy('createdAt', 'desc')
+            collection(db, 'users'),
+            where('role', '==', 'student'),
+            where('professorId', '==', authStore.userId)
           );
         } else {
           // Students should not access this store but for safety
@@ -64,11 +102,35 @@ export const useStudentsStore = defineStore('students', {
         }
         
         const snapshot = await getDocs(studentsQuery);
-        this.students = snapshot.docs.map(doc => ({
+        const students = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         }));
         
+        // Get all unique plan IDs
+        const planIds = [...new Set(students.filter(s => s.planId).map(s => s.planId))];
+        
+        // Fetch all plans at once
+        const plansData = await Promise.all(
+          planIds.map(async (planId) => {
+            const planDoc = await getDoc(doc(db, 'plans', planId));
+            return planDoc.exists() ? { id: planDoc.id, ...planDoc.data() } : null;
+          })
+        );
+        
+        // Create a map of plan data
+        const plansMap = plansData.reduce((acc, plan) => {
+          if (plan) acc[plan.id] = plan;
+          return acc;
+        }, {});
+        
+        // Add plan data to students
+        const studentsWithPlans = students.map(student => ({
+          ...student,
+          plan: student.planId ? plansMap[student.planId] || null : null
+        }));
+        
+        this.students = studentsWithPlans;
         return this.students;
       } catch (error) {
         this.error = error.message;
@@ -83,7 +145,7 @@ export const useStudentsStore = defineStore('students', {
       this.error = null;
       
       try {
-        const docRef = doc(db, 'students', studentId);
+        const docRef = doc(db, 'users', studentId);
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {

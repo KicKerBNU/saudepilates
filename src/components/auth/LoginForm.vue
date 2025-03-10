@@ -72,11 +72,7 @@ const handleLogin = async () => {
   try {
     // Login the user
     const user = await authStore.login(email.value, password.value);
-    console.log('Login successful', user);
     
-    // Make sure userProfile is loaded before checking roles
-    console.log('User profile after login:', authStore.userProfile);
-    console.log('Roles - Admin:', authStore.isAdmin, 'Professor:', authStore.isProfessor, 'Student:', authStore.isStudent);
     
     // Add a small delay to ensure profile is loaded (temporary fix)
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -84,20 +80,20 @@ const handleLogin = async () => {
     // Redirect based on role - using route names instead of paths
     try {
       if (authStore.isAdmin) {
-        console.log('Redirecting to admin dashboard');
+
         await router.push({ name: 'AdminDashboard' });
       } else if (authStore.isProfessor) {
-        console.log('Redirecting to professor dashboard');
+
         await router.push({ name: 'ProfessorDashboard' });
       } else if (authStore.isStudent) {
-        console.log('Redirecting to student dashboard');
+
         await router.push({ name: 'StudentDashboard' });
       } else {
-        console.log('No role detected, redirecting to home');
+
         await router.push({ name: 'Home' });
       }
     } catch (navError) {
-      console.error('Navigation error:', navError);
+      error.value = 'Erro de navegação: ' + navError.message;
       // Fallback to direct URL if named route fails
       if (authStore.isAdmin) await router.push('/admin');
       else if (authStore.isProfessor) await router.push('/professor');
@@ -117,7 +113,7 @@ const handleLogin = async () => {
     } else {
       error.value = 'Erro ao fazer login: ' + (err.message || 'Tente novamente.');
     }
-    console.error('Login error:', err.code, err.message);
+
   } finally {
     isLoading.value = false;
   }

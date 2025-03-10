@@ -167,7 +167,7 @@ const handleRegister = async () => {
     } else {
       error.value = 'Erro ao criar conta: ' + (err.message || 'Tente novamente.');
     }
-    console.error('Registration error:', err.code, err.message);
+
   } finally {
     isLoading.value = false;
   }

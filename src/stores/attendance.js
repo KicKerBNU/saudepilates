@@ -20,7 +20,8 @@ export const useAttendanceStore = defineStore('attendance', {
   state: () => ({
     attendanceRecords: [],
     loading: false,
-    error: null
+    error: null,
+    monthlyEarnings: 0
   }),
   
   getters: {
@@ -53,6 +54,10 @@ export const useAttendanceStore = defineStore('attendance', {
     
     getAttendanceForProfessor: (state) => (professorId) => {
       return state.attendanceRecords.filter(record => record.professorId === professorId);
+    },
+
+    getCurrentMonthEarnings: (state) => {
+      return state.monthlyEarnings;
     }
   },
   
@@ -90,9 +95,6 @@ export const useAttendanceStore = defineStore('attendance', {
         if (authStore.isStudent && !studentId) {
           constraints.push(where('studentId', '==', authStore.userId));
         }
-        
-        // Always order by date, descending
-        constraints.push(orderBy('date', 'desc'));
         
         // Apply all constraints to the query
         const finalQuery = query(attendanceQuery, ...constraints);
@@ -152,6 +154,93 @@ export const useAttendanceStore = defineStore('attendance', {
       }
     },
     
+    async calculateMonthlyEarnings(professorId) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        // Get current month's attendance records
+        const now = new Date();
+        const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        
+        // Fetch attendance records for this month
+        await this.fetchAttendanceRecords(null, professorId, startDate.toISOString(), endDate.toISOString());
+        
+        // Get professor's commission rate
+        const authStore = useAuthStore();
+        const professorDoc = await getDoc(doc(db, 'users', professorId));
+        const professor = professorDoc.data();
+        const commissionRate = (professor?.commission || 50) / 100; // Default to 50% if not set
+        
+        // Get all students with attendance
+        const studentIds = [...new Set(this.attendanceRecords
+          .filter(record => record.present)
+          .map(record => record.studentId))];
+
+        // Fetch all students at once
+        const studentsData = await Promise.all(
+          studentIds.map(id => getDoc(doc(db, 'users', id)))
+        );
+
+        // Get all unique plan IDs
+        const planIds = [...new Set(studentsData
+          .map(doc => doc.data())
+          .filter(student => student?.planId)
+          .map(student => student.planId))];
+
+        // Fetch all plans at once
+        const plansData = await Promise.all(
+          planIds.map(id => getDoc(doc(db, 'plans', id)))
+        );
+
+        // Create maps for quick lookups
+        const plansMap = plansData.reduce((acc, doc) => {
+          if (doc.exists()) {
+            acc[doc.id] = { id: doc.id, ...doc.data() };
+          }
+          return acc;
+        }, {});
+
+        const studentsMap = studentsData.reduce((acc, doc) => {
+          if (doc.exists()) {
+            acc[doc.id] = { id: doc.id, ...doc.data() };
+          }
+          return acc;
+        }, {});
+
+        // Count attendance per student
+        const studentAttendance = this.attendanceRecords
+          .filter(record => record.present)
+          .reduce((acc, record) => {
+            acc[record.studentId] = (acc[record.studentId] || 0) + 1;
+            return acc;
+          }, {});
+
+        // Calculate total earnings
+        let total = 0;
+        for (const [studentId, attendanceCount] of Object.entries(studentAttendance)) {
+          const student = studentsMap[studentId];
+          if (student?.planId) {
+            const plan = plansMap[student.planId];
+            if (plan) {
+              const classesPerMonth = plan.sessionsPerWeek * 4;
+              const pricePerClass = plan.price / classesPerMonth;
+              total += pricePerClass * commissionRate * attendanceCount;
+            }
+          }
+        }
+        
+        this.monthlyEarnings = total;
+        return total;
+      } catch (error) {
+        this.error = error.message;
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
     async updateAttendanceRecord(recordId, updatedData) {
       this.loading = true;
       this.error = null;
@@ -183,6 +272,11 @@ export const useAttendanceStore = defineStore('attendance', {
               dataToUpdate.date.toDate().toISOString() : 
               this.attendanceRecords[index].date
           };
+        }
+
+        // If presence status was updated, recalculate earnings
+        if (updatedData.present !== undefined) {
+          await this.calculateMonthlyEarnings(this.attendanceRecords[index].professorId);
         }
         
         return this.attendanceRecords[index];
