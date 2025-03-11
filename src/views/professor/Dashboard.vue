@@ -26,7 +26,7 @@
                     </dt>
                     <dd class="mt-1">
                       <div class="text-2xl font-semibold text-gray-900">
-                        R$ {{ monthlyEarnings.toFixed(2) }}
+                        R$ {{ Number(monthlyEarnings).toFixed(2) }}
                       </div>
                       <div class="mt-2">
                         <span class="text-sm font-medium text-gray-500">Comissão:</span>
@@ -204,6 +204,22 @@
       <div class="mt-8 px-4 sm:px-0">
         <h2 class="text-lg font-medium text-gray-900 mb-4">Ações Rápidas</h2>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <!-- Attendance Control Button -->
+          <router-link to="/professor/attendance-control" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
+            <div class="px-4 py-5 sm:p-6">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                  <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                </div>
+                <div class="ml-5">
+                  <h3 class="text-lg font-medium text-gray-900">Controle de Presença</h3>
+                  <p class="mt-1 text-sm text-gray-500">Gerenciar a presença de seus alunos e agendar aulas</p>
+                </div>
+              </div>
+            </div>
+          </router-link>
           <router-link to="/professor/students" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
             <div class="px-4 py-5 sm:p-6">
               <div class="flex items-center">
@@ -216,24 +232,6 @@
                   <h3 class="text-lg font-medium text-gray-900">Gerenciar Alunos</h3>
                   <p class="mt-1 text-sm text-gray-500">
                     Acesse a lista completa de alunos e gerencie suas informações.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </router-link>
-
-          <router-link to="/professor/attendance" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
-            <div class="px-4 py-5 sm:p-6">
-              <div class="flex items-center">
-                <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
-                  <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                  <h3 class="text-lg font-medium text-gray-900">Controle de Presenças</h3>
-                  <p class="mt-1 text-sm text-gray-500">
-                    Registre a presença dos alunos e visualize o histórico.
                   </p>
                 </div>
               </div>
@@ -264,13 +262,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onActivated } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useStudentsStore } from '../../stores/students';
 import { usePaymentsStore } from '../../stores/payments';
 import { useAttendanceStore } from '../../stores/attendance';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 
 const router = useRouter();
@@ -279,7 +277,7 @@ const studentsStore = useStudentsStore();
 const paymentsStore = usePaymentsStore();
 const attendanceStore = useAttendanceStore();
 
-const monthlyEarnings = ref(0);
+const monthlyEarnings = ref(0); // Make sure this is initialized as a number
 const potentialEarnings = ref(0);
 const commission = ref(0); 
 const totalStudents = ref(0);
@@ -308,6 +306,17 @@ onMounted(async () => {
   
   // Calculate today's classes
   calculateTodaysClasses();
+});
+
+// Refresh data when component is reactivated/revisited (e.g., after marking attendance)
+onActivated(async () => {
+
+  if (authStore.isProfessor) {
+    // Refresh earnings data when coming back to the dashboard
+    await fetchEarnings();
+    await fetchTodayAttendance();
+    calculateTodaysClasses();
+  }
 });
 
 const fetchEarnings = async () => {
@@ -344,7 +353,7 @@ const fetchEarnings = async () => {
       // Create a user document if it doesn't exist
       try {
         await setDoc(doc(db, 'users', authStore.userId), {
-          email: authStore.user?.email || '',
+          email: authStore.user && authStore.user.email ? authStore.user.email : '',
           role: 'professor',
           commission: 0,
           createdAt: new Date().toISOString()
@@ -357,10 +366,12 @@ const fetchEarnings = async () => {
     // Force commission to a number
     commission.value = Number(commission.value) || 0;
 
-    // Calculate actual earnings based on attendance
+    // Calculate actual earnings based on attendance - use improved store method
     try {
+      // Directly use the attendance store's optimized calculation
       const earnings = await attendanceStore.calculateMonthlyEarnings(authStore.userId);
       monthlyEarnings.value = Number(earnings) || 0;
+      console.log('Final updated monthly earnings:', monthlyEarnings.value);
     } catch (err) {
       console.error('Error calculating monthly earnings:', err);
       monthlyEarnings.value = 0;
@@ -387,7 +398,7 @@ const fetchEarnings = async () => {
             }
           }
           
-          if (planData?.price && planData?.sessionsPerWeek) {
+          if (planData && planData.price && planData.sessionsPerWeek) {
             const classesPerMonth = planData.sessionsPerWeek * 4; // 4 weeks per month
             const pricePerClass = planData.price / classesPerMonth;
             const studentPotential = pricePerClass * classesPerMonth * (commission.value / 100);

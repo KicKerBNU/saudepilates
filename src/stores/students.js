@@ -75,6 +75,32 @@ export const useStudentsStore = defineStore('students', {
           throw error;
         });
     },
+    
+    // Fetch all plans from database
+    async fetchStudentPlans() {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        console.log('Fetching all plans for earnings calculation');
+        const plansQuery = query(collection(db, 'plans'));
+        const snapshot = await getDocs(plansQuery);
+        
+        const plans = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        console.log('Plans fetched:', plans.length);
+        return plans;
+      } catch (error) {
+        console.error('Error fetching plans:', error);
+        this.error = error.message;
+        return [];
+      } finally {
+        this.loading = false;
+      }
+    },
     async fetchStudents() {
       this.loading = true;
       this.error = null;

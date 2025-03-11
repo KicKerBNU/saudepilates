@@ -10,6 +10,7 @@ import StudentsManagement from '../views/admin/StudentsManagement.vue'
 import ProfessorDashboard from '../views/professor/Dashboard.vue'
 import ProfessorStudents from '../views/professor/Students.vue'
 import ProfessorEarnings from '../views/professor/EarningsHistory.vue'
+import ProfessorAttendanceControl from '../views/professor/AttendanceControl.vue'
 import StudentDashboard from '../views/student/Dashboard.vue'
 import PlansManagement from '../views/admin/PlansManagement.vue'
 
@@ -79,6 +80,12 @@ const routes = [
     path: '/professor/earnings',
     name: 'ProfessorEarnings',
     component: ProfessorEarnings,
+    meta: { requiresAuth: true, role: 'professor' }
+  },
+  {
+    path: '/professor/attendance-control',
+    name: 'ProfessorAttendanceControl',
+    component: ProfessorAttendanceControl,
     meta: { requiresAuth: true, role: 'professor' }
   },
   {
