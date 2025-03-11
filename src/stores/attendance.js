@@ -171,7 +171,7 @@ export const useAttendanceStore = defineStore('attendance', {
         const authStore = useAuthStore();
         const professorDoc = await getDoc(doc(db, 'users', professorId));
         const professor = professorDoc.data();
-        const commissionRate = (professor?.commission || 50) / 100; // Default to 50% if not set
+        const commissionRate = (professor?.commission || 0) / 100; // Default to 0% if not set
         
         // Get all students with attendance
         const studentIds = [...new Set(this.attendanceRecords

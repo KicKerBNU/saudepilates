@@ -189,7 +189,7 @@ const error = ref(null);
 const errorHistory = ref(null);
 const studentEarnings = ref([]);
 const monthlyHistory = ref([]);
-const commission = ref(50); // Default commission
+const commission = ref(0); // Default commission
 
 // Filter state
 const currentDate = new Date();
@@ -226,7 +226,7 @@ onMounted(async () => {
     }
     
     // Set commission rate from professor data
-    commission.value = user.commission || 50;
+    commission.value = user.commission || 0;
     
     // Setup available years (current year and 2 years back)
     const currentYear = new Date().getFullYear();

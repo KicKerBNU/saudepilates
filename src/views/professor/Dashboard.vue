@@ -270,6 +270,8 @@ import { useAuthStore } from '../../stores/auth';
 import { useStudentsStore } from '../../stores/students';
 import { usePaymentsStore } from '../../stores/payments';
 import { useAttendanceStore } from '../../stores/attendance';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../../firebase/config';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -279,26 +281,30 @@ const attendanceStore = useAttendanceStore();
 
 const monthlyEarnings = ref(0);
 const potentialEarnings = ref(0);
-const commission = ref(0);
+const commission = ref(0); 
 const totalStudents = ref(0);
 const todaysClasses = ref(0);
 const students = ref([]);
 const todayAttendance = ref([]);
 const error = ref(null);
+const isLoading = ref(true);
 
 // Check if user is professor, if not redirect
 onMounted(async () => {
+  
+  if (!authStore.isAuthenticated) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  
   if (!authStore.isProfessor) {
     router.push('/login');
     return;
   }
 
   // Fetch data for dashboard
-  await Promise.all([
-    fetchEarnings(),
-    fetchStudents(),
-    fetchTodayAttendance()
-  ]);
+  await fetchEarnings();
+  await fetchStudents();
+  await fetchTodayAttendance();
   
   // Calculate today's classes
   calculateTodaysClasses();
@@ -306,28 +312,100 @@ onMounted(async () => {
 
 const fetchEarnings = async () => {
   try {
-    // Get professor's commission rate
-    const userDoc = await getDoc(doc(db, 'users', authStore.userId));
-    const userData = userDoc.data();
-    commission.value = userData?.commission || 50;
+    isLoading.value = true;
+    // Make sure we have userId
+    if (!authStore.userId) {
+      return;
+    }
+    
+    
+    // Try to get user document
+    let userDoc = await getDoc(doc(db, 'users', authStore.userId));
+    let userData = null;
+    
+    if (userDoc.exists()) {
+      userData = userDoc.data();
+      
+      
+      // Store the commission rate (default is 0%)
+      commission.value = typeof userData.commission === 'number' ? userData.commission : 0;
+      
+      
+      // Update Firestore if commission is not set
+      if (typeof userData.commission !== 'number') {
+      
+        await updateDoc(doc(db, 'users', authStore.userId), {
+          commission: 0
+        });
+      }
+    } else {
+      commission.value = 0;
+      
+      // Create a user document if it doesn't exist
+      try {
+        await setDoc(doc(db, 'users', authStore.userId), {
+          email: authStore.user?.email || '',
+          role: 'professor',
+          commission: 0,
+          createdAt: new Date().toISOString()
+        });
+      } catch (e) {
+        console.error('Error creating user document:', e);
+      }
+    }
+
+    // Force commission to a number
+    commission.value = Number(commission.value) || 0;
 
     // Calculate actual earnings based on attendance
-    const earnings = await attendanceStore.calculateMonthlyEarnings(authStore.userId);
-    monthlyEarnings.value = earnings;
+    try {
+      const earnings = await attendanceStore.calculateMonthlyEarnings(authStore.userId);
+      monthlyEarnings.value = Number(earnings) || 0;
+    } catch (err) {
+      console.error('Error calculating monthly earnings:', err);
+      monthlyEarnings.value = 0;
+    }
 
     // Calculate potential earnings (if all students attended all classes)
-    const students = await studentsStore.fetchStudents();
-    const potentialTotal = students.reduce((total, student) => {
-      if (student.plan?.price && student.plan?.sessionsPerWeek) {
-        const classesPerMonth = student.plan.sessionsPerWeek * 4; // 4 weeks per month
-        const pricePerClass = student.plan.price / classesPerMonth;
-        return total + (pricePerClass * classesPerMonth * (commission.value / 100));
+    try {
+      const professorStudents = await studentsStore.fetchStudents() || [];
+      
+      
+      let potentialTotal = 0;
+      
+      // Calculate potential earnings for each student
+      for (const student of professorStudents) {
+        if (student.planId) {
+          let planData = student.plan;
+          
+          // If plan data isn't loaded, try to fetch it
+          if (!planData && student.planId) {
+            try {
+              planData = await studentsStore.fetchPlanById(student.planId);
+            } catch (err) {
+              console.error(`Failed to fetch plan for student ${student.id}:`, err);
+            }
+          }
+          
+          if (planData?.price && planData?.sessionsPerWeek) {
+            const classesPerMonth = planData.sessionsPerWeek * 4; // 4 weeks per month
+            const pricePerClass = planData.price / classesPerMonth;
+            const studentPotential = pricePerClass * classesPerMonth * (commission.value / 100);
+            potentialTotal += studentPotential;
+          }
+        }
       }
-      return total;
-    }, 0);
-    potentialEarnings.value = potentialTotal;
+      
+      potentialEarnings.value = potentialTotal;
+    } catch (err) {
+      console.error('Error calculating potential earnings:', err);
+      potentialEarnings.value = 0;
+    }
   } catch (err) {
+    console.error('Error in fetchEarnings:', err);
     error.value = 'Erro ao carregar ganhos: ' + err.message;
+  } finally {
+    isLoading.value = false;
   }
 };
 
