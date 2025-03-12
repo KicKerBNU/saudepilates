@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create OG Image</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        .container {
+            width: 1200px;
+            height: 630px;
+            background-color: #f8f9fa;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 48px;
+            color: #4F46E5;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        p {
+            font-size: 24px;
+            color: #4b5563;
+            max-width: 800px;
+            text-align: center;
+        }
+        
+        .instructions {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        <h2>Instructions to create your OG Image:</h2>
+        <ol>
+            <li>Take a screenshot of the image container below (1200×630 pixels)</li>
+            <li>Save the screenshot as "og-image.jpg" in your public folder</li>
+            <li>Deploy your website again</li>
+        </ol>
+        <p><strong>Note:</strong> Make sure to only capture the container with the logo and text, not these instructions.</p>
+    </div>
+
+    <div class="container">
+        <svg class="logo" width="200" height="200" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background Circle -->
+            <circle cx="16" cy="16" r="15" fill="#4F46E5" fill-opacity="0.1" stroke="#4F46E5" stroke-width="2"/>
+            
+            <!-- Stylized Figure -->
+            <path d="M16 8
+                     C 13.8 8, 12 9.8, 12 12
+                     C 12 14.2, 13.8 16, 16 16
+                     C 18.2 16, 20 14.2, 20 12
+                     C 20 9.8, 18.2 8, 16 8
+                     M 16 16
+                     L 16 24
+                     M 12 18
+                     L 20 18
+                     M 10 22
+                     L 22 22"
+                  stroke="#4F46E5"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  fill="none"/>
+            
+            <!-- Mat/Base Line -->
+            <line x1="8" y1="26" x2="24" y2="26" 
+                  stroke="#4F46E5" 
+                  stroke-width="1.5" 
+                  stroke-linecap="round"/>
+        </svg>
+        
+        <h1>SaúdePilates</h1>
+        <p>Sistema de Gestão para Estúdios de Pilates</p>
+    </div>
+</body>
+</html>
