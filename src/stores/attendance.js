@@ -69,8 +69,6 @@ export const useAttendanceStore = defineStore('attendance', {
       const authStore = useAuthStore();
       
       try {
-        console.log('Fetching attendance records with params:', { studentId, professorId, startDate, endDate });
-        
         // Use a simpler query approach that doesn't require compound indexes
         // First query by professorId only, then filter in JS
         let attendanceQuery = collection(db, 'attendanceRecords');
@@ -78,28 +76,21 @@ export const useAttendanceStore = defineStore('attendance', {
         
         // Determine the main filter (we'll use just one in the query to avoid index issues)
         if (professorId) {
-          console.log('Filtering primarily by professorId:', professorId);
           mainConstraint = where('professorId', '==', professorId);
         } else if (studentId) {
-          console.log('Filtering primarily by studentId:', studentId);
           mainConstraint = where('studentId', '==', studentId);
         } else if (authStore.isProfessor) {
-          console.log('Filtering by current professor:', authStore.userId);
           mainConstraint = where('professorId', '==', authStore.userId);
         } else if (authStore.isStudent) {
-          console.log('Filtering by current student:', authStore.userId);
           mainConstraint = where('studentId', '==', authStore.userId);
         } else {
           // No specific filter, might return all records (use carefully)
-          console.log('No specific filter applied');
         }
         
         // Create the query with the single constraint
         const finalQuery = mainConstraint ? query(attendanceQuery, mainConstraint) : attendanceQuery;
-        console.log('Executing Firestore query with single constraint');
         
         const snapshot = await getDocs(finalQuery);
-        console.log('Raw records fetched:', snapshot.docs.length);
         
         // Process the results - apply remaining filters in JavaScript
         let results = snapshot.docs.map(doc => {
@@ -115,18 +106,15 @@ export const useAttendanceStore = defineStore('attendance', {
         
         // Apply additional filters in JavaScript
         if (studentId && (!mainConstraint || mainConstraint.toString().indexOf('studentId') === -1)) {
-          console.log('Filtering results by studentId in JS');
           results = results.filter(record => record.studentId === studentId);
         }
         
         if (professorId && (!mainConstraint || mainConstraint.toString().indexOf('professorId') === -1)) {
-          console.log('Filtering results by professorId in JS');
           results = results.filter(record => record.professorId === professorId);
         }
         
         // Apply date filtering in JavaScript
         if (startDate && endDate) {
-          console.log('Filtering by date range in JS:', startDate, 'to', endDate);
           const startTs = new Date(startDate).getTime();
           const endTs = new Date(endDate).getTime();
           
@@ -136,7 +124,6 @@ export const useAttendanceStore = defineStore('attendance', {
           });
         }
         
-        console.log('Filtered records:', results.length);
         this.attendanceRecords = results;
         
         return this.attendanceRecords;

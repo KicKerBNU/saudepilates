@@ -476,7 +476,6 @@ const fetchProfessors = async () => {
   try {
     // Fetch professors from the auth store where role is professor
     professorsList.value = await authStore.getUsersByCompany('professor');
-    console.log('Professors loaded:', professorsList.value);
   } catch (err) {
     console.error('Error fetching professors:', err);
     error.value = 'Erro ao carregar professores. Tente novamente.';

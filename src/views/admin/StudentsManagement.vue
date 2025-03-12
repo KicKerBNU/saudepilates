@@ -546,9 +546,7 @@ const fetchPlans = async () => {
 
 const fetchProfessors = async () => {
   try {
-    console.log('Fetching professors...');
     const professors = await authStore.getUsersByCompany('professor');
-    console.log('Professors loaded:', professors);
     professorsList.value = professors;
   } catch (err) {
     console.error('Error fetching professors:', err);
@@ -610,7 +608,6 @@ const closeEditStudentModal = () => {
 const updateStudent = async () => {
   isUpdating.value = true;
   error.value = '';
-  console.log('Updating student with data:', editingStudent);
   
   if (!editingStudent.planId) {
     error.value = 'Por favor, selecione um plano';
@@ -638,7 +635,6 @@ const updateStudent = async () => {
         planId: editingStudent.planId,
         professorId: editingStudent.professorId
       };
-      console.log('Updating local student data:', updatedStudent);
       studentsList.value[index] = updatedStudent;
     }
     

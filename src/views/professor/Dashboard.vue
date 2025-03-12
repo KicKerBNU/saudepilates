@@ -207,42 +207,7 @@
         </div>
       </div>
 
-      <!-- Today's Attendance Section -->
-      <div class="mt-8 px-4 sm:px-0">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-medium text-gray-900">Controle de Presença - Hoje</h2>
-          <button @click="openAttendanceModal" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm">
-            Registrar Presença
-          </button>
-        </div>
-        
-        <div class="bg-white shadow overflow-hidden sm:rounded-md">
-          <ul role="list" class="divide-y divide-gray-200">
-            <li v-if="todayAttendance.length === 0" class="px-6 py-4 text-gray-500">
-              Nenhuma presença registrada hoje.
-            </li>
-            <li v-for="attendance in todayAttendance" :key="attendance.id" class="px-4 py-4 sm:px-6">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                  <div class="min-w-0 flex-1 px-4">
-                    <p class="text-sm font-medium text-indigo-600 truncate">{{ attendance.studentName }}</p>
-                    <p class="mt-2 flex items-center text-sm text-gray-500">
-                      <span class="truncate">{{ formatTime(attendance.date) }}</span>
-                    </p>
-                  </div>
-                </div>
-                <div class="ml-5 flex space-x-2">
-                  <button @click="toggleAttendanceStatus(attendance.id, !attendance.present)" 
-                    class="px-2 py-1 rounded-md text-xs font-medium"
-                    :class="attendance.present ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800 hover:bg-red-200'">
-                    {{ attendance.present ? 'Presente' : 'Ausente' }}
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
+
 
       <!-- Quick Actions -->
       <div class="mt-8 px-4 sm:px-0">
@@ -419,7 +384,6 @@ const fetchEarnings = async () => {
       // Directly use the attendance store's optimized calculation
       const earnings = await attendanceStore.calculateMonthlyEarnings(authStore.userId);
       monthlyEarnings.value = Number(earnings) || 0;
-      console.log('Final updated monthly earnings:', monthlyEarnings.value);
     } catch (err) {
       console.error('Error calculating monthly earnings:', err);
       monthlyEarnings.value = 0;
@@ -536,24 +500,7 @@ const formatTime = (dateString) => {
   }).format(date);
 };
 
-const openAttendanceModal = () => {
-  // This would typically open a modal to register attendance
-  // For now, we'll just navigate to the attendance page
-  router.push('/professor/attendance/new');
-};
-
-const toggleAttendanceStatus = async (attendanceId, present) => {
-  try {
-    await attendanceStore.updateAttendanceRecord(attendanceId, { present });
-    // Refresh attendance data and earnings
-    await Promise.all([
-      fetchTodayAttendance(),
-      fetchEarnings()
-    ]);
-  } catch (error) {
-    error.value = 'Erro ao atualizar presença: ' + error.message;
-  }
-};
+// Attendance methods removed
 
 // Logout functionality removed - now handled in NavBar
 </script>

@@ -300,7 +300,6 @@ const fetchStudents = async () => {
     // Use authStore to get students for the current company
     const students = await authStore.getUsersByCompany('student');
     totalStudents.value = students.length;
-    console.log('Fetched students count:', students.length);
   } catch (error) {
     console.error('Error fetching students:', error);
     totalStudents.value = 0;
@@ -312,7 +311,6 @@ const fetchProfessors = async () => {
     // Use authStore to get professors for the current company
     const professors = await authStore.getUsersByCompany('professor');
     totalProfessors.value = professors.length;
-    console.log('Fetched professors count:', professors.length);
   } catch (error) {
     console.error('Error fetching professors:', error);
     totalProfessors.value = 0;
@@ -348,7 +346,6 @@ const fetchPlans = async () => {
     // Use authStore to get plans for the current company
     const plans = await authStore.getPlans();
     totalPlans.value = plans.length;
-    console.log('Fetched plans count:', plans.length);
   } catch (error) {
     console.error('Error fetching plans:', error);
     totalPlans.value = 0;

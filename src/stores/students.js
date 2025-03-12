@@ -82,7 +82,6 @@ export const useStudentsStore = defineStore('students', {
       this.error = null;
       
       try {
-        console.log('Fetching all plans for earnings calculation');
         const plansQuery = query(collection(db, 'plans'));
         const snapshot = await getDocs(plansQuery);
         
@@ -91,7 +90,6 @@ export const useStudentsStore = defineStore('students', {
           ...doc.data()
         }));
         
-        console.log('Plans fetched:', plans.length);
         return plans;
       } catch (error) {
         console.error('Error fetching plans:', error);
