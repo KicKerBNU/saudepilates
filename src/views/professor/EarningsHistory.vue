@@ -293,8 +293,9 @@ const fetchEarningsData = async () => {
         let total = 0;
         
         if (planData) {
-          const classesPerMonth = planData.sessionsPerWeek * 4;
-          valuePerClass = (planData.price / classesPerMonth) * (commission.value / 100);
+          // Calculate price per class according to the formula:
+          // Plan price / sessions per week / 4
+          valuePerClass = (planData.price / planData.sessionsPerWeek / 4) * (commission.value / 100);
           total = valuePerClass * attendanceCount;
         }
         

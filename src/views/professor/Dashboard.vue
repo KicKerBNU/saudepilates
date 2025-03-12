@@ -11,9 +11,25 @@
       <div class="px-4 py-6 sm:px-0">
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <!-- Monthly Earnings -->
-          <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="bg-white overflow-hidden shadow rounded-lg flex flex-col" style="height: 100%;">
             <div class="px-4 py-5 sm:p-6">
-              <div class="flex items-center">
+              <!-- Loading state -->
+              <div v-if="isLoadingEarnings" class="py-2">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 bg-gray-200 rounded-md p-3 animate-pulse">
+                    <div class="h-6 w-6"></div>
+                  </div>
+                  <div class="ml-5 w-0 flex-1">
+                    <div class="h-5 bg-gray-200 rounded w-1/2 animate-pulse mb-4"></div>
+                    <div class="h-8 bg-gray-200 rounded w-3/4 animate-pulse mb-3"></div>
+                    <div class="h-4 bg-gray-200 rounded w-1/2 animate-pulse mb-2"></div>
+                    <div class="h-4 bg-gray-200 rounded w-2/3 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Content when loaded -->
+              <div v-else class="flex items-center">
                 <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
                   <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -51,9 +67,23 @@
           </div>
 
           <!-- Students Count -->
-          <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="bg-white overflow-hidden shadow rounded-lg flex flex-col" style="height: 100%;">
             <div class="px-4 py-5 sm:p-6">
-              <div class="flex items-center">
+              <!-- Loading state -->
+              <div v-if="isLoadingStudents" class="py-2">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 bg-gray-200 rounded-md p-3 animate-pulse">
+                    <div class="h-6 w-6"></div>
+                  </div>
+                  <div class="ml-5 w-0 flex-1">
+                    <div class="h-5 bg-gray-200 rounded w-1/2 animate-pulse mb-4"></div>
+                    <div class="h-8 bg-gray-200 rounded w-1/4 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Content when loaded -->
+              <div v-else class="flex items-center">
                 <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
                   <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -73,7 +103,7 @@
                 </div>
               </div>
             </div>
-            <div class="bg-gray-50 px-4 py-4 sm:px-6">
+            <div class="bg-gray-50 px-4 py-4 sm:px-6 mt-auto">
               <div class="text-sm">
                 <router-link to="/professor/students" class="font-medium text-indigo-600 hover:text-indigo-500">
                   Ver todos os alunos <span aria-hidden="true">&rarr;</span>
@@ -83,9 +113,23 @@
           </div>
 
           <!-- Today's Classes -->
-          <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="bg-white overflow-hidden shadow rounded-lg flex flex-col" style="height: 100%;">
             <div class="px-4 py-5 sm:p-6">
-              <div class="flex items-center">
+              <!-- Loading state -->
+              <div v-if="isLoadingClasses" class="py-2">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 bg-gray-200 rounded-md p-3 animate-pulse">
+                    <div class="h-6 w-6"></div>
+                  </div>
+                  <div class="ml-5 w-0 flex-1">
+                    <div class="h-5 bg-gray-200 rounded w-1/2 animate-pulse mb-4"></div>
+                    <div class="h-8 bg-gray-200 rounded w-1/4 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Content when loaded -->
+              <div v-else class="flex items-center">
                 <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
                   <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -105,7 +149,7 @@
                 </div>
               </div>
             </div>
-            <div class="bg-gray-50 px-4 py-4 sm:px-6">
+            <div class="bg-gray-50 px-4 py-4 sm:px-6 mt-auto">
               <div class="text-sm">
                 <router-link to="/professor/schedule" class="font-medium text-indigo-600 hover:text-indigo-500">
                   Ver agenda completa <span aria-hidden="true">&rarr;</span>
@@ -285,7 +329,11 @@ const todaysClasses = ref(0);
 const students = ref([]);
 const todayAttendance = ref([]);
 const error = ref(null);
-const isLoading = ref(true);
+
+// Independent loading states for each card
+const isLoadingEarnings = ref(true);
+const isLoadingStudents = ref(true);
+const isLoadingClasses = ref(true);
 
 // Check if user is professor, if not redirect
 onMounted(async () => {
@@ -321,7 +369,7 @@ onActivated(async () => {
 
 const fetchEarnings = async () => {
   try {
-    isLoading.value = true;
+    isLoadingEarnings.value = true;
     // Make sure we have userId
     if (!authStore.userId) {
       return;
@@ -416,12 +464,13 @@ const fetchEarnings = async () => {
     console.error('Error in fetchEarnings:', err);
     error.value = 'Erro ao carregar ganhos: ' + err.message;
   } finally {
-    isLoading.value = false;
+    isLoadingEarnings.value = false;
   }
 };
 
 const fetchStudents = async () => {
   try {
+    isLoadingStudents.value = true;
     // Fetch students with their plan data
     const professorStudents = await studentsStore.fetchStudents();
     
@@ -454,16 +503,21 @@ const fetchStudents = async () => {
   } catch (error) {
     console.error('Error fetching students:', error);
     error.value = 'Erro ao carregar alunos: ' + error.message;
+  } finally {
+    isLoadingStudents.value = false;
   }
 };
 
 const fetchTodayAttendance = async () => {
   try {
+    isLoadingClasses.value = true;
     const today = new Date().toISOString().split('T')[0];
     await attendanceStore.fetchAttendanceRecords(null, authStore.userId, today, today);
     todayAttendance.value = attendanceStore.attendanceRecords;
   } catch (error) {
     error.value = 'Erro ao carregar presença: ' + error.message;
+  } finally {
+    isLoadingClasses.value = false;
   }
 };
 

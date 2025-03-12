@@ -530,6 +530,9 @@ const resetForm = () => {
   // Keep the date as is
   startTime.value = '';
   duration.value = 60;
+  
+  // Redirect to professor dashboard
+  router.push('/professor');
 };
 
 const formatTime = (timeString) => {

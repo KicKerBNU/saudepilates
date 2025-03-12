@@ -63,6 +63,7 @@ export const useAttendanceStore = defineStore('attendance', {
   
   actions: {
     async fetchAttendanceRecords(studentId = null, professorId = null, startDate = null, endDate = null) {
+      
       this.loading = true;
       this.error = null;
       const authStore = useAuthStore();
@@ -191,28 +192,37 @@ export const useAttendanceStore = defineStore('attendance', {
       this.error = null;
       
       try {
-        // Get current month's attendance records
+        // Get current month's start and end dates
         const now = new Date();
         const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
         const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
         
-        // Try to get attendance records directly from Firestore to avoid any issues with the store's state
-        const attendanceQuery = query(
-          collection(db, 'attendanceRecords'),
+        // Query scheduledClasses collection (note: with a 'd') for the professor's classes this month
+        const classesQuery = query(
+          collection(db, 'scheduledClasses'),
           where('professorId', '==', professorId)
         );
+
+        const classesSnapshot = await getDocs(classesQuery);
         
-        const snapshot = await getDocs(attendanceQuery);
-        
-        // Filter to only include present records from this month
-        const attendanceRecords = snapshot.docs
-          .map(doc => ({ id: doc.id, ...doc.data() }))
-          .filter(record => {
-            if (!record.present) return false;
-            
-            // Convert Firestore timestamp to JS Date and check if in current month
-            const recordDate = record.date && typeof record.date.toDate === 'function' ? record.date.toDate() : new Date(record.date);
-            return recordDate >= startDate && recordDate <= endDate;
+        // Map and filter classes to only include those from this month
+        const scheduledClasses = classesSnapshot.docs
+          .map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }))
+          .filter(classItem => {
+            try {
+              // Convert Firestore timestamp to JS Date
+              const classDate = classItem.date && typeof classItem.date.toDate === 'function' 
+                ? classItem.date.toDate() 
+                : new Date(classItem.date);
+              
+              // Check if class date is in the current month
+              return classDate >= startDate && classDate <= endDate;
+            } catch (err) {
+              return false;
+            }
           });
         
         // Get professor's commission rate
@@ -222,11 +232,13 @@ export const useAttendanceStore = defineStore('attendance', {
         }
         
         const professor = professorDoc.data();
-        const commissionRate = (professor && professor.commission ? professor.commission : 0) / 100; // Default to 0% if not set
+        const commissionRate = (professor && professor.commission ? professor.commission : 0) / 100;
         
-        // Count attendance per student
-        const studentAttendance = attendanceRecords.reduce((acc, record) => {
-          acc[record.studentId] = (acc[record.studentId] || 0) + 1;
+        // Group classes by student to count attendances
+        const studentAttendance = scheduledClasses.reduce((acc, classItem) => {
+          if (classItem.studentId) {
+            acc[classItem.studentId] = (acc[classItem.studentId] || 0) + 1;
+          }
           return acc;
         }, {});
         
@@ -238,42 +250,41 @@ export const useAttendanceStore = defineStore('attendance', {
           return 0;
         }
 
-        // Fetch all students at once
+        // Fetch all students data at once
         const studentsData = await Promise.all(
           studentIds.map(id => getDoc(doc(db, 'users', id)))
         );
 
-        // Get all unique plan IDs
-        const planIds = studentsData
+        // Extract students with plans
+        const studentsWithPlans = studentsData
           .filter(doc => doc.exists())
-          .map(doc => doc.data())
-          .filter(student => student && student.planId)
-          .map(student => student.planId);
-
-        if (planIds.length === 0) {
+          .map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }))
+          .filter(student => student && student.planId);
+          
+        if (studentsWithPlans.length === 0) {
           this.monthlyEarnings = 0;
           return 0;
         }
 
+        // Get unique plan IDs and create student map
+        const planIds = [...new Set(studentsWithPlans.map(student => student.planId))];
+        const studentsMap = Object.fromEntries(studentsWithPlans.map(student => [student.id, student]));
+        
         // Fetch all plans at once
         const plansData = await Promise.all(
           planIds.map(id => getDoc(doc(db, 'plans', id)))
         );
 
-        // Create maps for quick lookups
-        const plansMap = plansData.reduce((acc, doc) => {
+        // Create plan map for quick lookups
+        const plansMap = {};
+        plansData.forEach(doc => {
           if (doc.exists()) {
-            acc[doc.id] = { id: doc.id, ...doc.data() };
+            plansMap[doc.id] = { id: doc.id, ...doc.data() };
           }
-          return acc;
-        }, {});
-
-        const studentsMap = studentsData.reduce((acc, doc) => {
-          if (doc.exists()) {
-            acc[doc.id] = { id: doc.id, ...doc.data() };
-          }
-          return acc;
-        }, {});
+        });
 
         // Calculate total earnings
         let total = 0;
@@ -288,9 +299,10 @@ export const useAttendanceStore = defineStore('attendance', {
               const price = Number(plan.price) || 0;
               const sessionsPerWeek = Number(plan.sessionsPerWeek) || 1;
               
-              const classesPerMonth = sessionsPerWeek * 4;
-              const pricePerClass = price / classesPerMonth;
-              const studentEarning = pricePerClass * commissionRate * attendanceCount;
+              // Calculate price per class according to the formula:
+              // Plan price / sessions per week / 4
+              const pricePerClass = price / sessionsPerWeek / 4;
+              const studentEarning = pricePerClass * attendanceCount * commissionRate;
               
               // Only add valid numbers to the total
               if (!isNaN(studentEarning)) {
