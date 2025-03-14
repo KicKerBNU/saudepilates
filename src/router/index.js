@@ -11,6 +11,8 @@ import ProfessorDashboard from '../views/professor/Dashboard.vue'
 import ProfessorStudents from '../views/professor/Students.vue'
 import ProfessorEarnings from '../views/professor/EarningsHistory.vue'
 import ProfessorAttendanceControl from '../views/professor/AttendanceControl.vue'
+import ProfessorEvolution from '../views/professor/Evolution.vue'
+import ProfessorSchedule from '../views/professor/Schedule.vue'
 import StudentDashboard from '../views/student/Dashboard.vue'
 import PlansManagement from '../views/admin/PlansManagement.vue'
 
@@ -86,6 +88,18 @@ const routes = [
     path: '/professor/attendance-control',
     name: 'ProfessorAttendanceControl',
     component: ProfessorAttendanceControl,
+    meta: { requiresAuth: true, role: 'professor' }
+  },
+  {
+    path: '/professor/evolution',
+    name: 'ProfessorEvolution',
+    component: ProfessorEvolution,
+    meta: { requiresAuth: true, role: 'professor' }
+  },
+  {
+    path: '/professor/schedule',
+    name: 'ProfessorSchedule',
+    component: ProfessorSchedule,
     meta: { requiresAuth: true, role: 'professor' }
   },
   {

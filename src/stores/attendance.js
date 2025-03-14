@@ -12,7 +12,7 @@ import {
   orderBy,
   Timestamp
 } from 'firebase/firestore';
-import { startOfDay, endOfDay } from 'date-fns';
+import { startOfDay, endOfDay, parseISO, parse, format, setHours } from 'date-fns';
 import { db } from '../firebase/config';
 import { useAuthStore } from './auth';
 
@@ -146,10 +146,36 @@ export const useAttendanceStore = defineStore('attendance', {
           throw new Error('Only professors and admins can mark attendance');
         }
         
-        // Add timestamps and professor ID
+        // Handle the date properly using date-fns to avoid timezone issues
+        let dateToStore;
+        
+        if (attendanceData.date instanceof Date) {
+          // If it's already a Date object, normalize it to noon on the same day
+          dateToStore = setHours(startOfDay(attendanceData.date), 12);
+        } else if (typeof attendanceData.date === 'string') {
+          // Parse string dates using date-fns for better cross-timezone reliability
+          if (attendanceData.date.includes('T')) {
+            // ISO format string (with time component)
+            const parsedDate = parseISO(attendanceData.date);
+            dateToStore = setHours(startOfDay(parsedDate), 12);
+          } else {
+            // YYYY-MM-DD format
+            dateToStore = parse(attendanceData.date, 'yyyy-MM-dd', new Date());
+            // Set to noon to avoid timezone boundary issues
+            dateToStore = setHours(startOfDay(dateToStore), 12);
+          }
+        } else if (attendanceData.date && typeof attendanceData.date.toDate === 'function') {
+          // It's already a Firestore Timestamp
+          const jsDate = attendanceData.date.toDate();
+          dateToStore = setHours(startOfDay(jsDate), 12);
+        } else {
+          // Default to current date at noon
+          dateToStore = setHours(startOfDay(new Date()), 12);
+        }
+        
         const newAttendanceData = {
           ...attendanceData,
-          date: Timestamp.fromDate(new Date(attendanceData.date || new Date())),
+          date: Timestamp.fromDate(dateToStore),  // Use the normalized date
           createdAt: Timestamp.now(),
           professorId: attendanceData.professorId || authStore.userId
         };
@@ -221,13 +247,17 @@ export const useAttendanceStore = defineStore('attendance', {
         const professor = professorDoc.data();
         const commissionRate = (professor && professor.commission ? professor.commission : 0) / 100;
         
-        // Group classes by student to count attendances
+        // Group classes by student to count attendances, only counting when present is not null
         const studentAttendance = scheduledClasses.reduce((acc, classItem) => {
-          if (classItem.studentId) {
+          // Only count classes where the present field is not null (attendance was confirmed)
+          if (classItem.studentId && classItem.present !== null && classItem.present !== undefined) {
             acc[classItem.studentId] = (acc[classItem.studentId] || 0) + 1;
+            console.log(`Counting attendance for student ${classItem.studentId}, present status: ${classItem.present}`);
           }
           return acc;
         }, {});
+        
+        console.log('Student attendance count:', studentAttendance);
         
         // Get all unique student IDs
         const studentIds = Object.keys(studentAttendance);

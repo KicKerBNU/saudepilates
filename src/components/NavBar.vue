@@ -5,13 +5,13 @@
       <div class="flex justify-between h-16">
         <div class="flex">
           <div class="flex-shrink-0 flex items-center">
-            <router-link to="/" class="flex items-center">
+            <router-link :to="homeOrDashboardLink" class="flex items-center">
               <img class="h-8 w-8" src="@/assets/pilates-icon.svg" alt="Pilates Icon" />
               <span class="ml-2 text-xl font-semibold text-gray-800">SaúdePilates</span>
             </router-link>
           </div>
           <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-            <router-link to="/" :class="[isActiveRoute('/') ? activeClass : inactiveClass]">
+            <router-link :to="homeOrDashboardLink" :class="[isActiveRoute('/') || isDashboardActive ? activeClass : inactiveClass]">
               Início
             </router-link>
             <router-link to="/pricing" :class="[isActiveRoute('/pricing') ? activeClass : inactiveClass]">
@@ -35,40 +35,6 @@
         
         <!-- Profile dropdown when user is authenticated -->
         <div v-else class="flex items-center space-x-4">
-          <!-- Dashboard button - direct access -->
-          <router-link 
-            v-if="authStore.isAdmin" 
-            :to="{name: 'AdminDashboard'}" 
-            class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-2 rounded-md text-sm font-medium flex items-center"
-          >
-            <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-            </svg>
-            Dashboard
-          </router-link>
-          
-          <router-link 
-            v-if="authStore.isProfessor" 
-            :to="{name: 'ProfessorDashboard'}" 
-            class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-2 rounded-md text-sm font-medium flex items-center"
-          >
-            <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            Dashboard
-          </router-link>
-          
-          <router-link 
-            v-if="authStore.isStudent" 
-            :to="{name: 'StudentDashboard'}" 
-            class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-2 rounded-md text-sm font-medium flex items-center"
-          >
-            <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path d="M12 14l9-5-9-5-9 5 9 5z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
-            </svg>
-            Dashboard
-          </router-link>
           <div class="relative">
             <button @click="toggleDropdown" class="flex items-center space-x-2 focus:outline-none cursor-pointer">
               <div class="h-9 w-9 rounded-full bg-indigo-600 flex items-center justify-center text-white text-lg font-medium overflow-hidden">
@@ -213,6 +179,20 @@ const userFirstLetter = computed(() => {
 
 const profileImageUrl = computed(() => {
   return authStore.userProfile?.photoURL || null;
+});
+
+// Computed property to determine where the home/logo links should go
+const homeOrDashboardLink = computed(() => {
+  if (!authStore.isAuthenticated) return '/';
+  if (authStore.isAdmin) return { name: 'AdminDashboard' };
+  if (authStore.isProfessor) return { name: 'ProfessorDashboard' };
+  if (authStore.isStudent) return { name: 'StudentDashboard' };
+  return '/';
+});
+
+// Check if the current route is a dashboard route
+const isDashboardActive = computed(() => {
+  return route.name === 'AdminDashboard' || route.name === 'ProfessorDashboard' || route.name === 'StudentDashboard';
 });
 </script>
 

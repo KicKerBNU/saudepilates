@@ -264,6 +264,25 @@
               </div>
             </div>
           </router-link>
+          
+          <!-- Schedule Button -->
+          <router-link to="/professor/schedule" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
+            <div class="px-4 py-5 sm:p-6">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
+                  <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                  <h3 class="text-lg font-medium text-gray-900">Agenda</h3>
+                  <p class="mt-1 text-sm text-gray-500">
+                    Visualize sua agenda completa de aulas com todos os alunos.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </router-link>
         </div>
       </div>
     </main>
@@ -277,6 +296,8 @@ import { useAuthStore } from '../../stores/auth';
 import { useStudentsStore } from '../../stores/students';
 import { usePaymentsStore } from '../../stores/payments';
 import { useAttendanceStore } from '../../stores/attendance';
+import { useScheduleStore } from '../../stores/schedule';
+import { isSameDay, parseISO } from 'date-fns';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 
@@ -285,6 +306,7 @@ const authStore = useAuthStore();
 const studentsStore = useStudentsStore();
 const paymentsStore = usePaymentsStore();
 const attendanceStore = useAttendanceStore();
+const scheduleStore = useScheduleStore();
 
 const monthlyEarnings = ref(0); // Make sure this is initialized as a number
 const potentialEarnings = ref(0);
@@ -317,18 +339,18 @@ onMounted(async () => {
   await fetchStudents();
   await fetchTodayAttendance();
   
-  // Calculate today's classes
-  calculateTodaysClasses();
+  // Note: calculateTodaysClasses is no longer needed here
+  // as fetchTodayAttendance now sets todaysClasses directly
 });
 
 // Refresh data when component is reactivated/revisited (e.g., after marking attendance)
 onActivated(async () => {
 
   if (authStore.isProfessor) {
-    // Refresh earnings data when coming back to the dashboard
+    // Refresh data when coming back to the dashboard
     await fetchEarnings();
     await fetchTodayAttendance();
-    calculateTodaysClasses();
+    // Note: calculateTodaysClasses is no longer needed
   }
 });
 
@@ -475,21 +497,43 @@ const fetchStudents = async () => {
 const fetchTodayAttendance = async () => {
   try {
     isLoadingClasses.value = true;
-    const today = new Date().toISOString().split('T')[0];
-    await attendanceStore.fetchAttendanceRecords(null, authStore.userId, today, today);
-    todayAttendance.value = attendanceStore.attendanceRecords;
+    
+    // Get today's date (start and end of day)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    // Fetch appointments scheduled for today
+    const appointments = await scheduleStore.fetchProfessorSchedule(
+      authStore.userId,
+      today,
+      tomorrow
+    );
+    
+    // Save the appointments for today
+    todayAttendance.value = appointments;
+    
+    // Update the todaysClasses count
+    todaysClasses.value = appointments.length;
+    
+    console.log(`Found ${todaysClasses.value} classes scheduled for today`, appointments);
   } catch (error) {
-    error.value = 'Erro ao carregar presença: ' + error.message;
+    console.error('Error fetching today\'s classes:', error);
+    error.value = 'Erro ao carregar aulas de hoje: ' + error.message;
   } finally {
     isLoadingClasses.value = false;
   }
 };
 
 const calculateTodaysClasses = () => {
-  // This would typically be calculated based on the schedule
-  // For now, we'll just use a simple calculation based on active students
-  const activeStudents = students.value.filter(student => student.isActive);
-  todaysClasses.value = Math.min(activeStudents.length, 10); // Assuming max 10 classes per day
+  // This is no longer needed since we're fetching actual classes from the schedule
+  // The count is updated directly in fetchTodayAttendance
+  
+  // Just in case fetchTodayAttendance failed, ensure we have a default value
+  if (todaysClasses.value === 0 && todayAttendance.value.length > 0) {
+    todaysClasses.value = todayAttendance.value.length;
+  }
 };
 
 const formatTime = (dateString) => {
