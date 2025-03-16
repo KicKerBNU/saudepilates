@@ -252,12 +252,9 @@ export const useAttendanceStore = defineStore('attendance', {
           // Only count classes where the present field is not null (attendance was confirmed)
           if (classItem.studentId && classItem.present !== null && classItem.present !== undefined) {
             acc[classItem.studentId] = (acc[classItem.studentId] || 0) + 1;
-            console.log(`Counting attendance for student ${classItem.studentId}, present status: ${classItem.present}`);
           }
           return acc;
         }, {});
-        
-        console.log('Student attendance count:', studentAttendance);
         
         // Get all unique student IDs
         const studentIds = Object.keys(studentAttendance);

@@ -22,7 +22,7 @@
           <h3 class="text-lg leading-6 font-medium text-gray-900">
             Detalhes da Empresa
           </h3>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">
+          <p class="max-w-2xl text-sm text-gray-500">
             Informações sobre os planos disponíveis.
           </p>
         </div>
@@ -32,7 +32,7 @@
               <dt class="text-sm font-medium text-gray-500">
                 Total de Planos
               </dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <dd class="text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {{ plansList.length }}
               </dd>
             </div>
@@ -46,7 +46,7 @@
           <h3 class="text-lg leading-6 font-medium text-gray-900">Planos Disponíveis</h3>
         </div>
         <ul role="list" class="divide-y divide-gray-200">
-          <li v-for="plan in plansList" :key="plan.id" class="px-4 py-6 sm:px-6 hover:bg-gray-50">
+          <li v-for="plan in plansList" :key="plan.id" class="px-4 py-4 sm:px-6 hover:bg-gray-50">
             <div class="flex items-center justify-between">
               <div class="min-w-0 flex-1">
                 <div class="flex items-start">
@@ -67,8 +67,19 @@
                         {{ plan.sessionsPerWeek }} {{ plan.sessionsPerWeek === 1 ? 'sessão' : 'sessões' }}/semana
                       </span>
                     </div>
-                    <div class="mt-1 text-sm text-gray-500">{{ plan.description || 'Nenhuma descrição disponível' }}</div>
-                    <div class="mt-2 text-sm font-medium text-gray-900">R$ {{ plan.price.toFixed(2) }}/mês</div>
+                    <div class="text-sm text-gray-500">{{ plan.description || 'Nenhuma descrição disponível' }}</div>
+                    <div class="text-sm font-medium text-gray-900">R$ {{ plan.price.toFixed(2) }}/mês</div>
+                    <div class="flex flex-wrap gap-2">
+                      <span v-if="plan.discountQuarterly > 0" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                        Trimestral: {{ plan.discountQuarterly }}% off
+                      </span>
+                      <span v-if="plan.discountSemiannual > 0" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                        Semestral: {{ plan.discountSemiannual }}% off
+                      </span>
+                      <span v-if="plan.discountAnnual > 0" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                        Anual: {{ plan.discountAnnual }}% off
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -129,23 +140,23 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m6 0H6m6 6V6m0 0H6m6 0h6M6 12h6m6 0h-6v6h6-6" />
               </svg>
             </div>
-            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+            <div class="text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
               <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
                 Adicionar Novo Plano
               </h3>
-              <div class="mt-2">
+              <div>
                 <p class="text-sm text-gray-500">
                   Preencha os detalhes do novo plano abaixo. Campos marcados com * são obrigatórios.
                 </p>
               </div>
-              <div class="mt-6">
-                <form @submit.prevent="addPlan" class="space-y-6">
-                  <div class="space-y-1">
+              <div class="mt-2">
+                <form @submit.prevent="addPlan" class="space-y-2">
+                  <div class="space-y-0.5">
                     <label for="title" class="block text-sm font-medium text-gray-900">
                       Título do Plano *
                       <span v-if="formErrors.title" class="text-red-500 text-xs ml-1">({{ formErrors.title }})</span>
                     </label>
-                    <div class="mt-1">
+                    <div>
                       <input 
                         type="text" 
                         id="title" 
@@ -154,7 +165,7 @@
                           'border-red-300 focus:ring-red-500 focus:border-red-500': formErrors.title,
                           'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500': !formErrors.title
                         }"
-                        class="block w-full rounded-md shadow-sm sm:text-sm px-4 py-3"
+                        class="block w-full rounded-md shadow-sm sm:text-sm px-4 py-3 border"
                         placeholder="Ex: Plano Básico" 
                         required 
                         @input="validateField('title')"
@@ -162,11 +173,11 @@
                     </div>
                   </div>
 
-                  <div class="space-y-1">
+                  <div class="space-y-0.5">
                     <label for="sessionsPerWeek" class="block text-sm font-medium text-gray-900">
                       Sessões por Semana *
                     </label>
-                    <div class="mt-1">
+                    <div>
                       <div class="grid grid-cols-3 gap-3">
                         <button 
                           type="button"
@@ -183,16 +194,16 @@
                           {{ count }} {{ count === 1 ? 'sessão' : 'sessões' }}
                         </button>
                       </div>
-                      <p class="mt-2 text-sm text-gray-500">Escolha o número de sessões semanais</p>
+                      <p class="text-sm text-gray-500">Escolha o número de sessões semanais</p>
                     </div>
                   </div>
 
-                  <div class="space-y-1">
+                  <div class="space-y-0.5">
                     <label for="price" class="block text-sm font-medium text-gray-900">
                       Preço Mensal *
                       <span v-if="formErrors.price" class="text-red-500 text-xs ml-1">({{ formErrors.price }})</span>
                     </label>
-                    <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="relative rounded-md shadow-sm">
                       <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                         <span class="text-gray-500 sm:text-sm">R$</span>
                       </div>
@@ -204,7 +215,7 @@
                           'border-red-300 focus:ring-red-500 focus:border-red-500': formErrors.price,
                           'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500': !formErrors.price
                         }"
-                        class="block w-full rounded-md pl-10 sm:text-sm"
+                        class="block w-full rounded-md pl-10 pr-3 py-3 sm:text-sm border"
                         placeholder="0.00" 
                         step="0.01" 
                         min="0" 
@@ -214,17 +225,17 @@
                     </div>
                   </div>
 
-                  <div class="space-y-1">
+                  <div class="space-y-0.5">
                     <label for="description" class="block text-sm font-medium text-gray-900">
                       Descrição
                       <span class="text-gray-500">(Opcional)</span>
                     </label>
-                    <div class="mt-1">
+                    <div>
                       <textarea 
                         id="description" 
                         v-model="newPlan.description" 
                         rows="4"
-                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3"
+                        class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3"
                         placeholder="Descreva os benefícios e características do plano"
                       ></textarea>
                       <p class="mt-2 text-sm text-gray-500">Breve descrição do plano e seus benefícios</p>
@@ -281,29 +292,29 @@
           <div class="sm:flex sm:items-start">
             <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
               <svg class="h-6 w-6 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
-            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <div class="mt-2 text-center sm:mt-0 sm:ml-4 sm:text-left">
               <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
                 Editar Plano
               </h3>
-              <div class="mt-6">
-                <form @submit.prevent="updatePlan" class="space-y-6">
-                  <div class="space-y-1">
+              <div class="mt-4">
+                <form @submit.prevent="updatePlan" class="space-y-2">
+                  <div>
                     <label for="editTitle" class="block text-sm font-medium text-gray-900">Título do Plano</label>
                     <div class="mt-1">
                       <input type="text" id="editTitle" v-model="editingPlan.title"
-                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3"
                         placeholder="Ex: Plano Básico" required />
                     </div>
                   </div>
 
-                  <div class="space-y-1">
+                  <div>
                     <label for="editSessionsPerWeek" class="block text-sm font-medium text-gray-900">Sessões por Semana</label>
                     <div class="mt-1">
                       <select id="editSessionsPerWeek" v-model="editingPlan.sessionsPerWeek"
-                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3">
                         <option value="1">1 sessão por semana</option>
                         <option value="2">2 sessões por semana</option>
                         <option value="3">3 sessões por semana</option>
@@ -311,27 +322,110 @@
                     </div>
                     <p class="mt-2 text-sm text-gray-500">Escolha entre 1 a 3 sessões semanais</p>
                   </div>
-                  <div class="space-y-1">
+                  <div>
                     <label for="editPrice" class="block text-sm font-medium text-gray-900">Preço Mensal</label>
                     <div class="mt-1 relative rounded-md shadow-sm">
                       <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                         <span class="text-gray-500 sm:text-sm">R$</span>
                       </div>
                       <input type="number" id="editPrice" v-model="editingPlan.price"
-                        class="block w-full rounded-md border-gray-300 pl-10 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        class="block w-full rounded-md border border-gray-300 pl-10 pr-3 py-3 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                         placeholder="0.00" step="0.01" min="0" required />
                     </div>
                   </div>
 
-                  <div class="space-y-1">
+                  <div>
                     <label for="editDescription" class="block text-sm font-medium text-gray-900">
                       Descrição
                       <span class="text-gray-500">(Opcional)</span>
                     </label>
                     <div class="mt-1">
                       <textarea id="editDescription" v-model="editingPlan.description" rows="4"
-                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3"
                         placeholder="Descreva os benefícios e características do plano"></textarea>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="editCommission" class="block text-sm font-medium text-gray-900">
+                      Comissão do Professor (%)
+                    </label>
+                    <div class="mt-1">
+                      <input 
+                        type="number" 
+                        id="editCommission" 
+                        v-model.number="editingPlan.commission"
+                        min="0"
+                        max="100"
+                        step="1"
+                        class="block w-full rounded-md shadow-sm sm:text-sm px-4 py-3 border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="40"
+                      />
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Porcentagem que será repassada ao professor por cada aluno neste plano.</p>
+                  </div>
+
+                  <div class="mt-4 mb-2">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Descontos para Pagamentos Antecipados</h4>
+                    <p class="text-xs text-gray-500 mb-2">Configure descontos para incentivar pagamentos por períodos mais longos.</p>
+                    
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                      <!-- Quarterly Discount -->
+                      <div>
+                        <label for="editDiscountQuarterly" class="block text-sm font-medium text-gray-900">
+                          Trimestral (%)
+                        </label>
+                        <div class="mt-1">
+                          <input 
+                            type="number" 
+                            id="editDiscountQuarterly" 
+                            v-model.number="editingPlan.discountQuarterly"
+                            min="0"
+                            max="100"
+                            step="1"
+                            class="block w-full rounded-md shadow-sm sm:text-sm px-4 py-3 border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="5"
+                          />
+                        </div>
+                      </div>
+                      
+                      <!-- Semi-annual Discount -->
+                      <div>
+                        <label for="editDiscountSemiannual" class="block text-sm font-medium text-gray-900">
+                          Semestral (%)
+                        </label>
+                        <div class="mt-1">
+                          <input 
+                            type="number" 
+                            id="editDiscountSemiannual" 
+                            v-model.number="editingPlan.discountSemiannual"
+                            min="0"
+                            max="100"
+                            step="1"
+                            class="block w-full rounded-md shadow-sm sm:text-sm px-4 py-3 border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="10"
+                          />
+                        </div>
+                      </div>
+                      
+                      <!-- Annual Discount -->
+                      <div>
+                        <label for="editDiscountAnnual" class="block text-sm font-medium text-gray-900">
+                          Anual (%)
+                        </label>
+                        <div class="mt-1">
+                          <input 
+                            type="number" 
+                            id="editDiscountAnnual" 
+                            v-model.number="editingPlan.discountAnnual"
+                            min="0"
+                            max="100"
+                            step="1"
+                            class="block w-full rounded-md shadow-sm sm:text-sm px-4 py-3 border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="20"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -367,11 +461,11 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
-            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <div class="mt-2 text-center sm:mt-0 sm:ml-4 sm:text-left">
               <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
                 Remover Plano
               </h3>
-              <div class="mt-2">
+              <div class="mt-1">
                 <p class="text-sm text-gray-500">
                   Tem certeza que deseja remover o plano <span class="font-semibold">{{ planToDelete?.title }}</span>?
                   Esta ação não pode ser desfeita.
@@ -429,7 +523,16 @@ async function fetchPlans() {
 onMounted(async () => {
   await fetchPlans();
 });
-const newPlan = ref({ title: '', sessionsPerWeek: 1, price: 0, description: '' });
+const newPlan = ref({ 
+  title: '', 
+  sessionsPerWeek: 1, 
+  price: 0, 
+  description: '',
+  commission: 40, // Default commission percentage
+  discountQuarterly: 5, // Default 5% discount for 3 months
+  discountSemiannual: 10, // Default 10% discount for 6 months
+  discountAnnual: 20 // Default 20% discount for 12 months
+});
 const editingPlan = ref(null);
 const planToDelete = ref(null);
 const showAddPlanModal = ref(false);
@@ -472,7 +575,14 @@ function closeAddPlanModal() {
 }
 
 function openEditPlanModal(plan) {
-  editingPlan.value = { ...plan };
+  // Create a copy of the plan with default values for new fields if they don't exist
+  editingPlan.value = { 
+    ...plan,
+    commission: plan.commission || 40,
+    discountQuarterly: plan.discountQuarterly || 0,
+    discountSemiannual: plan.discountSemiannual || 0,
+    discountAnnual: plan.discountAnnual || 0
+  };
   showEditPlanModal.value = true;
 }
 

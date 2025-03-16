@@ -517,7 +517,7 @@ const fetchTodayAttendance = async () => {
     // Update the todaysClasses count
     todaysClasses.value = appointments.length;
     
-    console.log(`Found ${todaysClasses.value} classes scheduled for today`, appointments);
+    
   } catch (error) {
     console.error('Error fetching today\'s classes:', error);
     error.value = 'Erro ao carregar aulas de hoje: ' + error.message;

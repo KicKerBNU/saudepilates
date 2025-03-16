@@ -15,6 +15,8 @@ import ProfessorEvolution from '../views/professor/Evolution.vue'
 import ProfessorSchedule from '../views/professor/Schedule.vue'
 import StudentDashboard from '../views/student/Dashboard.vue'
 import PlansManagement from '../views/admin/PlansManagement.vue'
+import PaymentRegistration from '../views/admin/PaymentRegistration.vue'
+import MonthlyPayments from '../views/admin/MonthlyPayments.vue'
 
 const routes = [
   {
@@ -64,6 +66,18 @@ const routes = [
     path: '/admin/plans',
     name: 'PlansManagement',
     component: PlansManagement,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin/payments/new',
+    name: 'PaymentRegistration',
+    component: PaymentRegistration,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin/payments/monthly',
+    name: 'MonthlyPayments',
+    component: MonthlyPayments,
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
