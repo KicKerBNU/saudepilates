@@ -162,6 +162,44 @@
               {{ error }}
             </div>
             
+            <!-- Missing Professors Warning -->
+            <div v-if="missingProfessors" class="mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded flex items-start">
+              <svg class="flex-shrink-0 h-5 w-5 text-yellow-400 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium">Nenhum professor cadastrado</h3>
+                <div class="mt-2 text-sm">
+                  <p>Você precisa cadastrar pelo menos um professor antes de adicionar um aluno.</p>
+                  <router-link 
+                    to="/admin/professors" 
+                    class="mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                  >
+                    Ir para Cadastro de Professores
+                  </router-link>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Missing Plans Warning -->
+            <div v-if="missingPlans" class="mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded flex items-start">
+              <svg class="flex-shrink-0 h-5 w-5 text-yellow-400 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium">Nenhum plano cadastrado</h3>
+                <div class="mt-2 text-sm">
+                  <p>Você precisa cadastrar pelo menos um plano antes de adicionar um aluno.</p>
+                  <router-link 
+                    to="/admin/plans" 
+                    class="mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                  >
+                    Ir para Cadastro de Planos
+                  </router-link>
+                </div>
+              </div>
+            </div>
+            
             <div class="mb-4">
               <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
               <input 
@@ -258,7 +296,7 @@
               <button 
                 type="submit" 
                 class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
-                :disabled="isCreating"
+                :disabled="isCreating || missingProfessors || missingPlans"
               >
                 <span v-if="isCreating">
                   <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -476,6 +514,8 @@ const isCreating = ref(false);
 const isUpdating = ref(false);
 const isDeleting = ref(false);
 const studentToDelete = ref(null);
+const missingProfessors = ref(false);
+const missingPlans = ref(false);
 
 // Data
 const studentsList = ref([]);
@@ -555,11 +595,29 @@ const fetchProfessors = async () => {
 };
 
 const openAddStudentModal = async () => {
-  // Ensure professors are loaded first
+  error.value = '';
+  
+  // Ensure professors and plans are loaded first
   if (professorsList.value.length === 0) {
     await fetchProfessors();
   }
+  
+  if (plansList.value.length === 0) {
+    await fetchPlans();
+  }
+  
+  // Check if there are professors available
+  const hasProfessors = professorsList.value.length > 0;
+  
+  // Check if there are plans available
+  const hasPlans = plansList.value.length > 0;
+  
+  // Show modal even if missing professors or plans - we'll show warnings inside the modal
   showAddStudentModal.value = true;
+  
+  // Reset validation messages
+  missingProfessors.value = !hasProfessors;
+  missingPlans.value = !hasPlans;
 };
 
 const closeAddStudentModal = () => {
@@ -692,6 +750,21 @@ const registerStudent = async () => {
   
   error.value = '';
   isCreating.value = true;
+  
+  // Check if we have plans and professors available
+  if (professorsList.value.length === 0) {
+    error.value = 'Não é possível adicionar aluno: Nenhum professor cadastrado.';
+    isCreating.value = false;
+    missingProfessors.value = true;
+    return;
+  }
+  
+  if (plansList.value.length === 0) {
+    error.value = 'Não é possível adicionar aluno: Nenhum plano cadastrado.';
+    isCreating.value = false;
+    missingPlans.value = true;
+    return;
+  }
   
   // Validate passwords match
   if (newStudent.password !== confirmPassword.value) {
