@@ -43,7 +43,7 @@
         </div>
       </div>
 
-      <form v-else class="mt-8 bg-white p-8 shadow-lg rounded-xl" @submit.prevent="sendEmail" ref="contactForm">
+      <form v-else class="mt-8 bg-white p-8 shadow-lg rounded-xl" @submit.prevent="sendEzmail" ref="contactForm">
         <div class="space-y-6">
           <div>
             <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
@@ -98,6 +98,7 @@
 import { ref, reactive } from 'vue';
 import emailjs from '@emailjs/browser';
 import MetaTags from '@/components/MetaTags.vue';
+import { EmailService } from '@/services/email';
 
 const formData = reactive({
   name: '',
@@ -111,33 +112,64 @@ const contactForm = ref(null);
 const sending = ref(false);
 const messageSent = ref(false);
 
-const sendEmail = () => {
+const sendEzmail = async () => {
   sending.value = true;
   
-  // These values would come from your EmailJS account
-  const serviceId = 'service_6tlvlos';
-  const templateId = 'template_gfvy1ts';
-  const publicKey = '_DcuCvNtpYC2WN3Ia';
-  
-  const templateParams = {
-    to_email: 'evertonbuzzi@gmail.com',
-    from_name: formData.name,
-    from_email: formData.email,
-    phone: formData.phone,
-    subject: formData.subject,
-    message: formData.message
-  };
-  
-  emailjs.send(serviceId, templateId, templateParams, publicKey)
-    .then(() => {
-      messageSent.value = true;
-      sending.value = false;
-    })
-    .catch((error) => {
-      console.error('Failed to send email:', error);
-      alert('Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente mais tarde.');
-      sending.value = false;
-    });
+  try {
+    // These values would come from your EmailJS account
+    const serviceId = 'service_6tlvlos';
+    const templateId = 'template_gfvy1ts';
+    const publicKey = '_DcuCvNtpYC2WN3Ia';
+    
+    // Initialize EmailJS if not already initialized
+    if (!emailjs.init) {
+      emailjs.init(publicKey);
+    }
+    
+    // Parameters for notification email to admin
+    const templateParams = {
+      to_email: 'evertonbuzzi@gmail.com',
+      from_name: formData.name,
+      from_email: formData.email,
+      phone: formData.phone,
+      subject: formData.subject,
+      message: formData.message
+    };
+    
+    // 1. Send notification email to admin
+    await emailjs.send(serviceId, templateId, templateParams, publicKey);
+    
+    // 2. Send auto-reply email to the user
+    // Company information for the auto-reply email
+    const companyInfo = {
+      name: 'Saúde Pilates',
+      logo: window.location.origin + '/pilates-icon.svg', // Adjust path as needed
+      phone: '(47) 99914-1313', // Replace with your actual phone
+      whatsapp: '+351912351771', // Replace with your actual WhatsApp
+      website: window.location.origin,
+      instagram: 'https://instagram.com/saudepilatesapp', // Replace with your social media
+      facebook: 'https://facebook.com/saudepilatesapp' // Replace with your social media
+    };
+    
+    // Send auto-reply using our service
+    await EmailService.sendAutoReply(
+      {
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message
+      },
+      companyInfo
+    );
+    
+    // Mark message as sent
+    messageSent.value = true;
+  } catch (error) {
+    console.error('Failed to send email:', error);
+    alert('Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente mais tarde.');
+  } finally {
+    sending.value = false;
+  }
 };
 
 const resetForm = () => {

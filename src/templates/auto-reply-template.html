@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmação de Recebimento - Saúde Pilates</title>
+    <style>
+        /* Reset CSS */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #4a5568;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .logo {
+            max-width: 180px;
+            margin-bottom: 15px;
+        }
+        
+        .content {
+            padding: 30px 20px;
+        }
+        
+        .greeting {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #4f46e5;
+        }
+        
+        .message {
+            margin-bottom: 25px;
+        }
+        
+        .highlight {
+            font-weight: bold;
+            color: #4f46e5;
+        }
+        
+        .footer {
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #718096;
+            text-align: center;
+        }
+        
+        .social-icons {
+            margin: 15px 0;
+        }
+        
+        .social-icons a {
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        
+        .button {
+            display: inline-block;
+            background-color: #4f46e5;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <img src="{{company_logo}}" alt="Saúde Pilates" class="logo">
+            <h1>Saúde Pilates</h1>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">Olá {{name}},</div>
+            
+            <div class="message">
+                <p>Muito obrigado por entrar em contato com a Saúde Pilates! Recebemos sua mensagem e queremos informar que ela está em boas mãos.</p>
+                
+                <p>Nosso compromisso é responder todas as mensagens no prazo de <span class="highlight">até 3 dias úteis</span>. Estamos trabalhando para atender sua solicitação da melhor forma possível.</p>
+                
+                <p>Aqui está um resumo da sua mensagem:</p>
+                <p style="background-color: #f7fafc; padding: 15px; border-left: 4px solid #4f46e5;">
+                    <strong>Assunto:</strong> {{subject}}<br>
+                    <strong>Mensagem:</strong> {{message}}
+                </p>
+                
+                <p>Caso tenha alguma informação adicional que possa nos ajudar, sinta-se à vontade para responder a este e-mail.</p>
+                
+                <p>Se você tiver dúvidas urgentes, entre em contato conosco pelos seguintes canais:</p>
+                <p>
+                    <strong>Telefone:</strong> {{company_phone}}<br>
+                    <strong>WhatsApp:</strong> {{company_whatsapp}}
+                </p>
+                
+                <a href="{{website_url}}" class="button">Visite Nosso Site</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="social-icons">
+                <a href="{{instagram_url}}">Instagram</a>
+                <a href="{{facebook_url}}">Facebook</a>
+                <a href="{{whatsapp_url}}">WhatsApp</a>
+            </div>
+            
+            <p>© {{current_year}} Saúde Pilates. Todos os direitos reservados.</p>
+            <p>Este é um e-mail automático. Por favor, não responda diretamente a este e-mail.</p>
+        </div>
+    </div>
+</body>
+</html>

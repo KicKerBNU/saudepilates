@@ -382,12 +382,10 @@ const fetchPayments = async () => {
       // Removed status filter since all payments are now considered 'paid'
     });
     
-    console.log('Monthly payments:', monthlyPayments);
     monthlyRevenue.value = monthlyPayments.reduce((total, payment) => {
       const amount = payment.finalAmount || payment.amount || 0;
       return total + amount;
     }, 0);
-    console.log('Monthly revenue calculated:', monthlyRevenue.value);
     
     // Get recent payments (last 5)
     let recentPaymentsList = payments.slice(0, 5);
