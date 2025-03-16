@@ -131,6 +131,7 @@ const sendEzmail = async () => {
       to_email: 'evertonbuzzi@gmail.com',
       from_name: formData.name,
       from_email: formData.email,
+      email: formData.email, // Adding this parameter as well for consistency
       phone: formData.phone,
       subject: formData.subject,
       message: formData.message
@@ -152,21 +153,41 @@ const sendEzmail = async () => {
     };
     
     // Send auto-reply using our service
-    await EmailService.sendAutoReply(
-      {
-        name: formData.name,
-        email: formData.email,
-        subject: formData.subject,
-        message: formData.message
-      },
-      companyInfo
-    );
+    if (!formData.email) {
+      throw new Error('Recipient email is empty. Cannot send auto-reply.');
+    }
+    
+    // Try sending directly with emailjs instead of using the service
+    const autoReplyParams = {
+      to_name: formData.name || 'Cliente',
+      from_name: 'Saúde Pilates',
+      user_email: formData.email,
+      email: formData.email,
+      recipient: formData.email,
+      to_email: formData.email,
+      reply_to: formData.email,
+      subject: 'Recebemos sua mensagem - Saúde Pilates',
+      message: formData.message,
+      company_logo: companyInfo.logo,
+      company_phone: companyInfo.phone,
+      company_whatsapp: companyInfo.whatsapp,
+      website_url: companyInfo.website,
+      instagram_url: companyInfo.instagram,
+      facebook_url: companyInfo.facebook,
+      whatsapp_url: companyInfo.whatsapp ? `https://wa.me/${companyInfo.whatsapp.replace(/\D/g, '')}` : '',
+      current_year: new Date().getFullYear().toString()
+    };
+    
+    
+    // Send auto-reply directly using EmailJS
+    await emailjs.send('service_6tlvlos', 'template_p043u8o', autoReplyParams, publicKey);
     
     // Mark message as sent
     messageSent.value = true;
   } catch (error) {
     console.error('Failed to send email:', error);
-    alert('Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente mais tarde.');
+    console.error('Error details:', error.status, error.text);
+    alert(`Ocorreu um erro ao enviar sua mensagem: ${error.text || 'Por favor, tente novamente mais tarde.'}`);
   } finally {
     sending.value = false;
   }

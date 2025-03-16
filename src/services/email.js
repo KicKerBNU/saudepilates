@@ -32,13 +32,17 @@ export const EmailService = {
       const currentYear = new Date().getFullYear();
 
       // Prepare template parameters
+      // IMPORTANT: The parameter names must match exactly what's expected in your EmailJS template
       const templateParams = {
-        to_email: contactData.email,
         to_name: contactData.name || 'Cliente',
         from_name: companyData?.name || 'Saúde Pilates',
+        user_email: contactData.email, // Try this parameter name for recipient
+        email: contactData.email, // Alternative parameter name
+        recipient: contactData.email, // Another alternative
+        to_email: contactData.email, // Standard parameter name
+        reply_to: contactData.email, // For reply functionality
         subject: 'Recebemos sua mensagem - Saúde Pilates',
         name: contactData.name || 'Cliente',
-        subject: contactData.subject || 'Contato via Website',
         message: contactData.message || '',
         company_logo: companyData?.logo || '',
         company_phone: companyData?.phone || '',
@@ -49,12 +53,16 @@ export const EmailService = {
         whatsapp_url: companyData?.whatsapp ? `https://wa.me/${companyData.whatsapp.replace(/\D/g, '')}` : '',
         current_year: currentYear.toString(),
       };
-
-      // Use EmailJS credentials - the same as in the Contact component
+      
       const serviceId = 'service_6tlvlos';
       const templateId = 'template_p043u8o';
       const publicKey = '_DcuCvNtpYC2WN3Ia';
 
+      // Initialize EmailJS if not already initialized
+      if (!emailjs.init) {
+        emailjs.init(publicKey);
+      }
+      
       // Send the email
       const response = await emailjs.send(
         serviceId,
@@ -63,7 +71,6 @@ export const EmailService = {
         publicKey
       );
 
-      console.log('Email sent successfully!', response);
       return response;
     } catch (error) {
       console.error('Failed to send email:', error);
