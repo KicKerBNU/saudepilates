@@ -378,11 +378,16 @@ const fetchPayments = async () => {
     const monthlyPayments = payments.filter(payment => {
       const paymentDate = new Date(payment.paymentDate);
       return paymentDate.getMonth() === currentMonth && 
-             paymentDate.getFullYear() === currentYear && 
-             payment.status === 'paid';
+             paymentDate.getFullYear() === currentYear;
+      // Removed status filter since all payments are now considered 'paid'
     });
     
-    monthlyRevenue.value = monthlyPayments.reduce((total, payment) => total + (payment.finalAmount || payment.amount), 0);
+    console.log('Monthly payments:', monthlyPayments);
+    monthlyRevenue.value = monthlyPayments.reduce((total, payment) => {
+      const amount = payment.finalAmount || payment.amount || 0;
+      return total + amount;
+    }, 0);
+    console.log('Monthly revenue calculated:', monthlyRevenue.value);
     
     // Get recent payments (last 5)
     let recentPaymentsList = payments.slice(0, 5);

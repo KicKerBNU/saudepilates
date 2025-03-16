@@ -181,6 +181,7 @@ import { useRouter } from 'vue-router';
 import { useStudentsStore } from '../../stores/students';
 import { useProfessorsStore } from '../../stores/professors';
 import { usePaymentsStore } from '../../stores/payments';
+import { useAuthStore } from '../../stores/auth';
 import { collection, query, where, getDocs, getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 
@@ -260,10 +261,22 @@ const canSubmit = computed(() => {
 const fetchStudents = async () => {
   loading.value = true;
   try {
-    // Direct Firestore query to get all student users
+    // Get current admin's company ID from auth store
+    const authStore = useAuthStore();
+    const companyId = authStore.companyId;
+    
+    // Validate company ID - prevent loading students from other companies
+    if (!companyId) {
+      console.error('No company ID found for current user');
+      students.value = [];
+      return;
+    }
+    
+    // Direct Firestore query to get student users filtered by company
     const studentsQuery = query(
       collection(db, 'users'),
-      where('role', '==', 'student')
+      where('role', '==', 'student'),
+      where('companyId', '==', companyId)
     );
     
     

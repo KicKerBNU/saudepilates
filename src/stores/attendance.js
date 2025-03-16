@@ -74,17 +74,39 @@ export const useAttendanceStore = defineStore('attendance', {
         let attendanceQuery = collection(db, 'attendanceRecords');
         let mainConstraint;
         
-        // Determine the main filter (we'll use just one in the query to avoid index issues)
+        // First, always filter by companyId if available
+        if (!authStore.companyId) {
+          // No company ID available, return empty result
+          this.attendanceRecords = [];
+          return [];
+        }
+
+        // We'll use a compound query with companyId plus one additional constraint
         if (professorId) {
-          mainConstraint = where('professorId', '==', professorId);
+          mainConstraint = query(attendanceQuery, 
+            where('companyId', '==', authStore.companyId),
+            where('professorId', '==', professorId)
+          );
         } else if (studentId) {
-          mainConstraint = where('studentId', '==', studentId);
+          mainConstraint = query(attendanceQuery, 
+            where('companyId', '==', authStore.companyId),
+            where('studentId', '==', studentId)
+          );
         } else if (authStore.isProfessor) {
-          mainConstraint = where('professorId', '==', authStore.userId);
+          mainConstraint = query(attendanceQuery, 
+            where('companyId', '==', authStore.companyId),
+            where('professorId', '==', authStore.userId)
+          );
         } else if (authStore.isStudent) {
-          mainConstraint = where('studentId', '==', authStore.userId);
+          mainConstraint = query(attendanceQuery, 
+            where('companyId', '==', authStore.companyId),
+            where('studentId', '==', authStore.userId)
+          );
         } else {
-          // No specific filter, might return all records (use carefully)
+          // Just filter by company ID
+          mainConstraint = query(attendanceQuery, 
+            where('companyId', '==', authStore.companyId)
+          );
         }
         
         // Create the query with the single constraint
@@ -177,8 +199,14 @@ export const useAttendanceStore = defineStore('attendance', {
           ...attendanceData,
           date: Timestamp.fromDate(dateToStore),  // Use the normalized date
           createdAt: Timestamp.now(),
-          professorId: attendanceData.professorId || authStore.userId
+          professorId: attendanceData.professorId || authStore.userId,
+          companyId: authStore.companyId // Add company ID to ensure proper data segregation
         };
+        
+        // Ensure we have a company ID
+        if (!newAttendanceData.companyId) {
+          throw new Error('Cannot record attendance without a company association');
+        }
         
         const docRef = await addDoc(collection(db, 'attendanceRecords'), newAttendanceData);
         

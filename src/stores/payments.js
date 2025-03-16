@@ -79,32 +79,39 @@ export const usePaymentsStore = defineStore('payments', {
       try {
         let paymentsQuery;
         
+        // Always filter by companyId first
+        if (!authStore.companyId) {
+          return [];
+        }
+
         if (studentId) {
-          // Fetch payments for a specific student
+          // Fetch payments for a specific student in this company
           paymentsQuery = query(
             collection(db, 'studentPayments'),
+            where('companyId', '==', authStore.companyId),
             where('studentId', '==', studentId),
             orderBy('paymentDate', 'desc')
           );
         } else if (authStore.isAdmin) {
-          // Admin can see all payments
+          // Admin can see all payments for their company only
           paymentsQuery = query(
             collection(db, 'studentPayments'),
+            where('companyId', '==', authStore.companyId),
             orderBy('paymentDate', 'desc')
           );
         } else if (authStore.isProfessor) {
-          // Professor can only see payments for their students
-          // This requires a more complex query with a join-like operation
-          // We'll simplify for now
+          // Professor can only see payments for their students in their company
           paymentsQuery = query(
             collection(db, 'studentPayments'),
+            where('companyId', '==', authStore.companyId),
             where('professorId', '==', authStore.userId),
             orderBy('paymentDate', 'desc')
           );
         } else if (authStore.isStudent) {
-          // Students can only see their own payments
+          // Students can only see their own payments within their company
           paymentsQuery = query(
             collection(db, 'studentPayments'),
+            where('companyId', '==', authStore.companyId),
             where('studentId', '==', authStore.userId),
             orderBy('paymentDate', 'desc')
           );
@@ -139,13 +146,19 @@ export const usePaymentsStore = defineStore('payments', {
           throw new Error('Only admins can add payments');
         }
         
-        // Add created timestamp
+        // Add created timestamp and company ID
         const newPaymentData = {
           ...paymentData,
+          companyId: authStore.companyId, // Ensure payment is associated with admin's company
           paymentDate: Timestamp.fromDate(new Date(paymentData.paymentDate || new Date())),
           createdAt: Timestamp.now(),
           createdBy: authStore.userId
         };
+        
+        // Validate company ID exists
+        if (!newPaymentData.companyId) {
+          throw new Error('Payment must be associated with a company');
+        }
         
         const docRef = await addDoc(collection(db, 'studentPayments'), newPaymentData);
         
@@ -292,13 +305,19 @@ export const usePaymentsStore = defineStore('payments', {
           throw new Error('Only admins can add professor payments');
         }
         
-        // Add created timestamp
+        // Add created timestamp and company ID
         const newPaymentData = {
           ...paymentData,
+          companyId: authStore.companyId, // Ensure payment is associated with admin's company
           paymentDate: Timestamp.fromDate(new Date(paymentData.paymentDate || new Date())),
           createdAt: Timestamp.now(),
           createdBy: authStore.userId
         };
+        
+        // Validate company ID exists
+        if (!newPaymentData.companyId) {
+          throw new Error('Payment must be associated with a company');
+        }
         
         const docRef = await addDoc(collection(db, 'professorPayments'), newPaymentData);
         
