@@ -28,14 +28,14 @@
                   id="student-select"
                   v-model="selectedStudentId"
                   @change="onStudentChange"
-                  class="block w-full pl-3 pr-10 py-3 text-base border-2 border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg shadow-sm appearance-none"
+                  class="block w-full pl-3 pr-10 py-3 text-base border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 sm:text-sm rounded-lg shadow-sm appearance-none"
                 >
                   <option value="" disabled>Selecione um aluno</option>
                   <option v-for="student in students" :key="student.id" :value="student.id">
                     {{ student.name }}
                   </option>
                 </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-indigo-600">
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-600">
                   <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                   </svg>
@@ -72,7 +72,7 @@
                         id="date"
                         v-model="newEvolution.date"
                         required
-                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-2 border-indigo-300 rounded-lg px-4 py-3"
+                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-2 border-gray-300 rounded-lg px-4 py-3"
                       />
                     </div>
                   </div>
@@ -84,7 +84,7 @@
                         id="category"
                         v-model="newEvolution.category"
                         required
-                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-2 border-indigo-300 rounded-lg px-4 py-3 appearance-none"
+                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-2 border-gray-300 rounded-lg px-4 py-3 appearance-none"
                       >
                         <option value="" disabled>Selecione uma categoria</option>
                         <option value="postura">Postura</option>
@@ -105,7 +105,7 @@
                   <div class="sm:col-span-3">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Avaliação</label>
                     <div class="mt-2">
-                      <div class="flex h-[46px] border-2 border-indigo-300 rounded-lg shadow-sm bg-white px-4 py-3 items-center">
+                      <div class="flex h-[46px] border-2 border-gray-300 rounded-lg shadow-sm bg-white px-4 py-3 items-center">
                         <div class="flex justify-between w-full">
                           <template v-for="rating in 5" :key="rating">
                             <button 
@@ -144,7 +144,7 @@
                         v-model="newEvolution.notes"
                         rows="4"
                         required
-                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-2 border-indigo-300 rounded-lg px-4 py-3"
+                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-2 border-gray-300 rounded-lg px-4 py-3"
                         placeholder="Adicione observações detalhadas sobre a evolução do aluno..."
                       ></textarea>
                     </div>
