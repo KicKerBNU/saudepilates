@@ -17,6 +17,7 @@ import StudentDashboard from '../views/student/Dashboard.vue'
 import PlansManagement from '../views/admin/PlansManagement.vue'
 import PaymentRegistration from '../views/admin/PaymentRegistration.vue'
 import MonthlyPayments from '../views/admin/MonthlyPayments.vue'
+import NotFound from '../views/NotFound.vue'
 
 const routes = [
   {
@@ -121,7 +122,14 @@ const routes = [
     name: 'StudentDashboard',
     component: StudentDashboard,
     meta: { requiresAuth: true, role: 'student' }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFound,
+    meta: { requiresAuth: false }
   }
+  
 ]
 
 const router = createRouter({
@@ -130,13 +138,20 @@ const router = createRouter({
 })
 
 // Navigation guard for authenticated routes and role-based access
-router.beforeEach((to, from, next) => {
-  // Only check authentication for protected routes
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    // Lazy load auth store ONLY for protected routes
-    import('../stores/auth').then(module => {
-      const authStore = module.useAuthStore();
-      
+router.beforeEach(async (to, from, next) => {
+  try {
+    // Import and initialize the auth store
+    const authModule = await import('../stores/auth');
+    const authStore = authModule.useAuthStore();
+    
+    // Initialize the auth store if not already initialized
+    // This ensures the Firebase auth listener is set up
+    if (!authStore._initialized) {
+      await authStore.init();
+    }
+    
+    // Only check authentication for protected routes
+    if (to.matched.some(record => record.meta.requiresAuth)) {
       // Check if the user is authenticated
       if (!authStore.isAuthenticated) {
         // Redirect to login
@@ -161,13 +176,13 @@ router.beforeEach((to, from, next) => {
           return;
         }
       }
-      
-      // User is authenticated and has correct role
-      next();
-    });
-  } else {
-    // For public routes, don't check authentication at all
+    }
+    
+    // Continue navigation
     next();
+  } catch (error) {
+    console.error('Authentication error:', error);
+    next({ name: 'Home' });
   }
 });
 
