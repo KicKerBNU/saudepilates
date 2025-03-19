@@ -143,14 +143,14 @@
                 <!-- Added Evolution Type and Stars -->
                 <div class="mt-2 mb-2 flex items-center justify-between">
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {{ evolution.type || 'Avaliação Geral' }}
+                    {{ evolution.category || 'Avaliação Geral' }}
                   </span>
                   <div class="flex items-center">
                     <span class="text-xs text-gray-500 mr-1">Avaliação:</span>
                     <div class="flex">
                       <template v-for="i in 5" :key="i">
                         <svg 
-                          v-if="i <= (evolution.stars || 0)"
+                          v-if="i <= (parseInt(evolution.rating) || 0)"
                           xmlns="http://www.w3.org/2000/svg" 
                           class="h-4 w-4 text-yellow-400" 
                           viewBox="0 0 20 20" 
@@ -171,10 +171,6 @@
                     </div>
                   </div>
                 </div>
-                
-                <div class="mt-2">
-                  <p class="text-sm text-gray-700 whitespace-pre-line">{{ evolution.notes }}</p>
-                </div>
               </div>
             </div>
             <div v-if="evolutions.length > 3" class="mt-4 text-center">
@@ -192,14 +188,14 @@
                 <!-- Added Evolution Type and Stars for additional evolutions -->
                 <div class="mt-2 mb-2 flex items-center justify-between">
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {{ evolution.type || 'Avaliação Geral' }}
+                    {{ evolution.category || 'Avaliação Geral' }}
                   </span>
                   <div class="flex items-center">
                     <span class="text-xs text-gray-500 mr-1">Avaliação:</span>
                     <div class="flex">
                       <template v-for="i in 5" :key="i">
                         <svg 
-                          v-if="i <= (evolution.stars || 0)"
+                          v-if="i <= (parseInt(evolution.rating) || 0)"
                           xmlns="http://www.w3.org/2000/svg" 
                           class="h-4 w-4 text-yellow-400" 
                           viewBox="0 0 20 20" 
@@ -740,11 +736,11 @@ export default {
       try {
         const evolutionsData = await evolutionStore.fetchStudentEvolutions(authStore.userId);
         
-        // Enrich evolutions with professor names
+        // Enrich evolutions with professor names and ensure stars is a number
         const enrichedEvolutions = await Promise.all(evolutionsData.map(async (evolution) => {
           return {
             ...evolution,
-            professorName: evolution.professorName || await getProfessorName(evolution.professorId)
+            professorName: evolution.professorName || await getProfessorName(evolution.professorId),
           };
         }));
         
