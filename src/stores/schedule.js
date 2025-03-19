@@ -170,6 +170,124 @@ export const useScheduleStore = defineStore('schedule', () => {
   };
   
   /**
+   * Fetch all scheduled appointments for a student within a date range
+   * @param {string} studentId - ID of the student
+   * @param {Date} startDate - Start date for fetching appointments
+   * @param {Date} endDate - End date for fetching appointments
+   * @returns {Promise<Array>} - Array of appointment objects
+   */
+  const fetchStudentSchedule = async (studentId, startDate, endDate) => {
+    try {
+      loading.value = true;
+      error.value = null;
+      
+      // Convert dates to Firestore Timestamps using our utility functions
+      const firestoreStartDate = dateToFirebaseTimestamp(startDate);
+      const firestoreEndDate = dateToFirebaseTimestamp(endDate);
+      
+      // Fetch from scheduledClasses collection where studentId matches
+      const classesQuery = query(
+        collection(db, 'scheduledClasses'),
+        where('studentId', '==', studentId)
+      );
+      
+      const classesSnapshot = await getDocs(classesQuery);
+      
+      // Transform into appointment objects
+      const appointmentsList = [];
+      
+      for (const document of classesSnapshot.docs) {
+        const data = document.data();
+        
+        // Use our date utilities to handle dates consistently
+        const localAppointmentDate = firebaseTimestampToLocalDate(data.date);
+        
+        // Filter dates in memory - compare only the date part
+        if (
+          localAppointmentDate >= new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()) && 
+          localAppointmentDate <= new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate())
+        ) {
+          // Fetch professor name
+          let professorName = data.professorName || '';
+          if (data.professorId && !professorName) {
+            const professorDoc = await getProfessorName(data.professorId);
+            professorName = professorDoc?.name || 'Professor não encontrado';
+          }
+          
+          appointmentsList.push({
+            id: document.id,
+            studentId: data.studentId,
+            professorId: data.professorId,
+            professorName: professorName,
+            date: localAppointmentDate,
+            time: data.startTime || data.time || data.date?.toDate().toISOString() || localAppointmentDate.toISOString(),
+            duration: data.duration || 60,
+            type: data.type || 'scheduled',
+            status: data.status || 'scheduled',
+            notes: data.notes || '',
+            source: 'scheduled'
+          });
+        }
+      }
+      
+      // Sort appointments by date and time
+      appointmentsList.sort((a, b) => {
+        const dateCompare = a.date - b.date;
+        if (dateCompare === 0) {
+          // If same date, compare by time
+          return new Date(a.time) - new Date(b.time);
+        }
+        return dateCompare;
+      });
+      
+      appointments.value = appointmentsList;
+      return appointmentsList;
+    } catch (err) {
+      console.error('Error fetching student schedule:', err);
+      error.value = err.message;
+      return [];
+    } finally {
+      loading.value = false;
+    }
+  };
+  
+  /**
+   * Get a professor's name by ID
+   * @param {string} professorId - ID of the professor (which is the user ID)
+   * @returns {Promise<Object|null>} - Object with user data including name or null if not found
+   */
+  const getProfessorName = async (professorId) => {
+    try {
+      // First check if the professor exists in the users collection
+      const userRef = doc(db, 'users', professorId);
+      const userDoc = await getDoc(userRef);
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        // Return an object with at least the name property
+        return {
+          name: userData.displayName || userData.name || 'Professor ' + professorId.substring(0, 5),
+          email: userData.email || '',
+          userId: professorId
+        };
+      }
+      
+      // If not found in users, try the professors collection as fallback
+      const professorRef = doc(db, 'professors', professorId);
+      const professorDoc = await getDoc(professorRef);
+      
+      if (professorDoc.exists()) {
+        return professorDoc.data();
+      }
+      
+      return { name: 'Professor ' + professorId.substring(0, 5) };
+    } catch (err) {
+      console.error('Error fetching professor name:', err);
+      return { name: 'Professor (erro)' };
+    }
+  };
+  
+  /**
    * Add a new appointment
    * @param {Object} appointmentData - Appointment data object
    * @returns {Promise<string>} - ID of the new appointment
@@ -248,6 +366,7 @@ export const useScheduleStore = defineStore('schedule', () => {
     loading,
     error,
     fetchProfessorSchedule,
+    fetchStudentSchedule,
     addAppointment,
     updateAppointment,
     deleteAppointment

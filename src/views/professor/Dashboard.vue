@@ -157,6 +157,94 @@
               </div>
             </div>
           </div>
+
+          <!-- Student Messages Card -->
+          <div class="bg-white overflow-hidden shadow rounded-lg flex flex-col" style="height: 100%;">
+            <div class="px-4 py-5 sm:p-6 flex-grow">
+              <!-- Loading state -->
+              <div v-if="isLoadingMessages" class="py-2">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 bg-gray-200 rounded-md p-3 animate-pulse">
+                    <div class="h-6 w-6"></div>
+                  </div>
+                  <div class="ml-5 w-0 flex-1">
+                    <div class="h-5 bg-gray-200 rounded w-1/2 animate-pulse mb-4"></div>
+                    <div class="h-8 bg-gray-200 rounded w-3/4 animate-pulse mb-3"></div>
+                    <div class="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Content when loaded -->
+              <div v-else>
+                <div class="flex items-center mb-4">
+                  <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654z"/>
+                    </svg>
+                  </div>
+                  <div class="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt class="text-sm font-medium text-gray-500 truncate">
+                        Mensagens de Alunos
+                      </dt>
+                      <dd class="mt-1">
+                        <div class="text-2xl font-semibold text-gray-900">
+                          {{ unreadMessages }} <span class="text-sm text-gray-500">não lidas</span>
+                        </div>
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
+                
+                <!-- List of recent messages -->
+                <div v-if="studentMessages.length > 0" class="mt-3 space-y-3 max-h-48 overflow-y-auto">
+                  <div 
+                    v-for="message in studentMessages.slice(0, 3)" 
+                    :key="message.id" 
+                    class="bg-gray-50 p-3 rounded-lg"
+                    :class="{'border-l-4 border-green-500': !message.isRead}"
+                  >
+                    <div class="flex justify-between items-start mb-1">
+                      <span class="text-sm font-medium text-gray-900">{{ message.studentName }}</span>
+                      <span class="text-xs text-gray-500">{{ formatMessageTime(message.createdAt) }}</span>
+                    </div>
+                    <p class="text-sm text-gray-700 line-clamp-2">{{ message.text }}</p>
+                    <div class="mt-2 flex justify-between items-center">
+                      <button 
+                        @click="markAsRead(message)" 
+                        v-if="!message.isRead"
+                        class="text-xs text-indigo-600 hover:text-indigo-800"
+                      >
+                        Marcar como lido
+                      </button>
+                      <button 
+                        @click="replyToMessage(message)" 
+                        class="text-xs text-green-600 hover:text-green-800 flex items-center"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654z"/>
+                        </svg>
+                        Responder
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- No messages -->
+                <div v-else class="text-center py-2 text-gray-500">
+                  Nenhuma mensagem recente
+                </div>
+              </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-4 sm:px-6 mt-auto">
+              <div class="text-sm">
+                <button @click="openMessageModal" class="font-medium text-indigo-600 hover:text-indigo-500">
+                  Ver todas as mensagens <span aria-hidden="true">&rarr;</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -206,8 +294,6 @@
           </ul>
         </div>
       </div>
-
-
 
       <!-- Quick Actions -->
       <div class="mt-8 px-4 sm:px-0">
@@ -289,8 +375,8 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, onActivated } from 'vue';
+<script>
+import { ref, onMounted, onActivated, onBeforeUnmount, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useStudentsStore } from '../../stores/students';
@@ -298,253 +384,281 @@ import { usePaymentsStore } from '../../stores/payments';
 import { useAttendanceStore } from '../../stores/attendance';
 import { useScheduleStore } from '../../stores/schedule';
 import { isSameDay, parseISO } from 'date-fns';
-import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, orderBy, limit, Timestamp } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 
-const router = useRouter();
-const authStore = useAuthStore();
-const studentsStore = useStudentsStore();
-const paymentsStore = usePaymentsStore();
-const attendanceStore = useAttendanceStore();
-const scheduleStore = useScheduleStore();
+export default {
+  setup() {
+    const router = useRouter();
+    const authStore = useAuthStore();
+    const studentsStore = useStudentsStore();
+    const paymentsStore = usePaymentsStore();
+    const attendanceStore = useAttendanceStore();
+    const scheduleStore = useScheduleStore();
 
-const monthlyEarnings = ref(0); // Make sure this is initialized as a number
-const potentialEarnings = ref(0);
-const commission = ref(0); 
-const totalStudents = ref(0);
-const todaysClasses = ref(0);
-const students = ref([]);
-const todayAttendance = ref([]);
-const error = ref(null);
+    const monthlyEarnings = ref(0);
+    const potentialEarnings = ref(0);
+    const commission = ref(0); 
+    const totalStudents = ref(0);
+    const todaysClasses = ref(0);
+    const students = ref([]);
+    const todayAttendance = ref([]);
+    const error = ref(null);
 
-// Independent loading states for each card
-const isLoadingEarnings = ref(true);
-const isLoadingStudents = ref(true);
-const isLoadingClasses = ref(true);
+    // Independent loading states for each card
+    const isLoadingEarnings = ref(true);
+    const isLoadingStudents = ref(true);
+    const isLoadingClasses = ref(true);
 
-// Check if user is professor, if not redirect
-onMounted(async () => {
-  
-  if (!authStore.isAuthenticated) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-  
-  if (!authStore.isProfessor) {
-    router.push('/login');
-    return;
-  }
+    // Add these new variables for student messages
+    const studentMessages = ref([]);
+    const isLoadingMessages = ref(false);
+    const unreadMessages = computed(() => {
+      return studentMessages.value.filter(msg => !msg.isRead).length;
+    });
 
-  // Fetch data for dashboard
-  await fetchEarnings();
-  await fetchStudents();
-  await fetchTodayAttendance();
-  
-  // Note: calculateTodaysClasses is no longer needed here
-  // as fetchTodayAttendance now sets todaysClasses directly
-});
+    // Add a modal state if you're implementing a full messages view
+    const showMessagesModal = ref(false);
+    const selectedMessage = ref(null);
 
-// Refresh data when component is reactivated/revisited (e.g., after marking attendance)
-onActivated(async () => {
-
-  if (authStore.isProfessor) {
-    // Refresh data when coming back to the dashboard
-    await fetchEarnings();
-    await fetchTodayAttendance();
-    // Note: calculateTodaysClasses is no longer needed
-  }
-});
-
-const fetchEarnings = async () => {
-  try {
-    isLoadingEarnings.value = true;
-    // Make sure we have userId
-    if (!authStore.userId) {
-      return;
-    }
-    
-    
-    // Try to get user document
-    let userDoc = await getDoc(doc(db, 'users', authStore.userId));
-    let userData = null;
-    
-    if (userDoc.exists()) {
-      userData = userDoc.data();
-      
-      
-      // Store the commission rate (default is 0%)
-      commission.value = typeof userData.commission === 'number' ? userData.commission : 0;
-      
-      
-      // Update Firestore if commission is not set
-      if (typeof userData.commission !== 'number') {
-      
-        await updateDoc(doc(db, 'users', authStore.userId), {
-          commission: 0
-        });
+    // Check if user is professor, if not redirect
+    onMounted(async () => {
+      if (!authStore.isAuthenticated) {
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
-    } else {
-      commission.value = 0;
       
-      // Create a user document if it doesn't exist
+      if (!authStore.isProfessor) {
+        router.push('/login');
+        return;
+      }
+
+      // Fetch data for dashboard
+      await fetchEarnings();
+      await fetchStudents();
+      await fetchTodayAttendance();
+      
+      // Fetch student messages
+      await fetchStudentMessages();
+    });
+
+    // Refresh data when component is activated (using keep-alive)
+    onActivated(async () => {
+      if (authStore.isProfessor) {
+        await fetchEarnings();
+        await fetchStudents();
+        await fetchTodayAttendance();
+        await fetchStudentMessages();
+      }
+    });
+
+    // Method to fetch professor's earnings
+    const fetchEarnings = async () => {
+      isLoadingEarnings.value = true;
       try {
-        await setDoc(doc(db, 'users', authStore.userId), {
-          email: authStore.user && authStore.user.email ? authStore.user.email : '',
-          role: 'professor',
-          commission: 0,
-          createdAt: new Date().toISOString()
+        const today = new Date();
+        const currentMonth = today.getMonth() + 1; // JavaScript months are 0-indexed
+        const currentYear = today.getFullYear();
+        
+        // Get all payments for this professor in the current month
+        const payments = await paymentsStore.fetchProfessorPayments(
+          authStore.userId, 
+          currentMonth,
+          currentYear
+        );
+        
+        // Calculate earnings (completed payments)
+        monthlyEarnings.value = payments.reduce((sum, payment) => {
+          if (payment.status === 'completed') {
+            sum += payment.amount * (payment.professorCommission / 100);
+          }
+          return sum;
+        }, 0);
+        
+        // Calculate potential earnings (all payments, including pending)
+        potentialEarnings.value = payments.reduce((sum, payment) => {
+          sum += payment.amount * (payment.professorCommission / 100);
+          return sum;
+        }, 0);
+        
+        // Calculate average commission percentage
+        const commissionPercentages = payments.map(payment => payment.professorCommission);
+        commission.value = commissionPercentages.length
+          ? commissionPercentages.reduce((sum, commission) => sum + commission, 0) / commissionPercentages.length
+          : 0;
+      } catch (error) {
+        console.error('Error fetching earnings:', error);
+      } finally {
+        isLoadingEarnings.value = false;
+      }
+    };
+
+    // Method to fetch professor's students
+    const fetchStudents = async () => {
+      isLoadingStudents.value = true;
+      try {
+        // Use the students store to fetch students for this professor
+        const fetchedStudents = await studentsStore.fetchStudents();
+        
+        // Filter students for this professor if needed
+        students.value = fetchedStudents.filter(student => 
+          student.professorId === authStore.userId || 
+          !student.professorId // Include students without a professor assigned
+        );
+        
+        totalStudents.value = students.value.length;
+      } catch (error) {
+        console.error('Error fetching students:', error);
+      } finally {
+        isLoadingStudents.value = false;
+      }
+    };
+
+    // Method to fetch today's attendance records
+    const fetchTodayAttendance = async () => {
+      isLoadingClasses.value = true;
+      try {
+        // Get today's date (at midnight)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Get tomorrow's date (at midnight)
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        // Convert to Firestore Timestamps
+        const todayTimestamp = Timestamp.fromDate(today);
+        const tomorrowTimestamp = Timestamp.fromDate(tomorrow);
+        
+        // Query scheduled classes for this professor today
+        const classesRef = collection(db, 'scheduledClasses');
+        const classesQuery = query(
+          classesRef,
+          where('professorId', '==', authStore.userId),
+          where('date', '>=', todayTimestamp),
+          where('date', '<', tomorrowTimestamp)
+        );
+        
+        const classesSnapshot = await getDocs(classesQuery);
+        const fetchedClasses = classesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        // Set today's classes count
+        todaysClasses.value = fetchedClasses.length;
+        
+        // Also get attendance records for these classes
+        todayAttendance.value = fetchedClasses;
+      } catch (error) {
+        console.error('Error fetching today\'s attendance:', error);
+      } finally {
+        isLoadingClasses.value = false;
+      }
+    };
+
+    // Method to fetch student messages
+    const fetchStudentMessages = async () => {
+      isLoadingMessages.value = true;
+      try {
+        const messagesQuery = query(
+          collection(db, 'studentMessages'),
+          where('professorId', '==', authStore.userId),
+          orderBy('createdAt', 'desc'),
+          limit(20)
+        );
+        
+        const messagesSnapshot = await getDocs(messagesQuery);
+        
+        studentMessages.value = messagesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+      } catch (error) {
+        console.error('Error fetching student messages:', error);
+      } finally {
+        isLoadingMessages.value = false;
+      }
+    };
+
+    // Mark message as read
+    const markAsRead = async (message) => {
+      try {
+        await updateDoc(doc(db, 'studentMessages', message.id), {
+          isRead: true
         });
-      } catch (e) {
-        console.error('Error creating user document:', e);
-      }
-    }
-
-    // Force commission to a number
-    commission.value = Number(commission.value) || 0;
-
-    // Calculate actual earnings based on attendance - use improved store method
-    try {
-      // Directly use the attendance store's optimized calculation
-      const earnings = await attendanceStore.calculateMonthlyEarnings(authStore.userId);
-      monthlyEarnings.value = Number(earnings) || 0;
-    } catch (err) {
-      console.error('Error calculating monthly earnings:', err);
-      monthlyEarnings.value = 0;
-    }
-
-    // Calculate potential earnings (if all students attended all classes)
-    try {
-      const professorStudents = await studentsStore.fetchStudents() || [];
-      
-      
-      let potentialTotal = 0;
-      
-      // Calculate potential earnings for each student
-      for (const student of professorStudents) {
-        if (student.planId) {
-          let planData = student.plan;
-          
-          // If plan data isn't loaded, try to fetch it
-          if (!planData && student.planId) {
-            try {
-              planData = await studentsStore.fetchPlanById(student.planId);
-            } catch (err) {
-              console.error(`Failed to fetch plan for student ${student.id}:`, err);
-            }
-          }
-          
-          if (planData && planData.price && planData.sessionsPerWeek) {
-            const classesPerMonth = planData.sessionsPerWeek * 4; // 4 weeks per month
-            const pricePerClass = planData.price / classesPerMonth;
-            const studentPotential = pricePerClass * classesPerMonth * (commission.value / 100);
-            potentialTotal += studentPotential;
-          }
+        
+        // Update local state
+        const index = studentMessages.value.findIndex(msg => msg.id === message.id);
+        if (index !== -1) {
+          studentMessages.value[index].isRead = true;
         }
+      } catch (error) {
+        console.error('Error marking message as read:', error);
       }
+    };
+
+    // Reply to a student message via WhatsApp
+    const replyToMessage = (message) => {
+      // Get the student's contact information and open WhatsApp
+      const studentPhone = message.studentPhone || '';
+      if (studentPhone) {
+        const encodedReply = encodeURIComponent(`Resposta para sua mensagem: "${message.text.substring(0, 30)}..."`);
+        window.open(`https://wa.me/${studentPhone.replace(/\D/g, '')}?text=${encodedReply}`, '_blank');
+      } else {
+        alert('Número de telefone do aluno não disponível');
+      }
+    };
+
+    // Open the full messages modal
+    const openMessageModal = () => {
+      showMessagesModal.value = true;
+    };
+
+    // Format message time
+    const formatMessageTime = (timestamp) => {
+      if (!timestamp) return '';
       
-      potentialEarnings.value = potentialTotal;
-    } catch (err) {
-      console.error('Error calculating potential earnings:', err);
-      potentialEarnings.value = 0;
-    }
-  } catch (err) {
-    console.error('Error in fetchEarnings:', err);
-    error.value = 'Erro ao carregar ganhos: ' + err.message;
-  } finally {
-    isLoadingEarnings.value = false;
-  }
-};
-
-const fetchStudents = async () => {
-  try {
-    isLoadingStudents.value = true;
-    // Fetch students with their plan data
-    const professorStudents = await studentsStore.fetchStudents();
-    
-    // Ensure plans are loaded for each student
-    if (professorStudents && professorStudents.length > 0) {
-      // For any student with planId but no plan data, fetch plan directly
-      const studentsWithPlans = await Promise.all(professorStudents.map(async (student) => {
-        if (student.planId && (!student.plan || !student.plan.title)) {
-          try {
-            // Directly fetch the plan using planId
-            const plan = await studentsStore.fetchPlanById(student.planId);
-            if (plan) {
-              return { ...student, plan };
-            }
-          } catch (err) {
-            console.error(`Error fetching plan for student ${student.id}:`, err);
-          }
-        }
-        return student;
-      }));
+      const date = timestamp instanceof Timestamp ? timestamp.toDate() : new Date(timestamp);
+      const now = new Date();
+      const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
       
-      // Sort students by name
-      students.value = studentsWithPlans.sort((a, b) => a.name.localeCompare(b.name));
-    } else {
-      // Sort students by name
-      students.value = professorStudents.sort((a, b) => a.name.localeCompare(b.name));
-    }
-    
-    totalStudents.value = students.value.length;
-  } catch (error) {
-    console.error('Error fetching students:', error);
-    error.value = 'Erro ao carregar alunos: ' + error.message;
-  } finally {
-    isLoadingStudents.value = false;
+      if (diffInHours < 24) {
+        return `Hoje, ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+      } else if (diffInHours < 48) {
+        return `Ontem, ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+      } else {
+        return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+      }
+    };
+
+    return {
+      router,
+      authStore,
+      monthlyEarnings,
+      potentialEarnings,
+      commission,
+      totalStudents,
+      todaysClasses,
+      students,
+      todayAttendance,
+      error,
+      isLoadingEarnings,
+      isLoadingStudents,
+      isLoadingClasses,
+      studentMessages,
+      isLoadingMessages,
+      unreadMessages,
+      showMessagesModal,
+      selectedMessage,
+      fetchEarnings,
+      fetchStudents,
+      fetchTodayAttendance,
+      fetchStudentMessages,
+      markAsRead,
+      replyToMessage,
+      openMessageModal,
+      formatMessageTime
+    };
   }
-};
-
-const fetchTodayAttendance = async () => {
-  try {
-    isLoadingClasses.value = true;
-    
-    // Get today's date (start and end of day)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    // Fetch appointments scheduled for today
-    const appointments = await scheduleStore.fetchProfessorSchedule(
-      authStore.userId,
-      today,
-      tomorrow
-    );
-    
-    // Save the appointments for today
-    todayAttendance.value = appointments;
-    
-    // Update the todaysClasses count
-    todaysClasses.value = appointments.length;
-    
-    
-  } catch (error) {
-    console.error('Error fetching today\'s classes:', error);
-    error.value = 'Erro ao carregar aulas de hoje: ' + error.message;
-  } finally {
-    isLoadingClasses.value = false;
-  }
-};
-
-const calculateTodaysClasses = () => {
-  // This is no longer needed since we're fetching actual classes from the schedule
-  // The count is updated directly in fetchTodayAttendance
-  
-  // Just in case fetchTodayAttendance failed, ensure we have a default value
-  if (todaysClasses.value === 0 && todayAttendance.value.length > 0) {
-    todaysClasses.value = todayAttendance.value.length;
-  }
-};
-
-const formatTime = (dateString) => {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('pt-BR', {
-    hour: '2-digit', 
-    minute: '2-digit'
-  }).format(date);
-};
-
-// Attendance methods removed
-
-// Logout functionality removed - now handled in NavBar
+}
 </script>
