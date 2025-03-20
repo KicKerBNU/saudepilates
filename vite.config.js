@@ -20,6 +20,16 @@ export default defineConfig({
           src: 'index.html',
           dest: '',
           rename: 'contact.html'
+        },
+        {
+          src: 'index.html',
+          dest: '',
+          rename: 'guia.html'
+        },
+        {
+          src: 'public/sitemap.xml',
+          dest: '',
+          rename: 'sitemap.xml'
         }
       ]
     })

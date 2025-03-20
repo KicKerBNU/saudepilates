@@ -1,5 +1,16 @@
+# Allow all web crawlers
 User-agent: *
 Allow: /
+Allow: /pricing
+Allow: /guia
+Allow: /contact
+Allow: /login
+Allow: /register
+
+# Disallow crawling of private areas
+Disallow: /admin/
+Disallow: /professor/
+Disallow: /student/
 
 # Sitemap
 Sitemap: https://saudepilates.com.br/sitemap.xml

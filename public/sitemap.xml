@@ -3,34 +3,40 @@
   <!-- Main pages -->
   <url>
     <loc>https://saudepilates.com.br/</loc>
-    <lastmod>2025-03-10</lastmod>
-    <changefreq>weekly</changefreq>
+    <lastmod>2025-03-20</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://saudepilates.com.br/pricing</loc>
-    <lastmod>2025-03-10</lastmod>
+    <lastmod>2025-03-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://saudepilates.com.br/contact</loc>
-    <lastmod>2025-03-10</lastmod>
+    <loc>https://saudepilates.com.br/guia</loc>
+    <lastmod>2025-03-20</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://saudepilates.com.br/contact</loc>
+    <lastmod>2025-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   
   <!-- Authentication pages -->
   <url>
     <loc>https://saudepilates.com.br/login</loc>
-    <lastmod>2025-03-10</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
+    <lastmod>2025-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://saudepilates.com.br/register</loc>
-    <lastmod>2025-03-10</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
+    <lastmod>2025-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 </urlset>

@@ -4,6 +4,7 @@ import Pricing from '../components/Pricing.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Contact from '../views/Contact.vue'
+import GuideView from '../views/GuideView.vue'
 import AdminDashboard from '../views/admin/Dashboard.vue'
 import ProfessorsManagement from '../views/admin/ProfessorsManagement.vue'
 import StudentsManagement from '../views/admin/StudentsManagement.vue'
@@ -44,6 +45,11 @@ const routes = [
     path: '/contact',
     name: 'Contact',
     component: Contact
+  },
+  {
+    path: '/guia',
+    name: 'Guide',
+    component: GuideView
   },
   {
     path: '/admin',

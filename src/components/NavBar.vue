@@ -17,6 +17,9 @@
             <router-link to="/pricing" :class="[isActiveRoute('/pricing') ? activeClass : inactiveClass]">
               Preços
             </router-link>
+            <router-link to="/guia" :class="[isActiveRoute('/guia') ? activeClass : inactiveClass]">
+              Guia
+            </router-link>
             <router-link to="/contact" :class="[isActiveRoute('/contact') ? activeClass : inactiveClass]">
               Contato
             </router-link>
