@@ -14,10 +14,11 @@
             <router-link :to="homeOrDashboardLink" :class="[isActiveRoute('/') || isDashboardActive ? activeClass : inactiveClass]">
               Início
             </router-link>
-            <router-link to="/pricing" :class="[isActiveRoute('/pricing') ? activeClass : inactiveClass]">
+            <!-- Only show these links when user is not authenticated -->
+            <router-link v-if="!authStore.isAuthenticated" to="/pricing" :class="[isActiveRoute('/pricing') ? activeClass : inactiveClass]">
               Preços
             </router-link>
-            <router-link to="/guia" :class="[isActiveRoute('/guia') ? activeClass : inactiveClass]">
+            <router-link v-if="!authStore.isAuthenticated" to="/guia" :class="[isActiveRoute('/guia') ? activeClass : inactiveClass]">
               Guia
             </router-link>
             <router-link to="/contact" :class="[isActiveRoute('/contact') ? activeClass : inactiveClass]">

@@ -7,6 +7,39 @@
     </header>
     
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Subscription Alert -->
+      <div v-if="showSubscriptionAlert" class="mb-6 px-4 sm:px-0">
+        <div class="rounded-md bg-yellow-50 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-yellow-800">
+                Alerta de Assinatura
+              </h3>
+              <div class="mt-2 text-sm text-yellow-700">
+                <p>
+                  {{ subscriptionAlertMessage }}
+                </p>
+              </div>
+              <div class="mt-4">
+                <div class="-mx-2 -my-1.5 flex">
+                  <router-link :to="{name: 'SubscriptionPayment'}" class="bg-yellow-50 px-2 py-1.5 rounded-md text-sm font-medium text-yellow-800 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-yellow-50 focus:ring-yellow-600">
+                    Renovar Assinatura
+                  </router-link>
+                  <button @click="dismissSubscriptionAlert" type="button" class="ml-3 bg-yellow-50 px-2 py-1.5 rounded-md text-sm font-medium text-yellow-800 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-yellow-50 focus:ring-yellow-600">
+                    Ignorar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <!-- Dashboard Stats Overview -->
       <div class="px-4 py-6 sm:px-0">
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -299,50 +332,81 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
+import { useStudentsStore } from '../../stores/students';
+import { useProfessorsStore } from '../../stores/professors';
 import { usePaymentsStore } from '../../stores/payments';
+import { useSubscriptionStore } from '../../stores/subscription';
 
-const router = useRouter();
+// Initialize route and router
 const route = useRoute();
+const router = useRouter();
+
+// Initialize stores
 const showPaymentSuccess = ref(false);
 const authStore = useAuthStore();
+const studentsStore = useStudentsStore();
+const professorsStore = useProfessorsStore();
 const paymentsStore = usePaymentsStore();
+const subscriptionStore = useSubscriptionStore();
 
-onMounted(async () => {
-  // Check if we're returning from a successful payment registration
-  if (route.query.paymentSuccess === 'true') {
-    showPaymentSuccess.value = true;
-    // Remove the query parameter from the URL without reloading the page
-    router.replace({ path: route.path });
-  }
-});
+// Subscription alert state
+const showSubscriptionAlert = ref(false);
+const subscriptionAlertMessage = ref('');
 
-const dismissPaymentSuccess = () => {
-  showPaymentSuccess.value = false;
+// Show success message if returning from successful payment registration
+if (route.query.paymentSuccess === 'true') {
+  showPaymentSuccess.value = true;
 }
 
+// Show success message if subscription was renewed
+if (route.query.subscriptionRenewed === 'true') {
+  // Display a success toast or notification here
+}
+
+// Method to dismiss the payment success message
+const dismissPaymentSuccess = () => {
+  showPaymentSuccess.value = false;
+  // Update route without the query parameter
+  router.replace({ name: 'AdminDashboard' });
+};
+
+// Method to dismiss the subscription alert
+const dismissSubscriptionAlert = () => {
+  showSubscriptionAlert.value = false;
+  localStorage.setItem('subscriptionAlertDismissed', new Date().toISOString());
+};
+
+// Stats
 const totalStudents = ref(0);
 const totalProfessors = ref(0);
 const monthlyRevenue = ref(0);
 const recentPayments = ref([]);
 const totalPlans = ref(0);
+const currentMonth = new Date().getMonth();
+const currentYear = new Date().getFullYear();
 
 // Check if user is admin, if not redirect
 onMounted(async () => {
   if (!authStore.isAdmin) {
-    router.push('/login');
+    router.push('/');
     return;
   }
-
-  // Fetch data for dashboard
-  await Promise.all([
-    fetchStudents(),
-    fetchProfessors(),
-    fetchPayments(),
-    fetchPlans()
-  ]);
+  
+  try {
+    // Load data in parallel
+    await Promise.all([
+      fetchStudents(),
+      fetchProfessors(),
+      fetchPayments(),
+      fetchPlans(),
+      checkSubscription()
+    ]);
+  } catch (error) {
+    console.error('Error loading dashboard data:', error);
+  }
 });
 
 const fetchStudents = async () => {
@@ -428,6 +492,34 @@ const formatDate = (dateString) => {
     month: '2-digit',
     year: 'numeric'
   }).format(date);
+};
+
+// Fetch subscription data and show alert if needed
+const checkSubscription = async () => {
+  try {
+    await subscriptionStore.fetchSubscription();
+    
+    // Check if the alert was dismissed recently (in the last 24 hours)
+    const lastDismissed = localStorage.getItem('subscriptionAlertDismissed');
+    const showAlert = !lastDismissed || 
+                      (new Date() - new Date(lastDismissed)) > (24 * 60 * 60 * 1000);
+    
+    if (showAlert) {
+      const daysLeft = subscriptionStore.daysUntilExpiration;
+      
+      if (!subscriptionStore.isValid) {
+        // Subscription expired
+        subscriptionAlertMessage.value = 'Sua assinatura expirou. Renove agora para continuar utilizando todos os recursos da plataforma.';
+        showSubscriptionAlert.value = true;
+      } else if (daysLeft <= 7) {
+        // Subscription expiring soon
+        subscriptionAlertMessage.value = `Sua assinatura expira em ${daysLeft} dias. Renove agora para evitar interrupções.`;
+        showSubscriptionAlert.value = true;
+      }
+    }
+  } catch (error) {
+    console.error('Error checking subscription:', error);
+  }
 };
 
 // Logout functionality removed - now handled in NavBar

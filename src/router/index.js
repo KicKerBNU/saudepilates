@@ -18,6 +18,7 @@ import StudentDashboard from '../views/student/Dashboard.vue'
 import PlansManagement from '../views/admin/PlansManagement.vue'
 import PaymentRegistration from '../views/admin/PaymentRegistration.vue'
 import MonthlyPayments from '../views/admin/MonthlyPayments.vue'
+import SubscriptionPayment from '../views/admin/SubscriptionPayment.vue'
 import NotFound from '../views/NotFound.vue'
 
 const routes = [
@@ -85,6 +86,12 @@ const routes = [
     path: '/admin/payments/monthly',
     name: 'MonthlyPayments',
     component: MonthlyPayments,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin/subscription',
+    name: 'SubscriptionPayment',
+    component: SubscriptionPayment,
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
@@ -180,6 +187,26 @@ router.beforeEach(async (to, from, next) => {
         if (to.meta.role === 'student' && !authStore.isStudent) {
           next({ name: 'Home' });
           return;
+        }
+      }
+      
+      // Check subscription status for admin users
+      if (authStore.isAdmin && to.name !== 'SubscriptionPayment') {
+        try {
+          // Import subscription store
+          const subscriptionModule = await import('../stores/subscription');
+          const subscriptionStore = subscriptionModule.useSubscriptionStore();
+          
+          // Fetch subscription status
+          await subscriptionStore.fetchSubscription();
+          
+          // If subscription is not valid, redirect to subscription payment page
+          if (!subscriptionStore.isValid) {
+            next({ name: 'SubscriptionPayment' });
+            return;
+          }
+        } catch (error) {
+          console.error('Subscription check error:', error);
         }
       }
     }
