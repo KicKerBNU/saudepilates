@@ -42,13 +42,11 @@ export default {
       if (!authStore._initialized) {
         await authStore.init();
       }
-      console.log('NotFound - Auth status after init:', authStore.isAuthenticated);
       authInitialized.value = true;
     });
     
     // Use computed property to reactively check authentication status
     const isAuthenticated = computed(() => {
-      console.log('isAuthenticated computed - current value:', authStore.isAuthenticated);
       return authStore.isAuthenticated;
     });
 

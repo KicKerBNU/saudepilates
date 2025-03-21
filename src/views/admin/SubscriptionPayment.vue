@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useSubscriptionStore } from '../../stores/subscription';
 import SeoHead from '../../components/SeoHead.vue';
+import { getStripeUrl } from '../../utils/stripeConfig';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -13,6 +14,13 @@ const loading = ref(false);
 const error = ref(null);
 const success = ref(false);
 const selectedPlan = ref('monthly');
+
+// Map the internal plan IDs to Stripe config plan types
+const planMapping = {
+  monthly: 'mensal',
+  quarterly: 'trimestral',
+  annual: 'anual'
+};
 
 const plans = [
   {
@@ -62,6 +70,8 @@ const selectedPlanDetails = computed(() => {
   return plans.find(plan => plan.id === selectedPlan.value) || plans[0];
 });
 
+const userEmail = computed(() => authStore.user?.email || '');
+
 const subscription = ref({
   isSubscribed: false,
   expirationDate: null,
@@ -107,36 +117,28 @@ onMounted(async () => {
   }
 });
 
-async function renewSubscription() {
-  loading.value = true;
-  error.value = null;
-  success.value = false;
-  
-  try {
-    const duration = selectedPlanDetails.value.duration;
-    await subscriptionStore.renewSubscription(duration);
-    subscription.value = {
-      isSubscribed: subscriptionStore.isSubscribed,
-      expirationDate: subscriptionStore.expirationDate,
-      plan: subscriptionStore.subscriptionPlan
-    };
-    success.value = true;
-    
-    // Simulate a payment processing delay
-    setTimeout(() => {
-      router.push({ 
-        name: 'AdminDashboard', 
-        query: { 
-          subscriptionRenewed: 'true',
-          plan: selectedPlanDetails.value.id
-        } 
-      });
-    }, 2000);
-  } catch (err) {
-    error.value = `Erro ao renovar assinatura: ${err.message}`;
-  } finally {
-    loading.value = false;
+// Function to redirect to Stripe payment
+function redirectToStripePayment(planId) {
+  // Convert internal plan ID to Stripe config plan type
+  const stripePlanType = planMapping[planId];
+  if (!stripePlanType) {
+    console.error(`No mapping found for plan: ${planId}`);
+    return;
   }
+  
+  // Get the appropriate URL for the current environment
+  const stripeUrl = getStripeUrl(stripePlanType);
+  if (!stripeUrl) {
+    console.error(`No URL found for plan: ${stripePlanType}`);
+    return;
+  }
+  
+  // Append user email to the URL
+  const email = encodeURIComponent(userEmail.value);
+  const paymentUrl = `${stripeUrl}${email ? `?prefilled_email=${email}` : ''}`;
+  
+  // Open Stripe payment page in a new tab/window
+  window.open(paymentUrl, '_blank');
 }
 </script>
 
@@ -247,20 +249,17 @@ async function renewSubscription() {
               <span class="ml-3 text-sm text-gray-500">{{ feature }}</span>
             </li>
           </ul>
+          
+          <!-- Add direct payment button for each plan -->
+          <div class="mt-8">
+            <button
+              @click.stop="redirectToStripePayment(plan.id)"
+              class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Assinar {{ plan.name }}
+            </button>
+          </div>
         </div>
-      </div>
-      
-      <div class="mt-10 flex justify-center">
-        <button
-          @click="renewSubscription"
-          :disabled="loading"
-          class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <span v-if="loading" class="mr-2">
-            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-          </span>
-          {{ loading ? 'Processando...' : 'Renovar Assinatura' }}
-        </button>
       </div>
     </div>
   </div>

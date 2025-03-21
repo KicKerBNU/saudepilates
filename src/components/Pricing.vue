@@ -71,7 +71,7 @@
                 </li>
               </ul>
               <div class="mt-6 rounded-md shadow">
-                <a href="/register" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                <a href="#" @click="handlePlanSelect('mensal')" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
                   Assinar Agora
                 </a>
               </div>
@@ -144,7 +144,7 @@
                 </li>
               </ul>
               <div class="mt-6 rounded-md shadow">
-                <a href="/register" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                <a href="#" @click="handlePlanSelect('trimestral')" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
                   Assinar Agora
                 </a>
               </div>
@@ -214,7 +214,7 @@
                 </li>
               </ul>
               <div class="mt-6 rounded-md shadow">
-                <a href="/register" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                <a href="#" @click="handlePlanSelect('anual')" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
                   Assinar Agora
                 </a>
               </div>
@@ -239,4 +239,60 @@
 
 <script setup>
 import MetaTags from '@/components/MetaTags.vue';
+import { useAuthStore } from '@/stores/auth';
+import { useRouter } from 'vue-router';
+import { computed, onMounted, ref } from 'vue';
+import { getStripeUrl, STRIPE_PLANS } from '@/utils/stripeConfig';
+
+const authStore = useAuthStore();
+const router = useRouter();
+
+// Debug variables
+const showDebug = ref(true); // Set to false for production
+
+const isAuthenticated = computed(() => authStore.isAuthenticated);
+const userEmail = computed(() => authStore.user?.email || '');
+
+// Force auth initialization
+const forceInit = async () => {
+  try {
+    
+    await authStore.init();
+    
+  } catch (err) {
+    console.error('Error during force init:', err);
+  }
+};
+
+// Debug authentication state
+onMounted(() => {
+  // Check if authStore is properly initialized
+  if (!authStore._initialized) {
+    forceInit();
+  }
+});
+
+const handlePlanSelect = (planType) => {
+  
+  if (!isAuthenticated.value) {
+    // Redirect to login page if not authenticated
+    router.push('/login');
+    return;
+  }
+
+  // Get the appropriate URL for the current environment
+  const stripeUrl = getStripeUrl(planType);
+  if (!stripeUrl) {
+    console.error('No URL found for plan:', planType);
+    return;
+  }
+
+  // Append user email to the URL
+  const email = encodeURIComponent(userEmail.value);
+  const paymentUrl = `${stripeUrl}${email ? `?prefilled_email=${email}` : ''}`;
+  
+  
+  // Open Stripe payment page in a new tab/window
+  window.open(paymentUrl, '_blank');
+};
 </script>
