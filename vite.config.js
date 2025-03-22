@@ -41,6 +41,7 @@ export default defineConfig({
   },
   server: {
     port: 5199,
+    strictPort: false,
     // You can also set it to open the browser automatically
     open: true,
     // Uncomment to allow external access (from other devices on your network)
