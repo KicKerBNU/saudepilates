@@ -152,6 +152,14 @@ const handleRegister = async () => {
       phone: userData.phone
     });
     
+    // Track Google Ads conversion for successful registration
+    if (window.gtag) {
+      window.gtag('event', 'conversion', {
+        'send_to': 'AW-16916200412/aB3dCJHz9_IYEN2JrqQ9',
+      });
+      console.log('Conversion tracking sent for user registration');
+    }
+    
     // Redirect to admin dashboard
     router.push('/admin');
   } catch (err) {
