@@ -3,10 +3,14 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  getAuth,
+  connectAuthEmulator
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, addDoc, query, where, getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
+import { initializeApp } from 'firebase/app';
+import { firebaseConfig } from '../firebase/config';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -210,21 +214,50 @@ export const useAuthStore = defineStore('auth', {
       this.error = null;
       
       try {
-        // Create user with Firebase Authentication
-        const { user } = await createUserWithEmailAndPassword(auth, email, password);
+        // Save admin state
+        const adminUser = { ...this.user };
+        const adminProfile = { ...this.userProfile };
+        const adminCompanyInfo = { ...this.companyInfo };
+        
+        // Create a secondary app with a unique name using a timestamp
+        const uniqueAppName = `secondary-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        let secondaryApp;
+        
+        try {
+          secondaryApp = initializeApp(firebaseConfig, uniqueAppName);
+        } catch (error) {
+          // If app initialization fails (perhaps due to duplicates), 
+          // try again with a different name
+          const retryName = `secondary-retry-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          secondaryApp = initializeApp(firebaseConfig, retryName);
+        }
+        
+        const secondaryAuth = getAuth(secondaryApp);
+        
+        // Create user with secondary auth
+        const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+        const newUser = userCredential.user;
         
         // Create user profile with the admin's company ID
         const userProfile = {
-          email: user.email,
+          email: newUser.email,
           role,
-          companyId: this.userProfile.companyId,
+          companyId: adminProfile.companyId,
           createdAt: new Date().toISOString(),
           ...userData
         };
         
-        await setDoc(doc(db, 'users', user.uid), userProfile);
+        await setDoc(doc(db, 'users', newUser.uid), userProfile);
         
-        return user;
+        // Sign out from secondary auth
+        await signOut(secondaryAuth);
+        
+        // Ensure our main store still has admin info
+        this.user = adminUser;
+        this.userProfile = adminProfile;
+        this.companyInfo = adminCompanyInfo;
+        
+        return newUser;
       } catch (error) {
         this.error = error.message;
         throw error;
