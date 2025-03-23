@@ -124,6 +124,12 @@
                       <span class="text-base font-bold text-gray-900">R$ {{ finalAmount.toFixed(2) }}</span>
                     </div>
 
+                    <!-- Commission information -->
+                    <div v-if="commissionPercent > 0" class="flex justify-between items-center mt-3 pt-2 border-t border-gray-200">
+                      <span class="text-sm font-medium text-gray-700">Comissão do professor ({{ commissionPercent }}%):</span>
+                      <span class="text-sm text-orange-600">R$ {{ commissionAmount.toFixed(2) }}</span>
+                    </div>
+
                     <div v-if="paymentData.periodMonths > 1" class="mt-2 text-sm text-gray-500">
                       Pagamento referente a {{ paymentData.periodMonths }} meses ({{ getMonthRangeText() }})
                     </div>
@@ -241,8 +247,27 @@ const finalAmount = computed(() => {
 });
 
 const commissionPercent = computed(() => {
-  if (!selectedStudent.value || !selectedStudent.value.plan) return 0;
-  return selectedStudent.value.plan.commission || 40; // Default commission is 40%
+  if (!selectedStudent.value) return 0;
+  
+  // If we've explicitly set the commission during loading, use that
+  if (selectedStudent.value.professorCommission !== undefined) {
+    return selectedStudent.value.professorCommission;
+  }
+  
+  // Otherwise, try to find it in the professor object
+  if (selectedStudent.value.professor && selectedStudent.value.professor.commission) {
+    return typeof selectedStudent.value.professor.commission === 'number' 
+      ? selectedStudent.value.professor.commission 
+      : parseFloat(selectedStudent.value.professor.commission) || 0;
+  }
+  
+  // Last resort: try to find the professor in our local array
+  if (selectedStudent.value.professorId) {
+    const professor = professors.value.find(p => p.id === selectedStudent.value.professorId);
+    return professor && professor.commission ? professor.commission : 0;
+  }
+  
+  return 0;
 });
 
 const commissionAmount = computed(() => {
@@ -325,10 +350,40 @@ const fetchStudents = async () => {
 const fetchProfessors = async () => {
   loading.value = true;
   try {
-    const fetchedProfessors = await professorsStore.fetchProfessors();
+    // Get current admin's company ID from auth store
+    const authStore = useAuthStore();
+    const companyId = authStore.companyId;
+    
+    // Validate company ID
+    if (!companyId) {
+      console.error('No company ID found for current user');
+      professors.value = [];
+      return;
+    }
+    
+    // Direct Firestore query to get professor users filtered by company
+    const professorsQuery = query(
+      collection(db, 'users'),
+      where('role', '==', 'professor'),
+      where('companyId', '==', companyId)
+    );
+    
+    const snapshot = await getDocs(professorsQuery);
+    
+    // Map the documents to our data structure
+    const fetchedProfessors = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+      };
+    });
+    
+    
     professors.value = fetchedProfessors;
   } catch (error) {
     console.error('Error fetching professors:', error);
+    professors.value = [];
   } finally {
     loading.value = false;
   }
@@ -358,33 +413,52 @@ const loadStudentDetails = async () => {
     paymentData.value.professorId = studentDetails.professorId || '';
     paymentData.value.planId = studentDetails.planId || '';
     
-    // Get professor name if assigned
+    // Get professor details if assigned
     if (studentDetails.professorId) {
       try {
-        // First try to find in the local array
-        const professor = professors.value.find(p => p.id === studentDetails.professorId);
+        let professor;
         
-        if (professor) {
-          // Use local data if found
-          professorName.value = professor.name || `${professor.firstName || ''} ${professor.lastName || ''}`.trim();
-        } else {
+        // First try to find in the local array
+        professor = professors.value.find(p => p.id === studentDetails.professorId);
+        
+        if (!professor) {
           // Directly query Firestore for the professor
           const professorDoc = await getDoc(doc(db, 'users', studentDetails.professorId));
           
           if (professorDoc.exists()) {
-            const professorData = professorDoc.data();
-            professorName.value = professorData.name || 
-              `${professorData.firstName || ''} ${professorData.lastName || ''}`.trim();
-          } else {
-            professorName.value = 'Professor não encontrado';
+            professor = { id: professorDoc.id, ...professorDoc.data() };
           }
+        }
+        
+        if (professor) {
+          // Set professor name for display
+          professorName.value = professor.name || `${professor.firstName || ''} ${professor.lastName || ''}`.trim();
+          
+          // Store the professor object for commission reference
+          selectedStudent.value.professor = professor;
+          
+          // Set commission explicitly
+          if (typeof professor.commission === 'number') {
+            selectedStudent.value.professorCommission = professor.commission;
+          } else if (professor.commission) {
+            // Try to parse if it's not a number but exists
+            selectedStudent.value.professorCommission = parseFloat(professor.commission);
+          } else {
+            console.warn('Professor has no commission set:', professor);
+            selectedStudent.value.professorCommission = 0;
+          }
+        } else {
+          professorName.value = 'Professor não encontrado';
+          selectedStudent.value.professorCommission = 0;
         }
       } catch (error) {
         console.error('Error fetching professor details:', error);
         professorName.value = 'Erro ao carregar professor';
+        selectedStudent.value.professorCommission = 0;
       }
     } else {
       professorName.value = '';
+      selectedStudent.value.professorCommission = 0;
     }
     
     // Calculate payment amount
@@ -445,8 +519,9 @@ const registerPayment = async () => {
         planId: selectedStudent.value.planId,
         paymentDate: paymentData.value.paymentDate,
         amount: paymentData.value.commissionAmount,
+        commissionPercent: paymentData.value.commissionPercent, // Store the commission percentage
         originalStudentPayment: paymentData.value.finalAmount,
-        notes: `Comissão referente ao pagamento de ${paymentData.value.periodMonths} ${paymentData.value.periodMonths === 1 ? 'mês' : 'meses'} do aluno ${selectedStudent.value.firstName} ${selectedStudent.value.lastName}`
+        notes: `Comissão referente ao pagamento de ${paymentData.value.periodMonths} ${paymentData.value.periodMonths === 1 ? 'mês' : 'meses'} do aluno ${selectedStudent.value.name || `${selectedStudent.value.firstName} ${selectedStudent.value.lastName}`}`
       };
       
       await paymentsStore.addProfessorPayment(professorPayment);
