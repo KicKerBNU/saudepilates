@@ -19,6 +19,7 @@ import PlansManagement from '../views/admin/PlansManagement.vue'
 import PaymentRegistration from '../views/admin/PaymentRegistration.vue'
 import MonthlyPayments from '../views/admin/MonthlyPayments.vue'
 import SubscriptionPayment from '../views/admin/SubscriptionPayment.vue'
+import PaymentVisualization from '../views/admin/PaymentVisualization.vue'
 import NotFound from '../views/NotFound.vue'
 
 const routes = [
@@ -92,6 +93,12 @@ const routes = [
     path: '/admin/subscription',
     name: 'SubscriptionPayment',
     component: SubscriptionPayment,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin/payments/visualization',
+    name: 'PaymentVisualization',
+    component: PaymentVisualization,
     meta: { requiresAuth: true, role: 'admin' }
   },
   {

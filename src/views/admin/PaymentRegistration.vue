@@ -468,6 +468,13 @@ onMounted(async () => {
     await fetchStudents();
     await fetchProfessors();
     
+    // Check for studentId in URL query parameters
+    const studentId = router.currentRoute.value.query.studentId;
+    if (studentId) {
+      selectedStudentId.value = studentId;
+      await loadStudentDetails();
+    }
+    
   } catch (error) {
     console.error('Error during component initialization:', error);
   }
