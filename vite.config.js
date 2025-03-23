@@ -27,6 +27,11 @@ export default defineConfig({
           rename: 'guia.html'
         },
         {
+          src: 'index.html',
+          dest: '',
+          rename: 'pricing.html'
+        },
+        {
           src: 'public/sitemap.xml',
           dest: '',
           rename: 'sitemap.xml'
