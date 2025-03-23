@@ -2,35 +2,38 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from "@tailwindcss/vite";
 import path from 'node:path';
+import fs from 'node:fs';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/',
   plugins: [
     vue(), 
     tailwindcss(),
+    {
+      name: 'generate-spa-html-files',
+      apply: 'build',
+      enforce: 'post',
+      closeBundle() {
+        // Create HTML files for SPA routes
+        const routeFiles = [
+          'pricing.html', 
+          'contact.html',
+          'guia.html',
+          'register.html'
+        ];
+        
+        const indexContent = fs.readFileSync('dist/index.html', 'utf-8');
+        
+        routeFiles.forEach(file => {
+          fs.writeFileSync(`dist/${file}`, indexContent);
+          console.log(`Created ${file}`);
+        });
+      }
+    },
     viteStaticCopy({
       targets: [
-        {
-          src: 'index.html',
-          dest: '',
-          rename: 'register.html'
-        },
-        {
-          src: 'index.html',
-          dest: '',
-          rename: 'contact.html'
-        },
-        {
-          src: 'index.html',
-          dest: '',
-          rename: 'guia.html'
-        },
-        {
-          src: 'index.html',
-          dest: '',
-          rename: 'pricing.html'
-        },
         {
           src: 'public/sitemap.xml',
           dest: '',
