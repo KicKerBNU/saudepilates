@@ -1,8 +1,8 @@
 <template>
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
-      <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-900">Pagamentos Mensais</h1>
+      <div class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8 flex justify-between items-center">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Pagamentos Mensais</h1>
         <div class="flex items-center space-x-4">
           <span class="text-gray-600">
             {{ currentMonthYear }}
@@ -33,33 +33,35 @@
       </div>
     </header>
     
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <main class="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
       <!-- Breadcrumb -->
       <div class="mb-4">
         <Breadcrumb :items="breadcrumbItems" />
       </div>
       
       <!-- Summary Card -->
-      <div class="px-4 py-5 sm:p-6 bg-white shadow sm:rounded-lg mb-6">
-        <h2 class="text-lg font-medium text-gray-900">Resumo do Mês</h2>
-        <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-3">
-          <div class="bg-indigo-50 overflow-hidden rounded-lg px-4 py-5">
-            <dt class="text-sm font-medium text-indigo-800 truncate">Total Recebido</dt>
-            <dd class="mt-1 text-3xl font-semibold text-indigo-900">R$ {{ calculateTotalPaid() }}</dd>
-          </div>
-          <div class="bg-yellow-50 overflow-hidden rounded-lg px-4 py-5">
-            <dt class="text-sm font-medium text-yellow-800 truncate">Pagamentos Pendentes</dt>
-            <dd class="mt-1 text-3xl font-semibold text-yellow-900">R$ {{ calculateTotalPending() }}</dd>
-          </div>
-          <div class="bg-green-50 overflow-hidden rounded-lg px-4 py-5">
-            <dt class="text-sm font-medium text-green-800 truncate">Projeção Total</dt>
-            <dd class="mt-1 text-3xl font-semibold text-green-900">R$ {{ calculateTotalProjection() }}</dd>
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4 sm:mb-6">
+        <div class="px-4 py-4 sm:px-6 sm:py-5">
+          <h2 class="text-lg font-medium text-gray-900">Resumo do Mês</h2>
+          <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div class="bg-indigo-50 overflow-hidden rounded-lg px-4 py-4">
+              <dt class="text-sm font-medium text-indigo-800 truncate">Total Recebido</dt>
+              <dd class="mt-1 text-2xl sm:text-3xl font-semibold text-indigo-900">R$ {{ calculateTotalPaid() }}</dd>
+            </div>
+            <div class="bg-yellow-50 overflow-hidden rounded-lg px-4 py-4">
+              <dt class="text-sm font-medium text-yellow-800 truncate">Pagamentos Pendentes</dt>
+              <dd class="mt-1 text-2xl sm:text-3xl font-semibold text-yellow-900">R$ {{ calculateTotalPending() }}</dd>
+            </div>
+            <div class="bg-green-50 overflow-hidden rounded-lg px-4 py-4">
+              <dt class="text-sm font-medium text-green-800 truncate">Projeção Total</dt>
+              <dd class="mt-1 text-2xl sm:text-3xl font-semibold text-green-900">R$ {{ calculateTotalProjection() }}</dd>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Filter Controls -->
-      <div class="px-4 sm:px-0 mb-5">
+      <div class="mb-4 sm:mb-6">
         <div class="flex flex-wrap gap-2">
           <button 
             @click="activeFilter = 'all'" 
@@ -98,25 +100,39 @@
       </div>
 
       <!-- Payment List -->
-      <div class="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul role="list" class="divide-y divide-gray-200">
-          <li v-if="filteredPayments.length === 0" class="px-6 py-4 text-gray-500">
-            Nenhum pagamento encontrado para este filtro.
-          </li>
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-4 sm:px-6 sm:py-5">
+          <h3 class="text-base sm:text-lg font-medium text-gray-900">Lista de Pagamentos</h3>
+        </div>
+        
+        <div v-if="loading" class="text-center py-8">
+          <svg class="animate-spin h-8 w-8 mx-auto text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="mt-2 text-sm text-gray-500">Carregando pagamentos...</p>
+        </div>
+        
+        <div v-else-if="filteredPayments.length === 0" class="text-center py-8">
+          <svg class="mx-auto h-10 w-10 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <p class="mt-2 text-sm text-gray-500">Nenhum pagamento encontrado para este filtro.</p>
+        </div>
+        
+        <ul v-else role="list" class="divide-y divide-gray-200">
           <li v-for="payment in filteredPayments" :key="payment.id" class="px-4 py-4 sm:px-6 hover:bg-gray-50">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <div class="min-w-0 flex-1 px-4">
-                  <div>
-                    <p class="text-sm font-medium text-indigo-600 truncate">{{ payment.studentName }}</p>
-                    <p class="mt-1 flex items-center text-sm text-gray-500">
-                      <span class="truncate">{{ payment.description }}</span>
-                    </p>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gray-200 flex items-center justify-center">
+                    <svg class="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <div class="ml-3 sm:ml-4">
+                    <h4 class="text-base sm:text-lg font-medium text-gray-900">{{ payment.studentName }}</h4>
+                    <p class="text-sm text-gray-500">{{ payment.description }}</p>
                     <div class="mt-2 sm:flex sm:justify-between">
                       <div class="sm:flex">
                         <p class="flex items-center text-sm text-gray-700">
@@ -133,7 +149,7 @@
                   </div>
                 </div>
               </div>
-              <div class="ml-5 flex flex-col items-end space-y-2">
+              <div class="mt-4 sm:mt-0 sm:ml-4 flex flex-col sm:flex-row gap-2">
                 <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                   Pago
                 </span>
@@ -147,39 +163,56 @@
       </div>
 
       <!-- Students Without Payments Section -->
-      <div v-if="studentsWithoutPayments.length > 0 && showStudentsWithoutPayments" class="mt-8">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Alunos Sem Pagamento no Mês</h3>
-        <div class="bg-white shadow overflow-hidden sm:rounded-md">
-          <ul role="list" class="divide-y divide-gray-200">
-            <li v-for="student in studentsWithoutPayments" :key="student.id" class="px-4 py-4 sm:px-6 hover:bg-gray-50">
-              <div class="flex items-center justify-between">
+      <div v-if="showStudentsWithoutPayments" class="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-4 sm:px-6 sm:py-5">
+          <h3 class="text-base sm:text-lg font-medium text-gray-900">Alunos sem Pagamento</h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Alunos que ainda não realizaram o pagamento deste mês.
+          </p>
+        </div>
+        
+        <div v-if="studentsWithoutPayments.length === 0" class="text-center py-8">
+          <svg class="mx-auto h-10 w-10 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="mt-2 text-sm text-gray-500">Todos os alunos realizaram seus pagamentos.</p>
+        </div>
+        
+        <ul v-else role="list" class="divide-y divide-gray-200">
+          <li v-for="student in studentsWithoutPayments" :key="student.id" class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+              <div class="min-w-0 flex-1">
                 <div class="flex items-center">
-                  <div class="flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  <div class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gray-200 flex items-center justify-center">
+                    <svg class="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
-                  <div class="min-w-0 flex-1 px-4">
-                    <div>
-                      <p class="text-sm font-medium text-indigo-600 truncate">{{ student.name || `${student.firstName || ''} ${student.lastName || ''}`.trim() }}</p>
-                      <p class="mt-1 flex items-center text-sm text-gray-500">
-                        <span class="truncate">{{ student.planTitle || 'Sem plano associado' }}</span>
-                      </p>
+                  <div class="ml-3 sm:ml-4">
+                    <h4 class="text-base sm:text-lg font-medium text-gray-900">{{ student.studentName }}</h4>
+                    <p class="text-sm text-gray-500">{{ student.planTitle }}</p>
+                    <div class="mt-2 sm:flex sm:justify-between">
+                      <div class="sm:flex">
+                        <p class="flex items-center text-sm text-gray-700">
+                          <span class="mr-2">Valor Esperado:</span>
+                          <span class="font-medium">R$ {{ (student.expectedAmount || 0).toFixed(2) }}</span>
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div class="ml-5 flex flex-col items-end">
-                  <router-link 
-                    :to="{name: 'PaymentRegistration', query: { studentId: student.id }}" 
-                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  >
-                    Registrar Pagamento
-                  </router-link>
-                </div>
               </div>
-            </li>
-          </ul>
-        </div>
+              <div class="mt-4 sm:mt-0 sm:ml-4">
+                <router-link 
+                  :to="{name: 'PaymentRegistration', query: { studentId: student.studentId }}" 
+                  class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Registrar Pagamento
+                </router-link>
+              </div>
+            </div>
+          </li>
+        </ul>
       </div>
     </main>
   </div>
@@ -239,9 +272,11 @@ const activeFilter = ref('all');
 const allPayments = ref([]);
 const allStudents = ref([]);
 const expectedPayments = ref([]); // Used to track which students should have paid this month
+const loading = ref(true); // Add loading state
 
 // Fetch data
 const fetchData = async () => {
+  loading.value = true; // Set loading to true when starting to fetch
   try {
     // Get students
     const students = await authStore.getUsersByCompany('student');
@@ -363,6 +398,8 @@ const fetchData = async () => {
     
   } catch (error) {
     console.error('Error fetching data:', error);
+  } finally {
+    loading.value = false; // Set loading to false when done
   }
 };
 
@@ -371,7 +408,7 @@ const calculateExpectedPayments = () => {
   expectedPayments.value = allStudents.value.map(student => ({
     studentId: student.id,
     studentName: student.name || `${student.firstName || ''} ${student.lastName || ''}`.trim(),
-    planTitle: student.planTitle,
+    planTitle: student.planTitle || 'Sem plano',
     expectedAmount: student.planPrice || 0,
     status: 'pending'
   }));

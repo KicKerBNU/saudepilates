@@ -118,35 +118,34 @@ export const useAuthStore = defineStore('auth', {
     },
     
     async fetchUserProfile(userId) {
-      // Validate userId first
       if (!userId) {
-
-        this.error = 'Invalid user ID';
         this.loading = false;
         return;
       }
 
       this.loading = true;
       
-      
       try {
         // Create document reference
         const userRef = doc(db, 'users', userId);
       
-        
         // Get the document
         const docSnapshot = await getDoc(userRef);
       
-        
         // Check if document exists and has data
         const exists = docSnapshot && typeof docSnapshot.exists === 'function' ? docSnapshot.exists() : false;
       
-        
         if (exists) {
           // Document exists, get data
           const data = docSnapshot.data();
 
-          this.userProfile = data;
+          // Ensure we have a valid name property
+          const userProfile = {
+            ...data,
+            name: data.name || data.displayName || `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'Usuário'
+          };
+
+          this.userProfile = userProfile;
           
           // If the user has a companyId, fetch company information
           if (data.companyId) {
@@ -154,26 +153,25 @@ export const useAuthStore = defineStore('auth', {
           }
         } else {
           // Document doesn't exist, create a basic profile
-
           this.error = 'User profile not found';
           
-          // Create a basic profile
+          // Create a basic profile with a default name
           const basicProfile = {
             email: this.user?.email || 'unknown',
             role: 'student', // Default role
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            name: this.user?.email?.split('@')[0] || 'Usuário'
           };
           
           try {
             await setDoc(userRef, basicProfile);
-
             this.userProfile = basicProfile;
           } catch (createError) {
-
+            console.error('Error creating basic profile:', createError);
           }
         }
       } catch (error) {
-
+        console.error('Error fetching user profile:', error);
         this.error = error.message;
       } finally {
         this.loading = false;

@@ -1,47 +1,39 @@
 <template>
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
-      <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900">Registrar Pagamento</h1>
+      <div class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Registrar Pagamento</h1>
       </div>
     </header>
     
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <main class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8">
       <!-- Breadcrumb -->
-      <div class="mb-4">
+      <div class="mb-4 sm:mb-6">
         <Breadcrumb :items="breadcrumbItems" />
       </div>
       
       <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
+        <div class="px-4 py-4 sm:p-6">
           <!-- Payment Registration Form -->
-          <form @submit.prevent="registerPayment" class="space-y-8">
+          <form @submit.prevent="registerPayment" class="space-y-6">
             <div class="space-y-6">
               <!-- Student Selection -->
               <div>
                 <label for="student" class="block text-sm font-medium text-gray-700">Aluno *</label>
-                <div class="mt-1 relative">
-                  <div v-if="loading" class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <svg class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  </div>
+                <div class="mt-1">
                   <select
                     id="student"
                     v-model="selectedStudentId"
                     @change="loadStudentDetails"
-                    class="mt-1 block w-full py-3 px-4 text-base bg-white border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm"
+                    class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3"
                     required
+                    :disabled="loading"
                   >
-                    <option value="" disabled>Selecione um aluno</option>
-                    <option v-for="student in students" :key="student.id" :value="student.id" class="py-2">
-                      {{ student.name || `${student.firstName || ''} ${student.lastName || ''}`.trim() }}
+                    <option value="">Selecione um aluno</option>
+                    <option v-for="student in students" :key="student.id" :value="student.id">
+                      {{ student.name || `${student.firstName} ${student.lastName}` }}
                     </option>
                   </select>
-                  <div v-if="students.length === 0 && !loading" class="mt-2 text-sm text-red-600">
-                    Nenhum aluno encontrado. Por favor, cadastre alunos primeiro.
-                  </div>
                 </div>
               </div>
 
@@ -78,9 +70,9 @@
                 </div>
               </div>
 
-              <!-- Payment Details (shown once a student is selected) -->
-              <div v-if="selectedStudent && selectedStudent.plan" class="border border-gray-200 rounded-lg p-4">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Detalhes do Pagamento</h3>
+              <!-- Payment Details Section -->
+              <div v-if="selectedStudent && selectedStudent.plan" class="border border-gray-200 rounded-lg p-4 sm:p-6">
+                <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-4">Detalhes do Pagamento</h3>
                 
                 <div class="space-y-4">
                   <!-- Payment Reference Period -->
@@ -90,7 +82,7 @@
                       type="date"
                       id="paymentDate"
                       v-model="paymentData.paymentDate"
-                      class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                      class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3"
                       required
                     />
                   </div>
@@ -102,7 +94,7 @@
                       id="paymentPeriod"
                       v-model="paymentData.periodMonths"
                       @change="calculatePaymentAmount"
-                      class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                      class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3"
                       required
                     >
                       <option value="1">Mensal (1 mês)</option>
@@ -113,34 +105,26 @@
                   </div>
 
                   <!-- Payment Amount with Plan and Discount details -->
-                  <div class="bg-gray-50 p-4 rounded-lg">
-                    <div class="flex justify-between items-center mb-2">
-                      <span class="text-sm font-medium text-gray-700">Valor base do plano:</span>
-                      <span class="text-sm text-gray-900">R$ {{ originalAmount.toFixed(2) }}</span>
-                    </div>
-                    
-                    <div v-if="discount > 0" class="flex justify-between items-center mb-2">
-                      <span class="text-sm font-medium text-gray-700">Desconto aplicado:</span>
-                      <span class="text-sm text-green-600">-R$ {{ discountAmount.toFixed(2) }} ({{ discount }}%)</span>
-                    </div>
-                    
-                    <div class="flex justify-between items-center pt-2 border-t border-gray-200">
-                      <span class="text-base font-medium text-gray-900">Valor final a pagar:</span>
-                      <span class="text-base font-bold text-gray-900">R$ {{ finalAmount.toFixed(2) }}</span>
-                    </div>
-
-                    <!-- Commission information -->
-                    <div v-if="commissionPercent > 0" class="flex justify-between items-center mt-3 pt-2 border-t border-gray-200">
-                      <span class="text-sm font-medium text-gray-700">Comissão do professor ({{ commissionPercent }}%):</span>
-                      <span class="text-sm text-orange-600">R$ {{ commissionAmount.toFixed(2) }}</span>
-                    </div>
-
-                    <div v-if="paymentData.periodMonths > 1" class="mt-2 text-sm text-gray-500">
-                      Pagamento referente a {{ paymentData.periodMonths }} meses ({{ getMonthRangeText() }})
+                  <div class="bg-gray-50 rounded-lg p-4 sm:p-6">
+                    <div class="space-y-4">
+                      <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700">Valor Original:</span>
+                        <span class="text-sm font-medium text-gray-900">R$ {{ originalAmount.toFixed(2) }}</span>
+                      </div>
+                      
+                      <div v-if="discount > 0" class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700">Desconto ({{ discount }}%):</span>
+                        <span class="text-sm font-medium text-green-600">- R$ {{ discountAmount.toFixed(2) }}</span>
+                      </div>
+                      
+                      <div class="flex justify-between items-center pt-2 border-t border-gray-200">
+                        <span class="text-base font-semibold text-gray-900">Valor Final:</span>
+                        <span class="text-base font-semibold text-indigo-600">R$ {{ finalAmount.toFixed(2) }}</span>
+                      </div>
                     </div>
                   </div>
 
-                  <!-- Additional Information -->
+                  <!-- Notes -->
                   <div>
                     <label for="notes" class="block text-sm font-medium text-gray-700">Observações (opcional)</label>
                     <div class="mt-1">
@@ -148,29 +132,27 @@
                         id="notes"
                         v-model="paymentData.notes"
                         rows="3"
-                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md px-4 py-3"
+                        class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3"
                         placeholder="Adicione qualquer observação relevante sobre o pagamento..."
                       ></textarea>
                     </div>
                   </div>
-
-
                 </div>
               </div>
             </div>
 
             <!-- Form Actions -->
-            <div class="flex justify-end space-x-3">
+            <div class="flex flex-col sm:flex-row sm:justify-end gap-3">
               <router-link
                 to="/admin"
-                class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                class="w-full sm:w-auto inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 Cancelar
               </router-link>
               <button
                 type="submit"
                 :disabled="loading || !canSubmit"
-                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed"
+                class="w-full sm:w-auto inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed"
               >
                 <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

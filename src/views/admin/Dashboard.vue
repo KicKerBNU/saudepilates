@@ -8,7 +8,7 @@
     
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       <!-- Breadcrumb -->
-      <div class="mb-4">
+      <div class="px-4 py-6 sm:px-0">
         <Breadcrumb :items="breadcrumbItems" />
       </div>
       
@@ -259,42 +259,6 @@
       <div class="mt-8 px-4 sm:px-0">
         <h2 class="text-lg font-medium text-gray-900 mb-4">Ações Rápidas</h2>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <router-link :to="{name: 'StudentsManagement'}" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
-            <div class="px-4 py-5 sm:p-6">
-              <div class="flex items-center">
-                <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
-                  <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                  </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                  <h3 class="text-lg font-medium text-gray-900">Gerenciar Alunos</h3>
-                  <p class="mt-1 text-sm text-gray-500">
-                    Adicione e gerencie alunos da sua empresa.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </router-link>
-
-          <router-link :to="{name: 'ProfessorsManagement'}" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
-            <div class="px-4 py-5 sm:p-6">
-              <div class="flex items-center">
-                <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
-                  <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                  </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                  <h3 class="text-lg font-medium text-gray-900">Gerenciar Professores</h3>
-                  <p class="mt-1 text-sm text-gray-500">
-                    Adicione e gerencie professores da sua empresa.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </router-link>
-
           <router-link :to="{name: 'PaymentRegistration'}" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
             <div class="px-4 py-5 sm:p-6">
               <div class="flex items-center">
@@ -307,24 +271,6 @@
                   <h3 class="text-lg font-medium text-gray-900">Registrar Pagamento</h3>
                   <p class="mt-1 text-sm text-gray-500">
                     Registre um novo pagamento de mensalidade para alunos, incluindo opções para desconto em pagamentos antecipados.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </router-link>
-
-          <router-link :to="{name: 'PlansManagement'}" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
-            <div class="px-4 py-5 sm:p-6">
-              <div class="flex items-center">
-                <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
-                  <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                  </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                  <h3 class="text-lg font-medium text-gray-900">Gerenciar Planos</h3>
-                  <p class="mt-1 text-sm text-gray-500">
-                    Adicione e gerencie planos da sua empresa.
                   </p>
                 </div>
               </div>

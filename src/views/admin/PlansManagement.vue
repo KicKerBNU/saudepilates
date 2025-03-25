@@ -1,11 +1,11 @@
 <template>
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
-      <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-900">Gerenciamento de Planos</h1>
+      <div class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Gerenciamento de Planos</h1>
         <button 
           @click="openAddPlanModal"
-          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -15,29 +15,29 @@
       </div>
     </header>
     
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <main class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8">
       <!-- Breadcrumb -->
-      <div class="mb-4">
+      <div class="mb-4 sm:mb-6">
         <Breadcrumb :items="breadcrumbItems" />
       </div>
       
       <!-- Company Info -->
-      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-        <div class="px-4 py-5 sm:px-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4 sm:mb-6">
+        <div class="px-4 py-4 sm:px-6 sm:py-5">
+          <h3 class="text-base sm:text-lg font-medium text-gray-900">
             Detalhes da Empresa
           </h3>
-          <p class="max-w-2xl text-sm text-gray-500">
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">
             Informações sobre os planos disponíveis.
           </p>
         </div>
         <div class="border-t border-gray-200">
           <dl>
-            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <div class="bg-gray-50 px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">
                 Total de Planos
               </dt>
-              <dd class="text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {{ plansList.length }}
               </dd>
             </div>
@@ -47,23 +47,23 @@
 
       <!-- Plans List -->
       <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">Planos Disponíveis</h3>
+        <div class="px-4 py-4 sm:px-6 sm:py-5 border-b border-gray-200">
+          <h3 class="text-base sm:text-lg font-medium text-gray-900">Planos Disponíveis</h3>
         </div>
         <ul role="list" class="divide-y divide-gray-200">
           <li v-for="plan in plansList" :key="plan.id" class="px-4 py-4 sm:px-6 hover:bg-gray-50">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div class="min-w-0 flex-1">
                 <div class="flex items-start">
-                  <div class="flex-shrink-0 h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                    <svg class="h-6 w-6 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                    <svg class="h-6 w-6 sm:h-8 sm:w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                   </div>
-                  <div class="ml-4">
-                    <div class="flex items-center">
-                      <h4 class="text-lg font-medium text-gray-900">{{ plan.title }}</h4>
-                      <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
+                  <div class="ml-3 sm:ml-4">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <h4 class="text-base sm:text-lg font-medium text-gray-900">{{ plan.title }}</h4>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
                         :class="{
                           'bg-green-100 text-green-800': plan.sessionsPerWeek === 3,
                           'bg-yellow-100 text-yellow-800': plan.sessionsPerWeek === 2,
@@ -72,9 +72,9 @@
                         {{ plan.sessionsPerWeek }} {{ plan.sessionsPerWeek === 1 ? 'sessão' : 'sessões' }}/semana
                       </span>
                     </div>
-                    <div class="text-sm text-gray-500">{{ plan.description || 'Nenhuma descrição disponível' }}</div>
-                    <div class="text-sm font-medium text-gray-900">R$ {{ plan.price.toFixed(2) }}/mês</div>
-                    <div class="flex flex-wrap gap-2">
+                    <div class="mt-1 text-sm text-gray-500">{{ plan.description || 'Nenhuma descrição disponível' }}</div>
+                    <div class="mt-2 text-sm font-medium text-gray-900">R$ {{ plan.price.toFixed(2) }}/mês</div>
+                    <div class="mt-2 flex flex-wrap gap-2">
                       <span v-if="plan.discountQuarterly > 0" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                         Trimestral: {{ plan.discountQuarterly }}% off
                       </span>
@@ -88,10 +88,10 @@
                   </div>
                 </div>
               </div>
-              <div class="ml-6 flex items-center space-x-3">
+              <div class="flex flex-col sm:flex-row gap-2 sm:ml-6">
                 <button 
                   @click="openEditPlanModal(plan)"
-                  class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  class="w-full sm:w-auto inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   <svg class="-ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -100,7 +100,7 @@
                 </button>
                 <button 
                   @click="confirmDeletePlan(plan)"
-                  class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  class="w-full sm:w-auto inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 >
                   <svg class="-ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -154,14 +154,14 @@
                   Preencha os detalhes do novo plano abaixo. Campos marcados com * são obrigatórios.
                 </p>
               </div>
-              <div class="mt-2">
-                <form @submit.prevent="addPlan" class="space-y-2">
-                  <div class="space-y-0.5">
+              <div class="mt-4">
+                <form @submit.prevent="addPlan" class="space-y-4">
+                  <div>
                     <label for="title" class="block text-sm font-medium text-gray-900">
                       Título do Plano *
                       <span v-if="formErrors.title" class="text-red-500 text-xs ml-1">({{ formErrors.title }})</span>
                     </label>
-                    <div>
+                    <div class="mt-1">
                       <input 
                         type="text" 
                         id="title" 
@@ -178,11 +178,11 @@
                     </div>
                   </div>
 
-                  <div class="space-y-0.5">
+                  <div>
                     <label for="sessionsPerWeek" class="block text-sm font-medium text-gray-900">
                       Sessões por Semana *
                     </label>
-                    <div>
+                    <div class="mt-1">
                       <div class="grid grid-cols-3 gap-3">
                         <button 
                           type="button"
@@ -199,16 +199,16 @@
                           {{ count }} {{ count === 1 ? 'sessão' : 'sessões' }}
                         </button>
                       </div>
-                      <p class="text-sm text-gray-500">Escolha o número de sessões semanais</p>
+                      <p class="mt-2 text-sm text-gray-500">Escolha o número de sessões semanais</p>
                     </div>
                   </div>
 
-                  <div class="space-y-0.5">
+                  <div>
                     <label for="price" class="block text-sm font-medium text-gray-900">
                       Preço Mensal *
                       <span v-if="formErrors.price" class="text-red-500 text-xs ml-1">({{ formErrors.price }})</span>
                     </label>
-                    <div class="relative rounded-md shadow-sm">
+                    <div class="mt-1 relative rounded-md shadow-sm">
                       <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                         <span class="text-gray-500 sm:text-sm">R$</span>
                       </div>
@@ -220,7 +220,7 @@
                           'border-red-300 focus:ring-red-500 focus:border-red-500': formErrors.price,
                           'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500': !formErrors.price
                         }"
-                        class="block w-full rounded-md pl-10 pr-3 py-3 sm:text-sm border"
+                        class="block w-full rounded-md pl-10 pr-3 py-3 border sm:text-sm"
                         placeholder="0.00" 
                         step="0.01" 
                         min="0" 
@@ -230,12 +230,12 @@
                     </div>
                   </div>
 
-                  <div class="space-y-0.5">
+                  <div>
                     <label for="description" class="block text-sm font-medium text-gray-900">
                       Descrição
                       <span class="text-gray-500">(Opcional)</span>
                     </label>
-                    <div>
+                    <div class="mt-1">
                       <textarea 
                         id="description" 
                         v-model="newPlan.description" 
@@ -251,19 +251,19 @@
                     <span class="block sm:inline">{{ error }}</span>
                   </div>
 
-                  <div class="mt-6 flex items-center justify-end space-x-3">
+                  <div class="mt-6 flex flex-col sm:flex-row sm:justify-end gap-3">
                     <button 
                       type="button" 
                       @click="closeAddPlanModal"
                       :disabled="isAdding"
-                      class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      class="w-full sm:w-auto inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Cancelar
                     </button>
                     <button 
                       type="submit"
                       :disabled="isAdding || hasFormErrors"
-                      class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      class="w-full sm:w-auto inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <svg 
                         v-if="isAdding" 
@@ -300,12 +300,12 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
-            <div class="mt-2 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <div class="mt-2 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
               <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
                 Editar Plano
               </h3>
               <div class="mt-4">
-                <form @submit.prevent="updatePlan" class="space-y-2">
+                <form @submit.prevent="updatePlan" class="space-y-4">
                   <div>
                     <label for="editTitle" class="block text-sm font-medium text-gray-900">Título do Plano</label>
                     <div class="mt-1">
@@ -327,6 +327,7 @@
                     </div>
                     <p class="mt-2 text-sm text-gray-500">Escolha entre 1 a 3 sessões semanais</p>
                   </div>
+
                   <div>
                     <label for="editPrice" class="block text-sm font-medium text-gray-900">Preço Mensal</label>
                     <div class="mt-1 relative rounded-md shadow-sm">
@@ -434,13 +435,22 @@
                     </div>
                   </div>
 
-                  <div class="mt-6 flex items-center justify-end space-x-3">
-                    <button type="button" @click="closeEditPlanModal"
-                      class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                  <div v-if="error" class="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
+                    <span class="block sm:inline">{{ error }}</span>
+                  </div>
+
+                  <div class="mt-6 flex flex-col sm:flex-row sm:justify-end gap-3">
+                    <button 
+                      type="button" 
+                      @click="closeEditPlanModal"
+                      class="w-full sm:w-auto inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
                       Cancelar
                     </button>
-                    <button type="submit"
-                      class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    <button 
+                      type="submit"
+                      class="w-full sm:w-auto inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
                       Salvar Alterações
                     </button>
                   </div>

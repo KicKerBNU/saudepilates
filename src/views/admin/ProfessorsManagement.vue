@@ -1,21 +1,21 @@
 <template>
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
-      <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900">Gerenciamento de Professores</h1>
+      <div class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Gerenciamento de Professores</h1>
       </div>
     </header>
     
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <main class="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
       <!-- Breadcrumb -->
       <div class="mb-4">
         <Breadcrumb :items="breadcrumbItems" />
       </div>
       
       <!-- Company Info -->
-      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-        <div class="px-4 py-5 sm:px-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4 sm:mb-6">
+        <div class="px-4 py-4 sm:px-6 sm:py-5">
+          <h3 class="text-base sm:text-lg leading-6 font-medium text-gray-900">
             Detalhes da Empresa
           </h3>
           <p class="mt-1 max-w-2xl text-sm text-gray-500">
@@ -24,7 +24,7 @@
         </div>
         <div class="border-t border-gray-200">
           <dl>
-            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <div class="bg-gray-50 px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">
                 Nome da Empresa
               </dt>
@@ -32,7 +32,7 @@
                 {{ companyName }}
               </dd>
             </div>
-            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <div class="bg-white px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">
                 Total de Professores
               </dt>
@@ -46,31 +46,43 @@
       
       <!-- Professors List -->
       <div class="bg-white shadow overflow-hidden sm:rounded-md">
-        <div class="px-4 py-5 sm:px-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">
-            Lista de Professores
-          </h3>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">
-            Professores associados à sua empresa.
-          </p>
+        <div class="px-4 py-4 sm:px-6 sm:py-5">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 class="text-base sm:text-lg leading-6 font-medium text-gray-900">
+                Lista de Professores
+              </h3>
+              <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                Professores associados à sua empresa.
+              </p>
+            </div>
+            <div class="mt-4 sm:mt-0">
+              <button 
+                @click="openAddProfessorModal"
+                class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Adicionar Professor
+              </button>
+            </div>
+          </div>
         </div>
         
-        <div v-if="loading" class="text-center py-10">
-          <svg class="animate-spin h-10 w-10 mx-auto text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <div v-if="loading" class="text-center py-8">
+          <svg class="animate-spin h-8 w-8 mx-auto text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
           <p class="mt-2 text-sm text-gray-500">Carregando professores...</p>
         </div>
         
-        <div v-else-if="professorsList.length === 0" class="text-center py-10">
-          <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div v-else-if="professorsList.length === 0" class="text-center py-8">
+          <svg class="mx-auto h-10 w-10 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
           <p class="mt-2 text-sm text-gray-500">Você ainda não possui professores cadastrados.</p>
           <button 
             @click="openAddProfessorModal"
-            class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
+            class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Adicionar Professor
           </button>
@@ -78,16 +90,16 @@
         
         <ul v-else role="list" class="divide-y divide-gray-200">
           <li v-for="professor in professorsList" :key="professor.id" class="px-4 py-4 sm:px-6 hover:bg-gray-50">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div class="min-w-0 flex-1">
                 <div class="flex items-center">
-                  <div class="flex-shrink-0 h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center">
-                    <svg class="h-8 w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gray-200 flex items-center justify-center">
+                    <svg class="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
-                  <div class="ml-4">
-                    <h4 class="text-lg font-medium text-gray-900">{{ professor.name }}</h4>
+                  <div class="ml-3 sm:ml-4">
+                    <h4 class="text-base sm:text-lg font-medium text-gray-900">{{ professor.name }}</h4>
                     <p class="text-sm text-gray-500">{{ professor.email }}</p>
                     <p v-if="professor.phone" class="text-sm text-gray-500">{{ professor.phone }}</p>
                     <p class="text-sm text-gray-500">
@@ -98,16 +110,16 @@
                   </div>
                 </div>
               </div>
-              <div class="ml-4 flex">
+              <div class="mt-4 sm:mt-0 sm:ml-4 flex flex-col sm:flex-row gap-2">
                 <button 
                   @click="openEditProfessorModal(professor)"
-                  class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2 cursor-pointer"
+                  class="w-full sm:w-auto inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Editar
                 </button>
                 <button 
                   @click="confirmDeleteProfessor(professor)"
-                  class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 cursor-pointer"
+                  class="w-full sm:w-auto inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 >
                   Remover
                 </button>
@@ -149,81 +161,83 @@
               {{ error }}
             </div>
             
-            <div class="mb-4">
-              <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
-              <input 
-                type="text" 
-                id="name" 
-                v-model="newProfessor.name" 
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="João Silva"
-              />
-            </div>
-            
-            <div class="mb-4">
-              <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input 
-                type="email" 
-                id="email" 
-                v-model="newProfessor.email" 
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="exemplo@email.com"
-              />
-            </div>
-            
-            <div class="mb-4">
-              <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
-              <input 
-                type="tel" 
-                id="phone" 
-                v-model="newProfessor.phone" 
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="(00) 00000-0000"
-              />
-            </div>
-            
-            <div class="mb-4">
-              <label for="commission" class="block text-sm font-medium text-gray-700 mb-1">Comissão (%)</label>
-              <input 
-                type="number" 
-                id="commission" 
-                v-model.number="newProfessor.commission" 
-                required
-                min="0"
-                max="100"
-                step="1"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                placeholder="50"
-              />
-            </div>
+            <div class="space-y-4">
+              <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                <input 
+                  type="text" 
+                  id="name" 
+                  v-model="newProfessor.name" 
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="João Silva"
+                />
+              </div>
+              
+              <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input 
+                  type="email" 
+                  id="email" 
+                  v-model="newProfessor.email" 
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="exemplo@email.com"
+                />
+              </div>
+              
+              <div>
+                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                <input 
+                  type="tel" 
+                  id="phone" 
+                  v-model="newProfessor.phone" 
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="(00) 00000-0000"
+                />
+              </div>
+              
+              <div>
+                <label for="commission" class="block text-sm font-medium text-gray-700 mb-1">Comissão (%)</label>
+                <input 
+                  type="number" 
+                  id="commission" 
+                  v-model.number="newProfessor.commission" 
+                  required
+                  min="0"
+                  max="100"
+                  step="1"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  placeholder="50"
+                />
+              </div>
 
-            <div class="mb-4">
-              <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
-              <input 
-                type="password" 
-                id="password" 
-                v-model="newProfessor.password" 
-                required
-                minlength="6"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                placeholder="******"
-              />
-            </div>
-            
-            <div class="mb-4">
-              <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha</label>
-              <input 
-                type="password" 
-                id="confirmPassword" 
-                v-model="confirmPassword" 
-                required
-                minlength="6"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                placeholder="******"
-              />
+              <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+                <input 
+                  type="password" 
+                  id="password" 
+                  v-model="newProfessor.password" 
+                  required
+                  minlength="6"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  placeholder="******"
+                />
+              </div>
+              
+              <div>
+                <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha</label>
+                <input 
+                  type="password" 
+                  id="confirmPassword" 
+                  v-model="confirmPassword" 
+                  required
+                  minlength="6"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  placeholder="******"
+                />
+              </div>
             </div>
             
             <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
@@ -340,51 +354,53 @@
               {{ error }}
             </div>
             
-            <div class="mb-4">
-              <label for="edit-name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
-              <input 
-                type="text" 
-                id="edit-name" 
-                v-model="editingProfessor.name" 
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            
-            <div class="mb-4">
-              <label for="edit-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input 
-                type="email" 
-                id="edit-email" 
-                v-model="editingProfessor.email" 
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            
-            <div class="mb-4">
-              <label for="edit-phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
-              <input 
-                type="tel" 
-                id="edit-phone" 
-                v-model="editingProfessor.phone" 
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            <div class="space-y-4">
+              <div>
+                <label for="edit-name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                <input 
+                  type="text" 
+                  id="edit-name" 
+                  v-model="editingProfessor.name" 
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label for="edit-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input 
+                  type="email" 
+                  id="edit-email" 
+                  v-model="editingProfessor.email" 
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label for="edit-phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                <input 
+                  type="tel" 
+                  id="edit-phone" 
+                  v-model="editingProfessor.phone" 
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-            <div class="mb-4">
-              <label for="edit-commission" class="block text-sm font-medium text-gray-700 mb-1">Comissão (%)</label>
-              <input 
-                type="number" 
-                id="edit-commission" 
-                v-model.number="editingProfessor.commission" 
-                required
-                min="0"
-                max="100"
-                step="1"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-              />
+              <div>
+                <label for="edit-commission" class="block text-sm font-medium text-gray-700 mb-1">Comissão (%)</label>
+                <input 
+                  type="number" 
+                  id="edit-commission" 
+                  v-model.number="editingProfessor.commission" 
+                  required
+                  min="0"
+                  max="100"
+                  step="1"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                />
+              </div>
             </div>
             
             <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">

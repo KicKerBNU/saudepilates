@@ -1,12 +1,12 @@
 <template>
-  <div class="bg-white p-6 rounded-lg shadow">
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-medium text-gray-900">Visão Geral de Receitas</h3>
+  <div class="bg-white p-4 sm:p-6 rounded-lg shadow">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
+      <h3 class="text-base sm:text-lg font-medium text-gray-900">Visão Geral de Receitas</h3>
       <div class="flex space-x-2">
         <button 
           @click="timeRange = 'current'"
           :class="[
-            'px-3 py-1 text-sm rounded-md',
+            'px-3 py-1.5 text-sm rounded-md',
             timeRange === 'current' 
               ? 'bg-indigo-600 text-white' 
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -17,7 +17,7 @@
         <button 
           @click="timeRange = 'last'"
           :class="[
-            'px-3 py-1 text-sm rounded-md',
+            'px-3 py-1.5 text-sm rounded-md',
             timeRange === 'last' 
               ? 'bg-indigo-600 text-white' 
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -28,7 +28,7 @@
       </div>
     </div>
     
-    <div class="h-80">
+    <div class="h-64 sm:h-80">
       <Line
         v-if="chartData"
         :data="chartData"
@@ -49,7 +49,8 @@ import {
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 } from 'chart.js';
 
 ChartJS.register(
@@ -59,7 +60,8 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 const props = defineProps({
@@ -76,52 +78,72 @@ const monthNames = [
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
 ];
 
-const chartData = computed(() => {
+const monthlyData = computed(() => {
+  const months = Array.from({ length: 12 }, (_, i) => ({
+    month: i + 1,
+    currentYear: 0,
+    lastYear: 0
+  }));
+
   const currentYear = new Date().getFullYear();
-  const targetYear = timeRange.value === 'current' ? currentYear : currentYear - 1;
-  
-  // Initialize monthly totals
-  const monthlyTotals = new Array(12).fill(0);
-  const monthlyProfessorPayments = new Array(12).fill(0);
-  const monthlyNetProfit = new Array(12).fill(0);
-  
-  // Calculate totals for each month
+  const lastYear = currentYear - 1;
+
+  if (!props.payments || !Array.isArray(props.payments)) {
+    return months;
+  }
+
   props.payments.forEach(payment => {
+    if (!payment || !payment.paymentDate) return;
+    
     const paymentDate = new Date(payment.paymentDate);
-    if (paymentDate.getFullYear() === targetYear) {
-      const month = paymentDate.getMonth();
-      const amount = payment.finalAmount || payment.amount || 0;
-      const professorCommission = payment.commissionAmount || 0;
-      
-      monthlyTotals[month] += amount;
-      monthlyProfessorPayments[month] += professorCommission;
-      monthlyNetProfit[month] += (amount - professorCommission);
+    const month = paymentDate.getMonth() + 1;
+    const year = paymentDate.getFullYear();
+    const amount = payment.finalAmount || payment.amount || 0;
+
+    if (year === currentYear) {
+      const monthData = months.find(m => m.month === month);
+      if (monthData) {
+        monthData.currentYear += amount;
+      }
+    } else if (year === lastYear) {
+      const monthData = months.find(m => m.month === month);
+      if (monthData) {
+        monthData.lastYear += amount;
+      }
     }
   });
-  
+
+  return months;
+});
+
+const chartData = computed(() => {
+  if (!monthlyData.value) return null;
+
+  const currentYear = new Date().getFullYear();
+  const lastYear = currentYear - 1;
+
   return {
-    labels: monthNames,
+    labels: monthlyData.value.map(data => {
+      if (!data || !data.month) return '';
+      const date = new Date(2000, data.month - 1);
+      return date.toLocaleDateString('pt-BR', { month: 'short' });
+    }).filter(Boolean),
     datasets: [
       {
-        label: 'Receita Total',
-        data: monthlyTotals,
-        borderColor: 'rgb(79, 70, 229)',
-        backgroundColor: 'rgba(79, 70, 229, 0.5)',
-        tension: 0.3
+        label: `Ano Atual (${currentYear})`,
+        data: monthlyData.value.map(data => data?.currentYear || 0),
+        borderColor: '#4F46E5',
+        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+        tension: 0.4,
+        fill: true
       },
       {
-        label: 'Pagamento Professores',
-        data: monthlyProfessorPayments,
-        borderColor: 'rgb(220, 38, 38)',
-        backgroundColor: 'rgba(220, 38, 38, 0.5)',
-        tension: 0.3
-      },
-      {
-        label: 'Lucro Líquido',
-        data: monthlyNetProfit,
-        borderColor: 'rgb(16, 185, 129)',
-        backgroundColor: 'rgba(16, 185, 129, 0.5)',
-        tension: 0.3
+        label: `Ano Anterior (${lastYear})`,
+        data: monthlyData.value.map(data => data?.lastYear || 0),
+        borderColor: '#6B7280',
+        backgroundColor: 'rgba(107, 114, 128, 0.1)',
+        tension: 0.4,
+        fill: true
       }
     ]
   };
@@ -153,11 +175,13 @@ const chartOptions = {
 
 // Watch for changes in payments prop to update chart
 watch(() => props.payments, () => {
-  chartData.value = timeRange.value === 'current' ? getCurrentYearData() : getLastYearData();
+  // The chart will automatically update when payments change
+  // because chartData is a computed property
 }, { deep: true });
 
 // Watch for changes in timeRange to update chart
 watch(timeRange, () => {
-  chartData.value = timeRange.value === 'current' ? getCurrentYearData() : getLastYearData();
+  // The chart will automatically update when timeRange changes
+  // because chartData is a computed property
 });
 </script> 
