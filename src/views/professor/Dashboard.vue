@@ -27,8 +27,7 @@
                   <div class="ml-5 w-0 flex-1">
                     <div class="h-5 bg-gray-200 rounded w-1/2 animate-pulse mb-4"></div>
                     <div class="h-8 bg-gray-200 rounded w-3/4 animate-pulse mb-3"></div>
-                    <div class="h-4 bg-gray-200 rounded w-1/2 animate-pulse mb-2"></div>
-                    <div class="h-4 bg-gray-200 rounded w-2/3 animate-pulse"></div>
+                    <div class="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
                   </div>
                 </div>
               </div>
@@ -43,7 +42,7 @@
                 <div class="ml-5 w-0 flex-1">
                   <dl>
                     <dt class="text-sm font-medium text-gray-500 truncate">
-                      Ganhos do Mês
+                      Ganhos Totais
                     </dt>
                     <dd class="mt-1">
                       <div class="text-2xl font-semibold text-gray-900">
@@ -52,10 +51,6 @@
                       <div class="mt-2">
                         <span class="text-sm font-medium text-gray-500">Comissão:</span>
                         <span class="ml-1 text-sm text-gray-900">{{ commission }}%</span>
-                      </div>
-                      <div class="mt-1">
-                        <span class="text-sm font-medium text-gray-500">Potencial Máximo:</span>
-                        <span class="ml-1 text-sm text-green-600">R$ {{ potentialEarnings.toFixed(2) }}</span>
                       </div>
                     </dd>
                   </dl>
@@ -388,7 +383,7 @@ import { useStudentsStore } from '../../stores/students';
 import { usePaymentsStore } from '../../stores/payments';
 import { useAttendanceStore } from '../../stores/attendance';
 import { useScheduleStore } from '../../stores/schedule';
-import { collection, query, where, getDocs, updateDoc, doc, orderBy, limit, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc, orderBy, limit, Timestamp, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import Breadcrumb from '@/components/Breadcrumb.vue';
 
@@ -471,34 +466,58 @@ const fetchEarnings = async () => {
   try {
     // Get professor's base commission from their user profile
     commission.value = authStore.userProfile?.commission || 0;
-
-    const today = new Date();
-    const currentMonth = today.getMonth() + 1;
-    const currentYear = today.getFullYear();
     
-    const payments = await paymentsStore.fetchProfessorPayments(
-      authStore.userId, 
-      currentMonth,
-      currentYear
+    // Get ALL students assigned to the professor
+    const studentsQuery = query(
+      collection(db, 'users'),
+      where('professorId', '==', authStore.userId),
+      where('role', '==', 'student')
     );
     
-    // Calculate earnings (completed payments)
-    monthlyEarnings.value = payments.reduce((sum, payment) => {
-      if (payment.status === 'completed' && payment.professorCommission != null && !isNaN(payment.professorCommission)) {
-        sum += payment.amount * (Number(payment.professorCommission) / 100);
-      }
-      return sum;
-    }, 0);
+    const studentsSnapshot = await getDocs(studentsQuery);
+    const allStudents = studentsSnapshot.docs
+      .filter(doc => doc.exists())
+      .map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      .filter(student => student && student.planId);
     
-    // Calculate potential earnings (all payments, including pending)
-    potentialEarnings.value = payments.reduce((sum, payment) => {
-      if (payment.professorCommission != null && !isNaN(payment.professorCommission)) {
-        sum += payment.amount * (Number(payment.professorCommission) / 100);
+    // Get all plans
+    const planIds = [...new Set(allStudents.map(student => student.planId))];
+    const plansData = await Promise.all(
+      planIds.map(id => getDoc(doc(db, 'plans', id)))
+    );
+    
+    const plansMap = {};
+    plansData.forEach(doc => {
+      if (doc.exists()) {
+        plansMap[doc.id] = { id: doc.id, ...doc.data() };
       }
-      return sum;
-    }, 0);
+    });
+    
+    // Calculate total earnings (sum of ALL students' plan prices * commission)
+    let total = 0;
+    for (const student of allStudents) {
+      if (student.planId) {
+        const plan = plansMap[student.planId];
+        if (plan && plan.price) {
+          const price = Number(plan.price) || 0;
+          const earning = price * (commission.value / 100);
+          
+          if (!isNaN(earning)) {
+            total += earning;
+          }
+        }
+      }
+    }
+    monthlyEarnings.value = total;
+    potentialEarnings.value = total;
+    
   } catch (error) {
     console.error('Error fetching earnings:', error);
+    monthlyEarnings.value = 0;
+    potentialEarnings.value = 0;
   } finally {
     isLoadingEarnings.value = false;
   }
