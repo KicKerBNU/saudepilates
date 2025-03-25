@@ -7,6 +7,11 @@
     </header>
     
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Breadcrumb -->
+      <div class="mb-4">
+        <Breadcrumb :items="breadcrumbItems" />
+      </div>
+      
       <div class="bg-white shadow overflow-hidden sm:rounded-lg">
         <div class="px-4 py-5 sm:p-6">
           <!-- Payment Registration Form -->
@@ -183,18 +188,21 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useStudentsStore } from '../../stores/students';
 import { useProfessorsStore } from '../../stores/professors';
 import { usePaymentsStore } from '../../stores/payments';
 import { useAuthStore } from '../../stores/auth';
 import { collection, query, where, getDocs, getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
+import Breadcrumb from '@/components/Breadcrumb.vue';
 
 const router = useRouter();
+const route = useRoute();
 const studentsStore = useStudentsStore();
 const professorsStore = useProfessorsStore();
 const paymentsStore = usePaymentsStore();
+const authStore = useAuthStore();
 
 // State
 const loading = ref(false);
@@ -287,7 +295,6 @@ const fetchStudents = async () => {
   loading.value = true;
   try {
     // Get current admin's company ID from auth store
-    const authStore = useAuthStore();
     const companyId = authStore.companyId;
     
     // Validate company ID - prevent loading students from other companies
@@ -351,7 +358,6 @@ const fetchProfessors = async () => {
   loading.value = true;
   try {
     // Get current admin's company ID from auth store
-    const authStore = useAuthStore();
     const companyId = authStore.companyId;
     
     // Validate company ID
@@ -536,6 +542,26 @@ const registerPayment = async () => {
     loading.value = false;
   }
 };
+
+// Add breadcrumb items
+const breadcrumbItems = computed(() => {
+  const path = route.path;
+  const segments = path.split('/').filter(Boolean);
+  
+  return segments.map((segment, index) => {
+    const path = '/' + segments.slice(0, index + 1).join('/');
+    let name = segment.charAt(0).toUpperCase() + segment.slice(1);
+    
+    // Special handling for specific segments
+    if (segment === 'payments') {
+      name = 'Pagamentos';
+    } else if (segment === 'new') {
+      name = 'Novo Pagamento';
+    }
+    
+    return { name, path };
+  });
+});
 
 // Lifecycle hooks
 onMounted(async () => {

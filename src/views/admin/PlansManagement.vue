@@ -16,6 +16,11 @@
     </header>
     
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Breadcrumb -->
+      <div class="mb-4">
+        <Breadcrumb :items="breadcrumbItems" />
+      </div>
+      
       <!-- Company Info -->
       <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
         <div class="px-4 py-5 sm:px-6">
@@ -505,14 +510,37 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
+import Breadcrumb from '@/components/Breadcrumb.vue';
+
+const router = useRouter();
+const authStore = useAuthStore();
+const route = useRoute();
+
+// Add breadcrumb items
+const breadcrumbItems = computed(() => {
+  const path = route.path;
+  const segments = path.split('/').filter(Boolean);
+  
+  return segments.map((segment, index) => {
+    const path = '/' + segments.slice(0, index + 1).join('/');
+    let name = segment.charAt(0).toUpperCase() + segment.slice(1);
+    
+    // Special handling for specific segments
+    if (segment === 'plans') {
+      name = 'Planos';
+    }
+    
+    return { name, path };
+  });
+});
 
 const plansList = ref([]);
 
 async function fetchPlans() {
   try {
-    const authStore = useAuthStore();
     plansList.value = await authStore.getPlans();
   } catch (error) {
     error.value = 'Erro ao carregar planos: ' + error.message;
@@ -606,7 +634,6 @@ async function addPlan() {
     isAdding.value = true;
     error.value = '';
 
-    const authStore = useAuthStore();
     await authStore.addPlan({
       title: newPlan.value.title.trim(),
       sessionsPerWeek: parseInt(newPlan.value.sessionsPerWeek),
@@ -626,7 +653,6 @@ async function addPlan() {
 
 async function updatePlan() {
   try {
-    const authStore = useAuthStore();
     await authStore.updatePlan(editingPlan.value.id, {
       title: editingPlan.value.title,
       sessionsPerWeek: parseInt(editingPlan.value.sessionsPerWeek),
@@ -646,7 +672,6 @@ async function deletePlan() {
   
   isDeleting.value = true;
   try {
-    const authStore = useAuthStore();
     await authStore.deletePlan(planToDelete.value.id);
     await fetchPlans();
     cancelDelete();

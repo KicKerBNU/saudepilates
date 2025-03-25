@@ -7,6 +7,11 @@
     </header>
     
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Breadcrumb -->
+      <div class="mb-4">
+        <Breadcrumb :items="breadcrumbItems" />
+      </div>
+
       <!-- Dashboard Stats Overview -->
       <div class="px-4 py-6 sm:px-0">
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -239,9 +244,9 @@
             </div>
             <div class="bg-gray-50 px-4 py-4 sm:px-6 mt-auto">
               <div class="text-sm">
-                <button @click="openMessageModal" class="font-medium text-indigo-600 hover:text-indigo-500">
+                <router-link to="/professor/messages" class="font-medium text-indigo-600 hover:text-indigo-500">
                   Ver todas as mensagens <span aria-hidden="true">&rarr;</span>
-                </button>
+                </router-link>
               </div>
             </div>
           </div>
@@ -375,290 +380,252 @@
   </div>
 </template>
 
-<script>
-import { ref, onMounted, onActivated, onBeforeUnmount, computed } from 'vue';
-import { useRouter } from 'vue-router';
+<script setup>
+import { ref, onMounted, onActivated, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useStudentsStore } from '../../stores/students';
 import { usePaymentsStore } from '../../stores/payments';
 import { useAttendanceStore } from '../../stores/attendance';
 import { useScheduleStore } from '../../stores/schedule';
-import { isSameDay, parseISO } from 'date-fns';
-import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, orderBy, limit, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc, orderBy, limit, Timestamp } from 'firebase/firestore';
 import { db } from '../../firebase/config';
+import Breadcrumb from '@/components/Breadcrumb.vue';
 
-export default {
-  setup() {
-    const router = useRouter();
-    const authStore = useAuthStore();
-    const studentsStore = useStudentsStore();
-    const paymentsStore = usePaymentsStore();
-    const attendanceStore = useAttendanceStore();
-    const scheduleStore = useScheduleStore();
+const router = useRouter();
+const route = useRoute();
+const authStore = useAuthStore();
+const studentsStore = useStudentsStore();
+const paymentsStore = usePaymentsStore();
+const attendanceStore = useAttendanceStore();
+const scheduleStore = useScheduleStore();
 
-    const monthlyEarnings = ref(0);
-    const potentialEarnings = ref(0);
-    const commission = ref(0); 
-    const totalStudents = ref(0);
-    const todaysClasses = ref(0);
-    const students = ref([]);
-    const todayAttendance = ref([]);
-    const error = ref(null);
+const monthlyEarnings = ref(0);
+const potentialEarnings = ref(0);
+const commission = ref(0);
+const totalStudents = ref(0);
+const todaysClasses = ref(0);
+const students = ref([]);
+const todayAttendance = ref([]);
+const error = ref(null);
 
-    // Independent loading states for each card
-    const isLoadingEarnings = ref(true);
-    const isLoadingStudents = ref(true);
-    const isLoadingClasses = ref(true);
+// Independent loading states for each card
+const isLoadingEarnings = ref(true);
+const isLoadingStudents = ref(true);
+const isLoadingClasses = ref(true);
 
-    // Add these new variables for student messages
-    const studentMessages = ref([]);
-    const isLoadingMessages = ref(false);
-    const unreadMessages = computed(() => {
-      return studentMessages.value.filter(msg => !msg.isRead).length;
-    });
+// Student messages
+const studentMessages = ref([]);
+const isLoadingMessages = ref(false);
+const unreadMessages = computed(() => {
+  return studentMessages.value.filter(msg => !msg.isRead).length;
+});
 
-    // Add a modal state if you're implementing a full messages view
-    const showMessagesModal = ref(false);
-    const selectedMessage = ref(null);
+// Modal state
+const showMessagesModal = ref(false);
+const selectedMessage = ref(null);
 
-    // Check if user is professor, if not redirect
-    onMounted(async () => {
-      if (!authStore.isAuthenticated) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-      
-      if (!authStore.isProfessor) {
-        router.push('/login');
-        return;
-      }
+// Breadcrumb items
+const breadcrumbItems = computed(() => {
+  const path = route.path;
+  const segments = path.split('/').filter(Boolean);
+  
+  return segments.map((segment, index) => {
+    const path = '/' + segments.slice(0, index + 1).join('/');
+    const name = segment.charAt(0).toUpperCase() + segment.slice(1);
+    return { name, path };
+  });
+});
 
-      // Fetch data for dashboard
-      await fetchEarnings();
-      await fetchStudents();
-      await fetchTodayAttendance();
-      
-      // Fetch student messages
-      await fetchStudentMessages();
-    });
-
-    // Refresh data when component is activated (using keep-alive)
-    onActivated(async () => {
-      if (authStore.isProfessor) {
-        await fetchEarnings();
-        await fetchStudents();
-        await fetchTodayAttendance();
-        await fetchStudentMessages();
-      }
-    });
-
-    // Method to fetch professor's earnings
-    const fetchEarnings = async () => {
-      isLoadingEarnings.value = true;
-      try {
-        const today = new Date();
-        const currentMonth = today.getMonth() + 1; // JavaScript months are 0-indexed
-        const currentYear = today.getFullYear();
-        
-        // Get all payments for this professor in the current month
-        const payments = await paymentsStore.fetchProfessorPayments(
-          authStore.userId, 
-          currentMonth,
-          currentYear
-        );
-        
-        // Calculate earnings (completed payments)
-        monthlyEarnings.value = payments.reduce((sum, payment) => {
-          if (payment.status === 'completed') {
-            sum += payment.amount * (payment.professorCommission / 100);
-          }
-          return sum;
-        }, 0);
-        
-        // Calculate potential earnings (all payments, including pending)
-        potentialEarnings.value = payments.reduce((sum, payment) => {
-          sum += payment.amount * (payment.professorCommission / 100);
-          return sum;
-        }, 0);
-        
-        // Calculate average commission percentage
-        const commissionPercentages = payments.map(payment => payment.professorCommission);
-        commission.value = commissionPercentages.length
-          ? commissionPercentages.reduce((sum, commission) => sum + commission, 0) / commissionPercentages.length
-          : 0;
-      } catch (error) {
-        console.error('Error fetching earnings:', error);
-      } finally {
-        isLoadingEarnings.value = false;
-      }
-    };
-
-    // Method to fetch professor's students
-    const fetchStudents = async () => {
-      isLoadingStudents.value = true;
-      try {
-        // Use the students store to fetch students for this professor
-        const fetchedStudents = await studentsStore.fetchStudents();
-        
-        // Filter students for this professor if needed
-        students.value = fetchedStudents.filter(student => 
-          student.professorId === authStore.userId || 
-          !student.professorId // Include students without a professor assigned
-        );
-        
-        totalStudents.value = students.value.length;
-      } catch (error) {
-        console.error('Error fetching students:', error);
-      } finally {
-        isLoadingStudents.value = false;
-      }
-    };
-
-    // Method to fetch today's attendance records
-    const fetchTodayAttendance = async () => {
-      isLoadingClasses.value = true;
-      try {
-        // Get today's date (at midnight)
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        // Get tomorrow's date (at midnight)
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        
-        // Convert to Firestore Timestamps
-        const todayTimestamp = Timestamp.fromDate(today);
-        const tomorrowTimestamp = Timestamp.fromDate(tomorrow);
-        
-        // Query scheduled classes for this professor today
-        const classesRef = collection(db, 'scheduledClasses');
-        const classesQuery = query(
-          classesRef,
-          where('professorId', '==', authStore.userId),
-          where('date', '>=', todayTimestamp),
-          where('date', '<', tomorrowTimestamp)
-        );
-        
-        const classesSnapshot = await getDocs(classesQuery);
-        const fetchedClasses = classesSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        
-        // Set today's classes count
-        todaysClasses.value = fetchedClasses.length;
-        
-        // Also get attendance records for these classes
-        todayAttendance.value = fetchedClasses;
-      } catch (error) {
-        console.error('Error fetching today\'s attendance:', error);
-      } finally {
-        isLoadingClasses.value = false;
-      }
-    };
-
-    // Method to fetch student messages
-    const fetchStudentMessages = async () => {
-      isLoadingMessages.value = true;
-      try {
-        const messagesQuery = query(
-          collection(db, 'studentMessages'),
-          where('professorId', '==', authStore.userId),
-          orderBy('createdAt', 'desc'),
-          limit(20)
-        );
-        
-        const messagesSnapshot = await getDocs(messagesQuery);
-        
-        studentMessages.value = messagesSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-      } catch (error) {
-        console.error('Error fetching student messages:', error);
-      } finally {
-        isLoadingMessages.value = false;
-      }
-    };
-
-    // Mark message as read
-    const markAsRead = async (message) => {
-      try {
-        await updateDoc(doc(db, 'studentMessages', message.id), {
-          isRead: true
-        });
-        
-        // Update local state
-        const index = studentMessages.value.findIndex(msg => msg.id === message.id);
-        if (index !== -1) {
-          studentMessages.value[index].isRead = true;
-        }
-      } catch (error) {
-        console.error('Error marking message as read:', error);
-      }
-    };
-
-    // Reply to a student message via WhatsApp
-    const replyToMessage = (message) => {
-      // Get the student's contact information and open WhatsApp
-      const studentPhone = message.studentPhone || '';
-      if (studentPhone) {
-        const encodedReply = encodeURIComponent(`Resposta para sua mensagem: "${message.text.substring(0, 30)}..."`);
-        window.open(`https://wa.me/${studentPhone.replace(/\D/g, '')}?text=${encodedReply}`, '_blank');
-      } else {
-        alert('Número de telefone do aluno não disponível');
-      }
-    };
-
-    // Open the full messages modal
-    const openMessageModal = () => {
-      showMessagesModal.value = true;
-    };
-
-    // Format message time
-    const formatMessageTime = (timestamp) => {
-      if (!timestamp) return '';
-      
-      const date = timestamp instanceof Timestamp ? timestamp.toDate() : new Date(timestamp);
-      const now = new Date();
-      const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
-      
-      if (diffInHours < 24) {
-        return `Hoje, ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-      } else if (diffInHours < 48) {
-        return `Ontem, ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-      } else {
-        return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-      }
-    };
-
-    return {
-      router,
-      authStore,
-      monthlyEarnings,
-      potentialEarnings,
-      commission,
-      totalStudents,
-      todaysClasses,
-      students,
-      todayAttendance,
-      error,
-      isLoadingEarnings,
-      isLoadingStudents,
-      isLoadingClasses,
-      studentMessages,
-      isLoadingMessages,
-      unreadMessages,
-      showMessagesModal,
-      selectedMessage,
-      fetchEarnings,
-      fetchStudents,
-      fetchTodayAttendance,
-      fetchStudentMessages,
-      markAsRead,
-      replyToMessage,
-      openMessageModal,
-      formatMessageTime
-    };
+// Check if user is professor, if not redirect
+onMounted(async () => {
+  if (!authStore.isAuthenticated) {
+    await new Promise(resolve => setTimeout(resolve, 500));
   }
-}
+  
+  if (!authStore.isProfessor) {
+    router.push('/login');
+    return;
+  }
+
+  // Fetch data for dashboard
+  await fetchEarnings();
+  await fetchStudents();
+  await fetchTodayAttendance();
+  await fetchStudentMessages();
+});
+
+// Refresh data when component is activated
+onActivated(async () => {
+  if (authStore.isProfessor) {
+    await fetchEarnings();
+    await fetchStudents();
+    await fetchTodayAttendance();
+    await fetchStudentMessages();
+  }
+});
+
+// Method to fetch professor's earnings
+const fetchEarnings = async () => {
+  isLoadingEarnings.value = true;
+  try {
+    // Get professor's base commission from their user profile
+    commission.value = authStore.userProfile?.commission || 0;
+
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1;
+    const currentYear = today.getFullYear();
+    
+    const payments = await paymentsStore.fetchProfessorPayments(
+      authStore.userId, 
+      currentMonth,
+      currentYear
+    );
+    
+    // Calculate earnings (completed payments)
+    monthlyEarnings.value = payments.reduce((sum, payment) => {
+      if (payment.status === 'completed' && payment.professorCommission != null && !isNaN(payment.professorCommission)) {
+        sum += payment.amount * (Number(payment.professorCommission) / 100);
+      }
+      return sum;
+    }, 0);
+    
+    // Calculate potential earnings (all payments, including pending)
+    potentialEarnings.value = payments.reduce((sum, payment) => {
+      if (payment.professorCommission != null && !isNaN(payment.professorCommission)) {
+        sum += payment.amount * (Number(payment.professorCommission) / 100);
+      }
+      return sum;
+    }, 0);
+  } catch (error) {
+    console.error('Error fetching earnings:', error);
+  } finally {
+    isLoadingEarnings.value = false;
+  }
+};
+
+// Method to fetch professor's students
+const fetchStudents = async () => {
+  isLoadingStudents.value = true;
+  try {
+    const fetchedStudents = await studentsStore.fetchStudents();
+    students.value = fetchedStudents.filter(student => 
+      student.professorId === authStore.userId || 
+      !student.professorId
+    );
+    totalStudents.value = students.value.length;
+  } catch (error) {
+    console.error('Error fetching students:', error);
+  } finally {
+    isLoadingStudents.value = false;
+  }
+};
+
+// Method to fetch today's attendance records
+const fetchTodayAttendance = async () => {
+  isLoadingClasses.value = true;
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const todayTimestamp = Timestamp.fromDate(today);
+    const tomorrowTimestamp = Timestamp.fromDate(tomorrow);
+    
+    const classesRef = collection(db, 'scheduledClasses');
+    const classesQuery = query(
+      classesRef,
+      where('professorId', '==', authStore.userId),
+      where('date', '>=', todayTimestamp),
+      where('date', '<', tomorrowTimestamp)
+    );
+    
+    const classesSnapshot = await getDocs(classesQuery);
+    const fetchedClasses = classesSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    todaysClasses.value = fetchedClasses.length;
+    todayAttendance.value = fetchedClasses;
+  } catch (error) {
+    console.error('Error fetching today\'s attendance:', error);
+  } finally {
+    isLoadingClasses.value = false;
+  }
+};
+
+// Method to fetch student messages
+const fetchStudentMessages = async () => {
+  isLoadingMessages.value = true;
+  try {
+    const messagesQuery = query(
+      collection(db, 'studentMessages'),
+      where('professorId', '==', authStore.userId),
+      orderBy('createdAt', 'desc'),
+      limit(20)
+    );
+    
+    const messagesSnapshot = await getDocs(messagesQuery);
+    studentMessages.value = messagesSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error('Error fetching student messages:', error);
+  } finally {
+    isLoadingMessages.value = false;
+  }
+};
+
+// Mark message as read
+const markAsRead = async (message) => {
+  try {
+    await updateDoc(doc(db, 'studentMessages', message.id), {
+      isRead: true
+    });
+    
+    const index = studentMessages.value.findIndex(msg => msg.id === message.id);
+    if (index !== -1) {
+      studentMessages.value[index].isRead = true;
+    }
+  } catch (error) {
+    console.error('Error marking message as read:', error);
+  }
+};
+
+// Reply to a student message via WhatsApp
+const replyToMessage = (message) => {
+  const studentPhone = message.studentPhone || '';
+  if (studentPhone) {
+    const encodedReply = encodeURIComponent(`Resposta para sua mensagem: "${message.text.substring(0, 30)}..."`);
+    window.open(`https://wa.me/${studentPhone.replace(/\D/g, '')}?text=${encodedReply}`, '_blank');
+  } else {
+    alert('Número de telefone do aluno não disponível');
+  }
+};
+
+// Format message time
+const formatMessageTime = (timestamp) => {
+  if (!timestamp) return '';
+  
+  const date = timestamp instanceof Timestamp ? timestamp.toDate() : new Date(timestamp);
+  const now = new Date();
+  const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+  
+  if (diffInHours < 24) {
+    return `Hoje, ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  } else if (diffInHours < 48) {
+    return `Ontem, ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  } else {
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+  }
+};
+
+// Open the full messages modal
+const openMessageModal = () => {
+  showMessagesModal.value = true;
+};
 </script>

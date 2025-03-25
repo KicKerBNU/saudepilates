@@ -34,6 +34,11 @@
     </header>
     
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Breadcrumb -->
+      <div class="mb-4">
+        <Breadcrumb :items="breadcrumbItems" />
+      </div>
+      
       <!-- Summary Card -->
       <div class="px-4 py-5 sm:p-6 bg-white shadow sm:rounded-lg mb-6">
         <h2 class="text-lg font-medium text-gray-900">Resumo do Mês</h2>
@@ -182,11 +187,37 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { usePaymentsStore } from '../../stores/payments';
+import PaymentChart from '../../components/admin/PaymentChart.vue';
+import Breadcrumb from '@/components/Breadcrumb.vue';
 
+const router = useRouter();
 const authStore = useAuthStore();
 const paymentsStore = usePaymentsStore();
+const route = useRoute();
+
+// Add breadcrumb items
+const breadcrumbItems = computed(() => {
+  const path = route.path;
+  const segments = path.split('/').filter(Boolean);
+  
+  return segments.map((segment, index) => {
+    let path = '/' + segments.slice(0, index + 1).join('/');
+    let name = segment.charAt(0).toUpperCase() + segment.slice(1);
+    
+    // Special handling for specific segments
+    if (segment === 'payments') {
+      name = 'Pagamentos';
+      path = '/admin';
+    } else if (segment === 'monthly') {
+      name = 'Mensal';
+    }
+    
+    return { name, path };
+  });
+});
 
 // Month selection
 const months = [

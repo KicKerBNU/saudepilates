@@ -7,6 +7,11 @@
     </header>
     
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Breadcrumb -->
+      <div class="mb-4">
+        <Breadcrumb :items="breadcrumbItems" />
+      </div>
+
       <div class="px-4 py-6 sm:px-0">
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">
           <div class="px-6 py-6 sm:p-8">
@@ -331,10 +336,11 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useStudentsStore } from '../../stores/students';
 import { useAttendanceStore } from '../../stores/attendance';
+import Breadcrumb from '@/components/Breadcrumb.vue';
 import { 
   collection, 
   addDoc, 
@@ -352,9 +358,18 @@ import { db } from '../../firebase/config';
 import { dateToFirebaseTimestamp, firebaseTimestampToLocalDate, formatDateYYYYMMDD, isSameDay, createNormalizedDate } from '../../utils/dateUtils';
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const studentsStore = useStudentsStore();
 const attendanceStore = useAttendanceStore();
+
+// Breadcrumb items
+const breadcrumbItems = computed(() => {
+  return [
+    { name: 'Professor', path: '/professor' },
+    { name: 'Controle de Presença', path: '/professor/attendance-control' }
+  ];
+});
 
 // State for UI
 const activeTab = ref('schedule');

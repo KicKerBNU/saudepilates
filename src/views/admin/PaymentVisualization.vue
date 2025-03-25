@@ -7,6 +7,11 @@
     </header>
 
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Breadcrumb -->
+      <div class="mb-4">
+        <Breadcrumb :items="breadcrumbItems" />
+      </div>
+
       <!-- Loading State -->
       <div v-if="loading" class="flex justify-center items-center py-12">
         <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -85,12 +90,40 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useAuthStore } from '../../stores/auth';
 import { usePaymentsStore } from '../../stores/payments';
 import PaymentChart from '../../components/admin/PaymentChart.vue';
+import Breadcrumb from '@/components/Breadcrumb.vue';
 
+const router = useRouter();
+const authStore = useAuthStore();
 const paymentsStore = usePaymentsStore();
+const route = useRoute();
+
 const loading = ref(true);
 const payments = ref([]);
+
+// Add breadcrumb items
+const breadcrumbItems = computed(() => {
+  const path = route.path;
+  const segments = path.split('/').filter(Boolean);
+  
+  return segments.map((segment, index) => {
+    let path = '/' + segments.slice(0, index + 1).join('/');
+    let name = segment.charAt(0).toUpperCase() + segment.slice(1);
+    
+    // Special handling for specific segments
+    if (segment === 'payments') {
+      name = 'Pagamentos';
+      path = '/admin';
+    } else if (segment === 'monthly') {
+      name = 'Mensal';
+    }
+    
+    return { name, path };
+  });
+});
 
 // Computed properties for summary cards
 const totalCurrentMonth = computed(() => {

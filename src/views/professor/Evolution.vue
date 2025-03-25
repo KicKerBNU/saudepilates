@@ -7,6 +7,11 @@
     </header>
     
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Breadcrumb -->
+      <div class="mb-4">
+        <Breadcrumb :items="breadcrumbItems" />
+      </div>
+
       <div class="px-4 sm:px-0">
         <!-- Student Selection Card -->
         <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
@@ -50,8 +55,10 @@
           <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
             <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
               <div>
-                <h3 class="text-lg font-medium leading-6 text-gray-900">Adicionar Nova Evolução</h3>
-                <p class="mt-1 max-w-2xl text-sm text-gray-500">Registre o progresso atual do aluno</p>
+                <h3 class="text-lg font-medium leading-6 text-gray-900">{{ formTitle }}</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                  {{ editingEvolution ? 'Atualize os dados da evolução do aluno' : 'Registre o progresso atual do aluno' }}
+                </p>
               </div>
               <button
                 @click="toggleAddForm"
@@ -164,7 +171,7 @@
                     class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
                     <span v-if="saving">Salvando...</span>
-                    <span v-else>Salvar</span>
+                    <span v-else>{{ saveButtonText }}</span>
                   </button>
                 </div>
               </form>
@@ -207,6 +214,24 @@
                               </svg>
                             </span>
                           </span>
+                          <div class="ml-4 flex space-x-2">
+                            <button
+                              @click="editEvolution(evolution)"
+                              class="text-indigo-600 hover:text-indigo-900"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                            </button>
+                            <button
+                              @click="confirmDelete(evolution)"
+                              class="text-red-600 hover:text-red-900"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
                         </div>
                         <p class="text-sm text-gray-900 whitespace-pre-line">{{ evolution.notes }}</p>
                       </div>
@@ -224,15 +249,25 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useStudentsStore } from '@/stores/students';
 import { useAuthStore } from '@/stores/auth';
 import { useEvolutionStore } from '@/stores/evolution';
+import Breadcrumb from '@/components/Breadcrumb.vue';
 
 const router = useRouter();
+const route = useRoute();
 const studentsStore = useStudentsStore();
 const authStore = useAuthStore();
 const evolutionStore = useEvolutionStore();
+
+// Breadcrumb items
+const breadcrumbItems = computed(() => {
+  return [
+    { name: 'Professor', path: '/professor' },
+    { name: 'Evolução de Alunos', path: '/professor/evolution' }
+  ];
+});
 
 // State
 const loading = ref(false);
@@ -252,6 +287,10 @@ const newEvolution = ref({
   rating: 3,
   notes: ''
 });
+
+// State for editing
+const editingEvolution = ref(null);
+const showEditForm = ref(false);
 
 // Fetch students for the current professor
 const fetchStudents = async () => {
@@ -303,6 +342,11 @@ const onStudentChange = () => {
 // Toggle the add form visibility
 const toggleAddForm = () => {
   showAddForm.value = !showAddForm.value;
+  if (!showAddForm.value) {
+    editingEvolution.value = null;
+    showEditForm.value = false;
+    resetForm();
+  }
 };
 
 // Reset the form
@@ -312,6 +356,19 @@ const resetForm = () => {
     category: '',
     rating: 3,
     notes: ''
+  };
+};
+
+// Edit evolution
+const editEvolution = (evolution) => {
+  editingEvolution.value = { ...evolution };
+  showEditForm.value = true;
+  showAddForm.value = true;
+  newEvolution.value = {
+    date: evolution.date,
+    category: evolution.category,
+    rating: evolution.rating,
+    notes: evolution.notes
   };
 };
 
@@ -325,19 +382,40 @@ const saveEvolution = async () => {
       ...newEvolution.value,
       studentId: selectedStudentId.value,
       professorId: authStore.userId,
-      createdAt: new Date().toISOString()
     };
     
-    await evolutionStore.addEvolution(evolutionData);
+    if (editingEvolution.value) {
+      // Update existing evolution
+      await evolutionStore.updateEvolution(editingEvolution.value.id, evolutionData);
+    } else {
+      // Add new evolution
+      await evolutionStore.addEvolution(evolutionData);
+    }
+    
     await fetchStudentEvolutions(selectedStudentId.value);
     
     showAddForm.value = false;
+    showEditForm.value = false;
+    editingEvolution.value = null;
     resetForm();
   } catch (err) {
     console.error('Error saving evolution:', err);
     evolutionError.value = 'Erro ao salvar evolução: ' + err.message;
   } finally {
     saving.value = false;
+  }
+};
+
+// Confirm deletion
+const confirmDelete = async (evolution) => {
+  if (confirm('Tem certeza que deseja excluir esta evolução? Esta ação não pode ser desfeita.')) {
+    try {
+      await evolutionStore.deleteEvolution(evolution.id);
+      await fetchStudentEvolutions(selectedStudentId.value);
+    } catch (err) {
+      console.error('Error deleting evolution:', err);
+      evolutionError.value = 'Erro ao excluir evolução: ' + err.message;
+    }
   }
 };
 
@@ -398,6 +476,16 @@ const getCategoryClass = (category) => {
   };
   return classes[category] || 'bg-gray-100 text-gray-800';
 };
+
+// Update form title based on edit/add mode
+const formTitle = computed(() => {
+  return editingEvolution.value ? 'Editar Evolução' : 'Adicionar Nova Evolução';
+});
+
+// Update button text based on edit/add mode
+const saveButtonText = computed(() => {
+  return editingEvolution.value ? 'Salvar Alterações' : 'Salvar';
+});
 
 onMounted(async () => {
   // Check if user is professor, if not redirect

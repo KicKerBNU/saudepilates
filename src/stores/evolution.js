@@ -114,25 +114,28 @@ export const useEvolutionStore = defineStore('evolution', {
     },
     
     // Update an existing evolution record
-    async updateEvolution(evolutionId, updatedData) {
-      if (!evolutionId) throw new Error('Evolution ID is required');
-      
+    async updateEvolution(evolutionId, evolutionData) {
       this.loading = true;
       this.error = null;
       
       try {
-        await updateDoc(doc(db, 'evolutions', evolutionId), updatedData);
-        
+        const docRef = doc(db, 'evolutions', evolutionId);
+        await updateDoc(docRef, {
+          ...evolutionData,
+          updatedAt: new Date().toISOString()
+        });
+
         // Update local state
         const index = this.evolutions.findIndex(e => e.id === evolutionId);
         if (index !== -1) {
           this.evolutions[index] = {
             ...this.evolutions[index],
-            ...updatedData
+            ...evolutionData,
+            updatedAt: new Date().toISOString()
           };
         }
-        
-        return { id: evolutionId, ...updatedData };
+
+        return this.evolutions[index];
       } catch (error) {
         console.error('Error updating evolution:', error);
         this.error = error.message;
@@ -144,18 +147,15 @@ export const useEvolutionStore = defineStore('evolution', {
     
     // Delete an evolution record
     async deleteEvolution(evolutionId) {
-      if (!evolutionId) throw new Error('Evolution ID is required');
-      
       this.loading = true;
       this.error = null;
       
       try {
-        await deleteDoc(doc(db, 'evolutions', evolutionId));
-        
+        const docRef = doc(db, 'evolutions', evolutionId);
+        await deleteDoc(docRef);
+
         // Update local state
         this.evolutions = this.evolutions.filter(e => e.id !== evolutionId);
-        
-        return true;
       } catch (error) {
         console.error('Error deleting evolution:', error);
         this.error = error.message;

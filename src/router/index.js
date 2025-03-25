@@ -20,6 +20,7 @@ import PaymentRegistration from '../views/admin/PaymentRegistration.vue'
 import MonthlyPayments from '../views/admin/MonthlyPayments.vue'
 import SubscriptionPayment from '../views/admin/SubscriptionPayment.vue'
 import PaymentVisualization from '../views/admin/PaymentVisualization.vue'
+import ProfessorMessages from '../views/professor/Messages.vue'
 import NotFound from '../views/NotFound.vue'
 
 const routes = [
@@ -138,6 +139,12 @@ const routes = [
     meta: { requiresAuth: true, role: 'professor' }
   },
   {
+    path: '/professor/messages',
+    name: 'ProfessorMessages',
+    component: ProfessorMessages,
+    meta: { requiresAuth: true, role: 'professor' }
+  },
+  {
     path: '/student',
     name: 'StudentDashboard',
     component: StudentDashboard,
@@ -149,7 +156,6 @@ const routes = [
     component: NotFound,
     meta: { requiresAuth: false }
   }
-  
 ]
 
 const router = createRouter({

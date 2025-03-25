@@ -8,6 +8,11 @@
     
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       <div class="px-4 py-6 sm:px-0">
+        <!-- Breadcrumb -->
+        <div class="mb-4">
+          <Breadcrumb :items="breadcrumbItems" />
+        </div>
+
         <!-- Enhanced Student Welcome Card -->
         <div class="bg-gradient-to-r from-indigo-600 to-blue-500 shadow overflow-hidden sm:rounded-lg mb-6 text-white">
           <div class="px-4 py-6 sm:px-6 flex items-center">
@@ -419,7 +424,7 @@
 
 <script>
 import { ref, onMounted, computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useScheduleStore } from '../../stores/schedule';
 import { useEvolutionStore } from '../../stores/evolution';
@@ -427,10 +432,15 @@ import { collection, addDoc, query, where, getDocs, orderBy, Timestamp, doc, get
 import { db } from '../../firebase/config';
 import { formatISO, addDays, startOfWeek, endOfWeek, format, parseISO, add } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import Breadcrumb from '@/components/Breadcrumb.vue';
 
 export default {
+  components: {
+    Breadcrumb
+  },
   setup() {
     const router = useRouter();
+    const route = useRoute();
     const authStore = useAuthStore();
     const scheduleStore = useScheduleStore();
     const evolutionStore = useEvolutionStore();
@@ -936,6 +946,17 @@ export default {
       fetchStudentSchedule();
     });
 
+    const breadcrumbItems = computed(() => {
+      const path = route.path;
+      const segments = path.split('/').filter(Boolean);
+      
+      return segments.map((segment, index) => {
+        const path = '/' + segments.slice(0, index + 1).join('/');
+        const name = segment.charAt(0).toUpperCase() + segment.slice(1);
+        return { name, path };
+      });
+    });
+
     onMounted(async () => {
       if (!authStore.isStudent) {
         router.push('/login');
@@ -977,7 +998,8 @@ export default {
       sendMessage,
       selectDefaultMessage,
       selectAndSendMessage,
-      formatPhone
+      formatPhone,
+      breadcrumbItems
     };
   }
 };

@@ -7,6 +7,11 @@
     </header>
     
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Breadcrumb -->
+      <div class="mb-4">
+        <Breadcrumb :items="breadcrumbItems" />
+      </div>
+      
       <!-- Subscription Alert -->
       <div v-if="showSubscriptionAlert" class="mb-6 px-4 sm:px-0">
         <div class="rounded-md bg-yellow-50 p-4">
@@ -358,6 +363,7 @@ import { useStudentsStore } from '../../stores/students';
 import { useProfessorsStore } from '../../stores/professors';
 import { usePaymentsStore } from '../../stores/payments';
 import { useSubscriptionStore } from '../../stores/subscription';
+import Breadcrumb from '@/components/Breadcrumb.vue';
 
 // Initialize route and router
 const route = useRoute();
@@ -540,6 +546,17 @@ const checkSubscription = async () => {
     console.error('Error checking subscription:', error);
   }
 };
+
+const breadcrumbItems = computed(() => {
+  const path = route.path;
+  const segments = path.split('/').filter(Boolean);
+  
+  return segments.map((segment, index) => {
+    const path = '/' + segments.slice(0, index + 1).join('/');
+    const name = segment.charAt(0).toUpperCase() + segment.slice(1);
+    return { name, path };
+  });
+});
 
 // Logout functionality removed - now handled in NavBar
 </script>

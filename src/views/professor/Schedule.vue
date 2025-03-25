@@ -6,6 +6,11 @@
       </div>
     </header>
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Breadcrumb -->
+      <div class="mb-4">
+        <Breadcrumb :items="breadcrumbItems" />
+      </div>
+
       <div class="px-4 py-6 sm:px-0">
         <!-- Calendar Controls -->
         <div class="flex justify-between items-center mb-6">
@@ -110,17 +115,26 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useScheduleStore } from '../../stores/schedule';
 import { startOfMonth, endOfMonth, setMonth, isSameDay, format, parseISO, addDays, subDays, startOfWeek, endOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { dateToFirebaseTimestamp, firebaseTimestampToLocalDate, formatDateYYYYMMDD } from '../../utils/dateUtils';
+import Breadcrumb from '@/components/Breadcrumb.vue';
 
 const router = useRouter();
-
+const route = useRoute();
 const authStore = useAuthStore();
 const scheduleStore = useScheduleStore();
+
+// Breadcrumb items
+const breadcrumbItems = computed(() => {
+  return [
+    { name: 'Professor', path: '/professor' },
+    { name: 'Agenda', path: '/professor/schedule' }
+  ];
+});
 
 // Calendar state
 const currentDate = ref(new Date());

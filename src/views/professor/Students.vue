@@ -7,6 +7,11 @@
     </header>
     
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Breadcrumb -->
+      <div class="mb-4">
+        <Breadcrumb :items="breadcrumbItems" />
+      </div>
+
       <div class="px-4 sm:px-0">
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">
           <div v-if="loading" class="p-4 text-center">
@@ -67,17 +72,27 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useStudentsStore } from '@/stores/students';
 import { useAuthStore } from '@/stores/auth';
+import Breadcrumb from '@/components/Breadcrumb.vue';
 
 const router = useRouter();
+const route = useRoute();
 const studentsStore = useStudentsStore();
 const authStore = useAuthStore();
 
 const students = ref([]);
 const loading = ref(true);
 const error = ref(null);
+
+// Breadcrumb items
+const breadcrumbItems = computed(() => {
+  return [
+    { name: 'Professor', path: '/professor' },
+    { name: 'Meus Alunos', path: '/professor/students' }
+  ];
+});
 
 const sortedStudents = computed(() => {
   return [...students.value].sort((a, b) => {
