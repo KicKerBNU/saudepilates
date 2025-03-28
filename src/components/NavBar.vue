@@ -6,8 +6,7 @@
         <div class="flex">
           <div class="flex-shrink-0 flex items-center">
             <router-link :to="homeOrDashboardLink" class="flex items-center">
-              <img class="h-8 w-8" src="@/assets/pilates-icon.svg" alt="Pilates Icon" />
-              <span class="ml-2 text-xl font-semibold text-gray-800">SaúdePilates</span>
+              <img class="h-8 w-auto" src="@/assets/saudepilates-lotus-no-bg.png" alt="Saúde Pilates Logo" />
             </router-link>
           </div>
           <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -20,6 +19,9 @@
             </router-link>
             <router-link v-if="!authStore.isAuthenticated" to="/guia" :class="[isActiveRoute('/guia') ? activeClass : inactiveClass]">
               Guia
+            </router-link>
+            <router-link v-if="!authStore.isAuthenticated" to="/privacy" :class="[isActiveRoute('/privacy') ? activeClass : inactiveClass]">
+              Privacidade
             </router-link>
             <!-- Show subscription link for admin users -->
             <router-link 

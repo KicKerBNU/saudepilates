@@ -22,6 +22,7 @@ import SubscriptionPayment from '../views/admin/SubscriptionPayment.vue'
 import PaymentVisualization from '../views/admin/PaymentVisualization.vue'
 import ProfessorMessages from '../views/professor/Messages.vue'
 import NotFound from '../views/NotFound.vue'
+import PrivacyPolicy from '@/views/PrivacyPolicy.vue'
 
 const routes = [
   {
@@ -149,6 +150,11 @@ const routes = [
     name: 'StudentDashboard',
     component: StudentDashboard,
     meta: { requiresAuth: true, role: 'student' }
+  },
+  {
+    path: '/privacy',
+    name: 'PrivacyPolicy',
+    component: PrivacyPolicy
   },
   {
     path: '/:pathMatch(.*)*',
