@@ -6,7 +6,8 @@
         <div class="flex">
           <div class="flex-shrink-0 flex items-center">
             <router-link :to="homeOrDashboardLink" class="flex items-center">
-              <img class="h-8 w-auto" src="@/assets/saudepilates-lotus-no-bg.png" alt="Saúde Pilates Logo" />
+              <img class="h-8 w-auto" src="@/assets/pilates-icon.svg" alt="Saúde Pilates Logo" />
+              <span class="ml-2 text-xl font-semibold text-gray-900">Saúde Pilates</span>
             </router-link>
           </div>
           <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
