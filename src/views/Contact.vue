@@ -144,7 +144,7 @@ const sendEzmail = async () => {
     // Company information for the auto-reply email
     const companyInfo = {
       name: 'Saúde Pilates',
-      logo: window.location.origin + '/pilates-icon.svg', // Adjust path as needed
+      logo: window.location.origin + '/lotusb2.png', // Adjust path as needed
       phone: '(47) 99914-1313', // Replace with your actual phone
       whatsapp: '+351912351771', // Replace with your actual WhatsApp
       website: window.location.origin,

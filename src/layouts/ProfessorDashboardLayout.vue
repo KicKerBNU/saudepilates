@@ -6,7 +6,7 @@
         <div class="flex justify-between h-16">
           <div class="flex">
             <div class="flex-shrink-0 flex items-center">
-              <img class="h-8 w-auto" src="@/assets/logo.png" alt="Saúde Pilates" />
+              <img class="h-8 w-auto object-contain" src="@/assets/lotusb2.png" alt="Saúde Pilates" />
             </div>
             <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
               <router-link
