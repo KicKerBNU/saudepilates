@@ -66,7 +66,13 @@
                       Total de Alunos
                     </dt>
                     <dd class="flex items-baseline">
-                      <div class="text-2xl font-semibold text-gray-900">
+                      <div v-if="loadingStudents" class="text-2xl font-semibold text-gray-900">
+                        <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      </div>
+                      <div v-else class="text-2xl font-semibold text-gray-900">
                         {{ totalStudents }}
                       </div>
                     </dd>
@@ -98,7 +104,13 @@
                       Total de Professores
                     </dt>
                     <dd class="flex items-baseline">
-                      <div class="text-2xl font-semibold text-gray-900">
+                      <div v-if="loadingProfessors" class="text-2xl font-semibold text-gray-900">
+                        <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      </div>
+                      <div v-else class="text-2xl font-semibold text-gray-900">
                         {{ totalProfessors }}
                       </div>
                     </dd>
@@ -131,7 +143,13 @@
                         Receita Mensal
                       </dt>
                       <dd class="flex items-baseline">
-                        <div class="text-2xl font-semibold text-gray-900">
+                        <div v-if="loadingMonthlyRevenue" class="text-2xl font-semibold text-gray-900">
+                          <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        </div>
+                        <div v-else class="text-2xl font-semibold text-gray-900">
                           R$ {{ monthlyRevenue ? monthlyRevenue.toFixed(2) : '0.00' }}
                         </div>
                       </dd>
@@ -164,7 +182,13 @@
                       Total de Planos
                     </dt>
                     <dd class="flex items-baseline">
-                      <div class="text-2xl font-semibold text-gray-900">
+                      <div v-if="loadingPlans" class="text-2xl font-semibold text-gray-900">
+                        <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      </div>
+                      <div v-else class="text-2xl font-semibold text-gray-900">
                         {{ totalPlans }}
                       </div>
                     </dd>
@@ -213,7 +237,13 @@
       <div class="mt-8 px-4 sm:px-0">
         <h2 class="text-lg font-medium text-gray-900 mb-4">Atividades Recentes</h2>
         <div class="bg-white shadow overflow-hidden sm:rounded-md">
-          <ul role="list" class="divide-y divide-gray-200">
+          <div v-if="loadingRecentActivities" class="flex items-center justify-center py-12">
+            <svg class="animate-spin h-12 w-12 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+          <ul v-else role="list" class="divide-y divide-gray-200">
             <li v-if="recentPayments.length === 0" class="px-6 py-4 text-gray-500">
               Nenhuma atividade recente.
             </li>
@@ -384,6 +414,11 @@ const recentPayments = ref([]);
 const totalPlans = ref(0);
 const currentMonth = new Date().getMonth();
 const currentYear = new Date().getFullYear();
+const loadingStudents = ref(true);
+const loadingProfessors = ref(true);
+const loadingMonthlyRevenue = ref(true);
+const loadingPlans = ref(true);
+const loadingRecentActivities = ref(true);
 
 // Check if user is admin, if not redirect
 onMounted(async () => {
@@ -411,9 +446,11 @@ const fetchStudents = async () => {
     // Use authStore to get students for the current company
     const students = await authStore.getUsersByCompany('student');
     totalStudents.value = students.length;
+    loadingStudents.value = false;
   } catch (error) {
     console.error('Error fetching students:', error);
     totalStudents.value = 0;
+    loadingStudents.value = false;
   }
 };
 
@@ -422,9 +459,11 @@ const fetchProfessors = async () => {
     // Use authStore to get professors for the current company
     const professors = await authStore.getUsersByCompany('professor');
     totalProfessors.value = professors.length;
+    loadingProfessors.value = false;
   } catch (error) {
     console.error('Error fetching professors:', error);
     totalProfessors.value = 0;
+    loadingProfessors.value = false;
   }
 };
 
@@ -466,8 +505,13 @@ const fetchPayments = async () => {
       ...payment,
       studentName: studentsMap[payment.studentId] || `Aluno ID: ${payment.studentId.substring(0, 6)}...`
     }));
+    
+    loadingMonthlyRevenue.value = false;
+    loadingRecentActivities.value = false;
   } catch (error) {
     console.error('Error fetching payments:', error);
+    loadingMonthlyRevenue.value = false;
+    loadingRecentActivities.value = false;
   }
 };
 
@@ -476,9 +520,11 @@ const fetchPlans = async () => {
     // Use authStore to get plans for the current company
     const plans = await authStore.getPlans();
     totalPlans.value = plans.length;
+    loadingPlans.value = false;
   } catch (error) {
     console.error('Error fetching plans:', error);
     totalPlans.value = 0;
+    loadingPlans.value = false;
   }
 };
 

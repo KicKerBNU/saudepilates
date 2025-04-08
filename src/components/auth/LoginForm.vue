@@ -73,23 +73,20 @@ const handleLogin = async () => {
     // Login the user
     const user = await authStore.login(email.value, password.value);
     
-    
-    // Add a small delay to ensure profile is loaded (temporary fix)
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Wait for the auth store to finish loading all data
+    while (authStore.loading) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
     
     // Redirect based on role - using route names instead of paths
     try {
       if (authStore.isAdmin) {
-
         await router.push({ name: 'AdminDashboard' });
       } else if (authStore.isProfessor) {
-
         await router.push({ name: 'ProfessorDashboard' });
       } else if (authStore.isStudent) {
-
         await router.push({ name: 'StudentDashboard' });
       } else {
-
         await router.push({ name: 'Home' });
       }
     } catch (navError) {
@@ -113,7 +110,6 @@ const handleLogin = async () => {
     } else {
       error.value = 'Erro ao fazer login: ' + (err.message || 'Tente novamente.');
     }
-
   } finally {
     isLoading.value = false;
   }
