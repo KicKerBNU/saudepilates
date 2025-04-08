@@ -1,5 +1,8 @@
 <template>
-  <div class="min-h-screen bg-gray-100">
+  <div class="min-h-screen bg-gray-100" 
+       @touchstart="handleTouchStart" 
+       @touchmove="handleTouchMove" 
+       @touchend="handleTouchEnd">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <h1 class="text-3xl font-bold text-gray-900">Dashboard do Professor</h1>
@@ -431,6 +434,29 @@ const breadcrumbItems = computed(() => {
     return { name, path };
   });
 });
+
+// Touch event variables
+const touchStartX = ref(0);
+const touchEndX = ref(0);
+const minSwipeDistance = 50; // Minimum distance for a swipe to be registered
+
+// Touch event handlers
+const handleTouchStart = (e) => {
+  touchStartX.value = e.touches[0].clientX;
+};
+
+const handleTouchMove = (e) => {
+  touchEndX.value = e.touches[0].clientX;
+};
+
+const handleTouchEnd = () => {
+  const swipeDistance = touchEndX.value - touchStartX.value;
+  
+  // Check if it's a left swipe (negative distance) and meets minimum distance
+  if (swipeDistance < -minSwipeDistance) {
+    router.go(-1); // Go back one step in history
+  }
+};
 
 // Check if user is professor, if not redirect
 onMounted(async () => {
