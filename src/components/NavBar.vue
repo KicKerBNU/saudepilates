@@ -6,8 +6,8 @@
         <div class="flex">
           <div class="flex-shrink-0 flex items-center">
             <router-link :to="homeOrDashboardLink" class="flex items-center">
-              <img class="h-18 w-auto" src="@/assets/lotussvg.svg" alt="Saúde Pilates Logo" />
-              <span class="ml-2 text-xl font-semibold text-gray-900">Saúde Pilates</span>
+              <img class="h-20 w-auto object-contain" src="@/assets/lotussvg.svg" alt="Saúde Pilates Logo" />
+              <span class="ml-2 text-sm sm:text-lg font-semibold text-gray-900 hidden sm:block">Saúde Pilates</span>
             </router-link>
           </div>
           <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -39,11 +39,11 @@
         </div>
         
         <!-- Login/Register buttons when user is not authenticated -->
-        <div v-if="!authStore.isAuthenticated" class="flex items-center">
-          <router-link to="/login" class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+        <div v-if="!authStore.isAuthenticated" class="flex items-center space-x-2 sm:space-x-4">
+          <router-link to="/login" class="text-gray-500 hover:text-gray-900 px-2 sm:px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap">
             Entrar
           </router-link>
-          <router-link to="/register" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700">
+          <router-link to="/register" class="bg-indigo-600 text-white px-3 sm:px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 whitespace-nowrap">
             Cadastrar
           </router-link>
         </div>
