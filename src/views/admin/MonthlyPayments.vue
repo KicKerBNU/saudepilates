@@ -204,7 +204,7 @@
               </div>
               <div class="mt-4 sm:mt-0 sm:ml-4">
                 <router-link 
-                  :to="{name: 'PaymentRegistration', query: { studentId: student.studentId }}" 
+                  :to="{name: 'PaymentRegistration', query: { studentId: student.id }}" 
                   class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Registrar Pagamento
@@ -296,13 +296,15 @@ const fetchData = async () => {
         return {
           ...student,
           planTitle: plan.title || 'Plano não encontrado',
-          planPrice: plan.price || 0
+          planPrice: plan.price || 0,
+          studentName: student.name || `${student.firstName || ''} ${student.lastName || ''}`.trim() || 'Aluno sem nome'
         };
       }
       return {
         ...student,
         planTitle: 'Sem plano',
-        planPrice: 0
+        planPrice: 0,
+        studentName: student.name || `${student.firstName || ''} ${student.lastName || ''}`.trim() || 'Aluno sem nome'
       };
     });
     
@@ -377,19 +379,20 @@ const fetchData = async () => {
       return false;
     });
     
-    // Add student names to payments
+    // Create a map of student IDs to student objects for quick lookup
     const studentsMap = {};
     allStudents.value.forEach(student => {
-      studentsMap[student.id] = student.name || 
-        `${student.firstName || ''} ${student.lastName || ''}`.trim() || 'Aluno sem nome';
+      studentsMap[student.id] = student;
     });
     
+    // Add student information to payments
     allPayments.value = filteredPayments.map(payment => {
-      // Ensure all payments are marked as paid
+      const student = studentsMap[payment.studentId];
       return {
         ...payment,
         status: 'paid', // Force status to be paid
-        studentName: studentsMap[payment.studentId] || `Aluno ID: ${payment.studentId?.substring(0, 6)}...`
+        studentName: student ? student.studentName : `Aluno ID: ${payment.studentId?.substring(0, 6)}...`,
+        planTitle: student ? student.planTitle : 'Plano não encontrado'
       };
     });
     
@@ -471,7 +474,10 @@ const studentsWithoutPayments = computed(() => {
   return allStudents.value.filter(student => 
     !studentsWithPayments.has(student.id) && 
     student.planPrice > 0 // Only include students who have a plan with a price
-  );
+  ).map(student => ({
+    ...student,
+    expectedAmount: student.planPrice || 0
+  }));
 });
 
 // Determine if we should show the students without payments section

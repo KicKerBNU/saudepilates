@@ -385,63 +385,76 @@ const loadStudentDetails = async () => {
   
   loading.value = true;
   try {
-    // Get the student's full details
-    const studentDetails = await studentsStore.getStudentDetails(selectedStudentId.value);
+    // First try to find the student in our local array
+    const localStudent = students.value.find(s => s.id === selectedStudentId.value);
     
-    // If student has a plan, fetch the plan details
-    if (studentDetails.planId) {
-      const planDetails = await studentsStore.fetchPlanById(studentDetails.planId);
-      studentDetails.plan = planDetails;
-    }
-    
-    selectedStudent.value = studentDetails;
-    
-    // Update payment data with student info
-    paymentData.value.studentId = studentDetails.id;
-    paymentData.value.professorId = studentDetails.professorId || '';
-    paymentData.value.planId = studentDetails.planId || '';
-    
-    // Get professor details if assigned
-    if (studentDetails.professorId) {
-      try {
-        let professor;
-        
-        // First try to find in the local array
-        professor = professors.value.find(p => p.id === studentDetails.professorId);
-        
-        if (!professor) {
-          // Directly query Firestore for the professor
-          const professorDoc = await getDoc(doc(db, 'users', studentDetails.professorId));
-          
-          if (professorDoc.exists()) {
-            professor = { id: professorDoc.id, ...professorDoc.data() };
-          }
-        }
-        
+    if (localStudent) {
+      selectedStudent.value = localStudent;
+      
+      // Update payment data with student info
+      paymentData.value.studentId = localStudent.id;
+      paymentData.value.professorId = localStudent.professorId || '';
+      paymentData.value.planId = localStudent.planId || '';
+      
+      // Get professor details if assigned
+      if (localStudent.professorId) {
+        const professor = professors.value.find(p => p.id === localStudent.professorId);
         if (professor) {
-          // Set professor name for display
           professorName.value = professor.name || `${professor.firstName || ''} ${professor.lastName || ''}`.trim();
-          
-          // Store the professor object for commission reference
           selectedStudent.value.professor = professor;
-          
-          // Set commission explicitly
-          if (typeof professor.commission === 'number') {
-            selectedStudent.value.professorCommission = professor.commission;
-          } else if (professor.commission) {
-            // Try to parse if it's not a number but exists
-            selectedStudent.value.professorCommission = parseFloat(professor.commission);
-          } else {
-            console.warn('Professor has no commission set:', professor);
-            selectedStudent.value.professorCommission = 0;
-          }
+          selectedStudent.value.professorCommission = typeof professor.commission === 'number' 
+            ? professor.commission 
+            : parseFloat(professor.commission) || 0;
         } else {
           professorName.value = 'Professor não encontrado';
           selectedStudent.value.professorCommission = 0;
         }
-      } catch (error) {
-        console.error('Error fetching professor details:', error);
-        professorName.value = 'Erro ao carregar professor';
+      } else {
+        professorName.value = '';
+        selectedStudent.value.professorCommission = 0;
+      }
+      
+      // Calculate payment amount
+      calculatePaymentAmount();
+      return;
+    }
+    
+    // If student not found locally, fetch from Firestore
+    const studentDoc = await getDoc(doc(db, 'users', selectedStudentId.value));
+    if (!studentDoc.exists()) {
+      console.error('Student not found');
+      return;
+    }
+    
+    const studentData = { id: studentDoc.id, ...studentDoc.data() };
+    
+    // If student has a plan, fetch the plan details
+    if (studentData.planId) {
+      const planDoc = await getDoc(doc(db, 'plans', studentData.planId));
+      if (planDoc.exists()) {
+        studentData.plan = { id: planDoc.id, ...planDoc.data() };
+      }
+    }
+    
+    selectedStudent.value = studentData;
+    
+    // Update payment data with student info
+    paymentData.value.studentId = studentData.id;
+    paymentData.value.professorId = studentData.professorId || '';
+    paymentData.value.planId = studentData.planId || '';
+    
+    // Get professor details if assigned
+    if (studentData.professorId) {
+      const professorDoc = await getDoc(doc(db, 'users', studentData.professorId));
+      if (professorDoc.exists()) {
+        const professor = { id: professorDoc.id, ...professorDoc.data() };
+        professorName.value = professor.name || `${professor.firstName || ''} ${professor.lastName || ''}`.trim();
+        selectedStudent.value.professor = professor;
+        selectedStudent.value.professorCommission = typeof professor.commission === 'number' 
+          ? professor.commission 
+          : parseFloat(professor.commission) || 0;
+      } else {
+        professorName.value = 'Professor não encontrado';
         selectedStudent.value.professorCommission = 0;
       }
     } else {
@@ -451,6 +464,7 @@ const loadStudentDetails = async () => {
     
     // Calculate payment amount
     calculatePaymentAmount();
+    
   } catch (error) {
     console.error('Error loading student details:', error);
   } finally {
@@ -548,15 +562,20 @@ const breadcrumbItems = computed(() => {
 // Lifecycle hooks
 onMounted(async () => {
   try {
-    await fetchStudents();
-    await fetchProfessors();
-    
-    // Check for studentId in URL query parameters
+    // Check for studentId in URL query parameters first
     const studentId = router.currentRoute.value.query.studentId;
+    
+    // If we have a studentId, load that student's details immediately
     if (studentId) {
       selectedStudentId.value = studentId;
       await loadStudentDetails();
     }
+    
+    // Load students and professors in parallel
+    await Promise.all([
+      fetchStudents(),
+      fetchProfessors()
+    ]);
     
   } catch (error) {
     console.error('Error during component initialization:', error);
