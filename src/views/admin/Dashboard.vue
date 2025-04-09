@@ -16,268 +16,76 @@
       </div>
       
       <!-- Subscription Alert -->
-      <div v-if="showSubscriptionAlert" class="mb-6 px-4 sm:px-0">
-        <div class="rounded-md bg-yellow-50 p-4">
-          <div class="flex">
-            <div class="flex-shrink-0">
-              <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-              </svg>
-            </div>
-            <div class="ml-3">
-              <h3 class="text-sm font-medium text-yellow-800">
-                Alerta de Assinatura
-              </h3>
-              <div class="mt-2 text-sm text-yellow-700">
-                <p>
-                  {{ subscriptionAlertMessage }}
-                </p>
-              </div>
-              <div class="mt-4">
-                <div class="-mx-2 -my-1.5 flex">
-                  <router-link :to="{name: 'SubscriptionPayment'}" class="bg-yellow-50 px-2 py-1.5 rounded-md text-sm font-medium text-yellow-800 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-yellow-50 focus:ring-yellow-600">
-                    Renovar Assinatura
-                  </router-link>
-                  <button @click="dismissSubscriptionAlert" type="button" class="ml-3 bg-yellow-50 px-2 py-1.5 rounded-md text-sm font-medium text-yellow-800 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-yellow-50 focus:ring-yellow-600">
-                    Ignorar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SubscriptionAlert 
+        :show="showSubscriptionAlert"
+        :message="subscriptionAlertMessage"
+        @dismiss="dismissSubscriptionAlert"
+      />
       
       <!-- Dashboard Stats Overview -->
       <div class="px-4 py-6 sm:px-0">
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           <!-- Students Stats -->
-          <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="px-4 py-5 sm:p-6">
-              <div class="flex items-center">
-                <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
-                  <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">
-                      Total de Alunos
-                    </dt>
-                    <dd class="flex items-baseline">
-                      <div v-if="loadingStudents" class="text-2xl font-semibold text-gray-900">
-                        <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                      </div>
-                      <div v-else class="text-2xl font-semibold text-gray-900">
-                        {{ totalStudents }}
-                      </div>
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-4 sm:px-6">
-              <div class="text-sm">
-                <router-link :to="{name: 'StudentsManagement'}" class="font-medium text-indigo-600 hover:text-indigo-500">
-                  Ver todos os alunos <span aria-hidden="true">&rarr;</span>
-                </router-link>
-              </div>
-            </div>
-          </div>
+          <StatsCard
+            title="Total de Alunos"
+            :value="totalStudents"
+            :loading="loadingStudents"
+            iconPath="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+            iconBgColor="bg-indigo-500"
+            :linkTo="{name: 'StudentsManagement'}"
+            linkText="Ver todos os alunos"
+          />
 
           <!-- Professors Stats -->
-          <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="px-4 py-5 sm:p-6">
-              <div class="flex items-center">
-                <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
-                  <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">
-                      Total de Professores
-                    </dt>
-                    <dd class="flex items-baseline">
-                      <div v-if="loadingProfessors" class="text-2xl font-semibold text-gray-900">
-                        <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                      </div>
-                      <div v-else class="text-2xl font-semibold text-gray-900">
-                        {{ totalProfessors }}
-                      </div>
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-4 sm:px-6">
-              <div class="text-sm">
-                <router-link :to="{name: 'ProfessorsManagement'}" class="font-medium text-indigo-600 hover:text-indigo-500">
-                  Ver todos os professores <span aria-hidden="true">&rarr;</span>
-                </router-link>
-              </div>
-            </div>
-          </div>
+          <StatsCard
+            title="Total de Professores"
+            :value="totalProfessors"
+            :loading="loadingProfessors"
+            iconPath="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+            iconBgColor="bg-green-500"
+            :linkTo="{name: 'ProfessorsManagement'}"
+            linkText="Ver todos os professores"
+          />
 
           <!-- Payments Stats -->
           <router-link :to="{name: 'MonthlyPayments'}" class="cursor-pointer">
-            <div class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50 transition duration-150">
-              <div class="px-4 py-5 sm:p-6">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div class="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt class="text-sm font-medium text-gray-500 truncate">
-                        Receita Mensal
-                      </dt>
-                      <dd class="flex items-baseline">
-                        <div v-if="loadingMonthlyRevenue" class="text-2xl font-semibold text-gray-900">
-                          <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        </div>
-                        <div v-else class="text-2xl font-semibold text-gray-900">
-                          R$ {{ monthlyRevenue ? monthlyRevenue.toFixed(2) : '0.00' }}
-                        </div>
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-              <div class="bg-gray-50 px-4 py-4 sm:px-6">
-                <div class="text-sm">
-                  <span class="font-medium text-indigo-600 hover:text-indigo-500">
-                    Ver detalhes dos pagamentos mensais <span aria-hidden="true">&rarr;</span>
-                  </span>
-                </div>
-              </div>
-            </div>
+            <StatsCard
+              title="Receita Mensal"
+              :value="monthlyRevenue ? `R$ ${monthlyRevenue.toFixed(2)}` : 'R$ 0.00'"
+              :loading="loadingMonthlyRevenue"
+              iconPath="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              iconBgColor="bg-yellow-500"
+              :linkTo="{name: 'MonthlyPayments'}"
+              linkText="Ver detalhes dos pagamentos mensais"
+            />
           </router-link>
 
           <!-- Plans Stats -->
-          <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="px-4 py-5 sm:p-6">
-              <div class="flex items-center">
-                <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
-                  <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                  </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">
-                      Total de Planos
-                    </dt>
-                    <dd class="flex items-baseline">
-                      <div v-if="loadingPlans" class="text-2xl font-semibold text-gray-900">
-                        <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                      </div>
-                      <div v-else class="text-2xl font-semibold text-gray-900">
-                        {{ totalPlans }}
-                      </div>
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-4 sm:px-6">
-              <div class="text-sm">
-                <router-link :to="{name: 'PlansManagement'}" class="font-medium text-indigo-600 hover:text-indigo-500">
-                  Ver todos os planos <span aria-hidden="true">&rarr;</span>
-                </router-link>
-              </div>
-            </div>
-          </div>
+          <StatsCard
+            title="Total de Planos"
+            :value="totalPlans"
+            :loading="loadingPlans"
+            iconPath="M12 4v16m8-8H4"
+            iconBgColor="bg-blue-500"
+            :linkTo="{name: 'PlansManagement'}"
+            linkText="Ver todos os planos"
+          />
         </div>
       </div>
 
       <!-- Payment Success Message -->
-      <div v-if="showPaymentSuccess" class="mt-8 px-4 sm:px-0">
-        <div class="rounded-md bg-green-50 p-4">
-          <div class="flex">
-            <div class="flex-shrink-0">
-              <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-              </svg>
-            </div>
-            <div class="ml-3">
-              <h3 class="text-sm font-medium text-green-800">Pagamento registrado com sucesso!</h3>
-              <div class="mt-2 text-sm text-green-700">
-                <p>O pagamento foi registrado no sistema. A comissão do professor foi calculada automaticamente com base no valor final pago pelo aluno.</p>
-              </div>
-              <div class="mt-4">
-                <div class="-mx-2 -my-1.5 flex">
-                  <button @click="dismissPaymentSuccess()" type="button" class="rounded-md bg-green-50 px-2 py-1.5 text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50">
-                    Entendido
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SuccessMessage 
+        :show="showPaymentSuccess"
+        title="Pagamento registrado com sucesso!"
+        message="O pagamento foi registrado no sistema. A comissão do professor foi calculada automaticamente com base no valor final pago pelo aluno."
+        @dismiss="dismissPaymentSuccess"
+      />
 
       <!-- Recent Activity Section -->
       <RecentActivities />
 
       <!-- Quick Actions -->
-      <div class="mt-8 px-4 sm:px-0">
-        <h2 class="text-lg font-medium text-gray-900 mb-4">Ações Rápidas</h2>
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <router-link :to="{name: 'PaymentRegistration'}" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
-            <div class="px-4 py-5 sm:p-6">
-              <div class="flex items-center">
-                <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                  <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                  <h3 class="text-lg font-medium text-gray-900">Registrar Pagamento</h3>
-                  <p class="mt-1 text-sm text-gray-500">
-                    Registre um novo pagamento de mensalidade para alunos, incluindo opções para desconto em pagamentos antecipados.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </router-link>
-
-          <!-- Payment Visualization Card -->
-          <router-link :to="{name: 'PaymentVisualization'}" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
-            <div class="px-4 py-5 sm:p-6">
-              <div class="flex items-center">
-                <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
-                  <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                  <h3 class="text-lg font-medium text-gray-900">Visualização de Pagamentos</h3>
-                  <p class="mt-1 text-sm text-gray-500">
-                    Visualize gráficos e estatísticas dos pagamentos recebidos.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </router-link>
-        </div>
-      </div>
+      <QuickActions />
     </main>
   </div>
 </template>
@@ -292,6 +100,10 @@ import { usePaymentsStore } from '../../stores/payments';
 import { useSubscriptionStore } from '../../stores/subscription';
 import Breadcrumb from '@/components/Breadcrumb.vue';
 import RecentActivities from '@/components/admin/RecentActivities.vue';
+import QuickActions from '@/components/admin/QuickActions.vue';
+import SuccessMessage from '@/components/admin/SuccessMessage.vue';
+import SubscriptionAlert from '@/components/admin/SubscriptionAlert.vue';
+import StatsCard from '@/components/admin/StatsCard.vue';
 
 // Initialize route and router
 const route = useRoute();
