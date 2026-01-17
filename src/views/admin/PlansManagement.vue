@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Gerenciamento de Planos</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $t('admin.plansManagement') }}</h1>
         <button 
           @click="openAddPlanModal"
           class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -10,7 +10,7 @@
           <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
-          Adicionar Plano
+          {{ $t('admin.addPlan') }}
         </button>
       </div>
     </header>
@@ -25,17 +25,17 @@
       <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4 sm:mb-6">
         <div class="px-4 py-4 sm:px-6 sm:py-5">
           <h3 class="text-base sm:text-lg font-medium text-gray-900">
-            Detalhes da Empresa
+            {{ $t('admin.companyDetails') }}
           </h3>
           <p class="mt-1 max-w-2xl text-sm text-gray-500">
-            Informações sobre os planos disponíveis.
+            {{ $t('admin.plansAssociated') }}
           </p>
         </div>
         <div class="border-t border-gray-200">
           <dl>
             <div class="bg-gray-50 px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">
-                Total de Planos
+                {{ $t('admin.totalPlans') }}
               </dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {{ plansList.length }}
@@ -48,7 +48,7 @@
       <!-- Plans List -->
       <div class="bg-white shadow overflow-hidden sm:rounded-lg">
         <div class="px-4 py-4 sm:px-6 sm:py-5 border-b border-gray-200">
-          <h3 class="text-base sm:text-lg font-medium text-gray-900">Planos Disponíveis</h3>
+          <h3 class="text-base sm:text-lg font-medium text-gray-900">{{ $t('admin.planList') }}</h3>
         </div>
         <ul role="list" class="divide-y divide-gray-200">
           <li v-for="plan in plansList" :key="plan.id" class="px-4 py-4 sm:px-6 hover:bg-gray-50">
@@ -111,7 +111,7 @@
             </div>
           </li>
           <li v-if="plansList.length === 0" class="px-4 py-6 sm:px-6 text-center text-gray-500">
-            Nenhum plano cadastrado. Clique em "Adicionar Plano" para começar.
+            {{ $t('admin.noPlansYet') }}
           </li>
         </ul>
       </div>
@@ -158,7 +158,7 @@
                 <form @submit.prevent="addPlan" class="space-y-4">
                   <div>
                     <label for="title" class="block text-sm font-medium text-gray-900">
-                      Título do Plano *
+                      {{ $t('admin.planTitle') }} *
                       <span v-if="formErrors.title" class="text-red-500 text-xs ml-1">({{ formErrors.title }})</span>
                     </label>
                     <div class="mt-1">
@@ -180,7 +180,7 @@
 
                   <div>
                     <label for="sessionsPerWeek" class="block text-sm font-medium text-gray-900">
-                      Sessões por Semana *
+                      {{ $t('admin.sessionsPerWeek') }} *
                     </label>
                     <div class="mt-1">
                       <div class="grid grid-cols-3 gap-3">
@@ -205,7 +205,7 @@
 
                   <div>
                     <label for="price" class="block text-sm font-medium text-gray-900">
-                      Preço Mensal *
+                      {{ $t('admin.planPrice') }} *
                       <span v-if="formErrors.price" class="text-red-500 text-xs ml-1">({{ formErrors.price }})</span>
                     </label>
                     <div class="mt-1 relative rounded-md shadow-sm">
@@ -232,7 +232,7 @@
 
                   <div>
                     <label for="description" class="block text-sm font-medium text-gray-900">
-                      Descrição
+                      {{ $t('admin.description') }}
                       <span class="text-gray-500">(Opcional)</span>
                     </label>
                     <div class="mt-1">
@@ -258,7 +258,7 @@
                       :disabled="isAdding"
                       class="w-full sm:w-auto inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Cancelar
+                      {{ $t('common.cancel') }}
                     </button>
                     <button 
                       type="submit"
@@ -275,7 +275,7 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      {{ isAdding ? 'Adicionando...' : 'Adicionar Plano' }}
+                      {{ isAdding ? $t('common.loading') : $t('admin.addPlan') }}
                     </button>
                   </div>
                 </form>
@@ -302,12 +302,12 @@
             </div>
             <div class="mt-2 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
               <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                Editar Plano
+                {{ $t('admin.editPlan') }}
               </h3>
               <div class="mt-4">
                 <form @submit.prevent="updatePlan" class="space-y-4">
                   <div>
-                    <label for="editTitle" class="block text-sm font-medium text-gray-900">Título do Plano</label>
+                    <label for="editTitle" class="block text-sm font-medium text-gray-900">{{ $t('admin.planTitle') }}</label>
                     <div class="mt-1">
                       <input type="text" id="editTitle" v-model="editingPlan.title"
                         class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3"
@@ -316,7 +316,7 @@
                   </div>
 
                   <div>
-                    <label for="editSessionsPerWeek" class="block text-sm font-medium text-gray-900">Sessões por Semana</label>
+                    <label for="editSessionsPerWeek" class="block text-sm font-medium text-gray-900">{{ $t('admin.sessionsPerWeek') }}</label>
                     <div class="mt-1">
                       <select id="editSessionsPerWeek" v-model="editingPlan.sessionsPerWeek"
                         class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3">
@@ -445,7 +445,7 @@
                       @click="closeEditPlanModal"
                       class="w-full sm:w-auto inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
-                      Cancelar
+                      {{ $t('common.cancel') }}
                     </button>
                     <button 
                       type="submit"
@@ -478,7 +478,7 @@
             </div>
             <div class="mt-2 text-center sm:mt-0 sm:ml-4 sm:text-left">
               <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                Remover Plano
+                {{ $t('admin.deletePlan') }}
               </h3>
               <div class="mt-1">
                 <p class="text-sm text-gray-500">
@@ -503,7 +503,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              {{ isDeleting ? 'Removendo...' : 'Remover' }}
+              {{ isDeleting ? $t('common.loading') : $t('common.remove') }}
             </button>
             <button
               type="button"
@@ -522,8 +522,11 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
 import Breadcrumb from '@/components/Breadcrumb.vue';
+
+const { t } = useI18n();
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -540,7 +543,7 @@ const breadcrumbItems = computed(() => {
     
     // Special handling for specific segments
     if (segment === 'plans') {
-      name = 'Planos';
+      name = t('admin.plansManagement');
     }
     
     return { name, path };
@@ -593,10 +596,10 @@ const hasFormErrors = computed(() => {
 function validateField(field) {
   switch (field) {
     case 'title':
-      formErrors.value.title = !newPlan.value.title.trim() ? 'O título é obrigatório' : '';
+      formErrors.value.title = !newPlan.value.title.trim() ? t('admin.planTitleRequired') : '';
       break;
     case 'price':
-      formErrors.value.price = newPlan.value.price <= 0 ? 'O preço deve ser maior que zero' : '';
+      formErrors.value.price = newPlan.value.price <= 0 ? t('admin.priceMustBeGreaterThanZero') : '';
       break;
   }
 }

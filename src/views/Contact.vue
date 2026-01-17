@@ -8,10 +8,10 @@
     <div class="max-w-lg w-full mx-auto space-y-10">
       <div>
         <h2 class="mt-6 text-center text-4xl font-extrabold text-gray-900 tracking-tight">
-          Entre em Contato
+          {{ $t('contact.contactUs') }}
         </h2>
         <p class="mt-3 text-center text-lg text-gray-600">
-          Envie suas dúvidas ou solicite uma demonstração do SaúdePilates
+          {{ $t('contact.sendMessage') }}
         </p>
       </div>
       
@@ -24,11 +24,11 @@
           </div>
           <div class="ml-4">
             <h3 class="text-lg font-medium text-green-800">
-              Mensagem enviada com sucesso!
+              {{ $t('contact.messageSent') }}
             </h3>
             <div class="mt-2 text-base text-green-700">
               <p>
-                Agradecemos o seu interesse. Entraremos em contato o mais breve possível.
+                {{ $t('contact.thankYou') }}
               </p>
             </div>
             <div class="mt-6">
@@ -36,7 +36,7 @@
                 <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clip-rule="evenodd" />
                 </svg>
-                Enviar outra mensagem
+                {{ $t('contact.sendAnother') }}
               </button>
             </div>
           </div>
@@ -46,30 +46,30 @@
       <form v-else class="mt-8 bg-white p-8 shadow-lg rounded-xl" @submit.prevent="sendEzmail" ref="contactForm">
         <div class="space-y-6">
           <div>
-            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
-            <input id="name" name="name" type="text" v-model="formData.name" required class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Nome completo" />
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('contact.fullName') }}</label>
+            <input id="name" name="name" type="text" v-model="formData.name" required class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" :placeholder="$t('contact.fullNamePlaceholder')" />
           </div>
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input id="email" name="email" type="email" v-model="formData.email" required class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Email de contato" />
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('contact.email') }}</label>
+            <input id="email" name="email" type="email" v-model="formData.email" required class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" :placeholder="$t('contact.emailPlaceholder')" />
           </div>
           <div>
-            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone (opcional)</label>
-            <input id="phone" name="phone" type="tel" v-model="formData.phone" class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Telefone (opcional)" />
+            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('contact.phone') }}</label>
+            <input id="phone" name="phone" type="tel" v-model="formData.phone" class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" :placeholder="$t('contact.phonePlaceholder')" />
           </div>
           <div>
-            <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Assunto</label>
+            <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('contact.subject') }}</label>
             <select id="subject" name="subject" v-model="formData.subject" required class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-              <option value="" disabled selected>Selecione um assunto</option>
-              <option value="Demonstração">Solicitar uma demonstração</option>
-              <option value="Preços">Informações sobre preços</option>
-              <option value="Recursos">Dúvidas sobre recursos</option>
-              <option value="Outros">Outros assuntos</option>
+              <option value="" disabled selected>{{ $t('contact.selectSubject') }}</option>
+              <option value="Demonstração">{{ $t('contact.requestDemo') }}</option>
+              <option value="Preços">{{ $t('contact.pricingInfo') }}</option>
+              <option value="Recursos">{{ $t('contact.featureQuestions') }}</option>
+              <option value="Outros">{{ $t('contact.other') }}</option>
             </select>
           </div>
           <div>
-            <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Mensagem</label>
-            <textarea id="message" name="message" v-model="formData.message" required rows="5" class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Sua mensagem"></textarea>
+            <label for="message" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('contact.message') }}</label>
+            <textarea id="message" name="message" v-model="formData.message" required rows="5" class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" :placeholder="$t('contact.messagePlaceholder')"></textarea>
           </div>
         </div>
 
@@ -86,7 +86,7 @@
                 <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
               </svg>
             </span>
-            {{ sending ? 'Enviando...' : 'Enviar Mensagem' }}
+            {{ sending ? $t('contact.sending') : $t('contact.sendMessageButton') }}
           </button>
         </div>
       </form>
@@ -96,9 +96,12 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
+import { useI18n } from 'vue-i18n';
 import emailjs from '@emailjs/browser';
 import MetaTags from '@/components/MetaTags.vue';
 import { EmailService } from '@/services/email';
+
+const { t } = useI18n();
 
 const formData = reactive({
   name: '',
@@ -187,7 +190,7 @@ const sendEzmail = async () => {
   } catch (error) {
     console.error('Failed to send email:', error);
     console.error('Error details:', error.status, error.text);
-    alert(`Ocorreu um erro ao enviar sua mensagem: ${error.text || 'Por favor, tente novamente mais tarde.'}`);
+    alert(t('contact.errorSending', { message: error.text || t('common.tryAgain') }));
   } finally {
     sending.value = false;
   }

@@ -16,7 +16,7 @@ onMounted(() => {
     <div v-if="isLoading" class="flex items-center justify-center min-h-screen">
       <div class="text-center">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-        <p class="mt-4 text-gray-600">Carregando...</p>
+        <p class="mt-4 text-gray-600">{{ $t('app.loading') }}</p>
       </div>
     </div>
     <div v-else>

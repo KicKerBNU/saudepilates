@@ -5,7 +5,7 @@
        @touchend="handleTouchEnd">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900">Dashboard do Professor</h1>
+        <h1 class="text-3xl font-bold text-gray-900">{{ $t('professor.dashboard') }}</h1>
       </div>
     </header>
     
@@ -45,14 +45,14 @@
                 <div class="ml-5 w-0 flex-1">
                   <dl>
                     <dt class="text-sm font-medium text-gray-500 truncate">
-                      Ganhos Totais
+                      {{ $t('professor.monthlyEarnings') }}
                     </dt>
                     <dd class="mt-1">
                       <div class="text-2xl font-semibold text-gray-900">
                         R$ {{ Number(monthlyEarnings).toFixed(2) }}
                       </div>
                       <div class="mt-2">
-                        <span class="text-sm font-medium text-gray-500">Comissão:</span>
+                        <span class="text-sm font-medium text-gray-500">{{ $t('admin.commission') }}:</span>
                         <span class="ml-1 text-sm text-gray-900">{{ commission }}%</span>
                       </div>
                     </dd>
@@ -63,7 +63,7 @@
             <div class="bg-gray-50 px-4 py-4 sm:px-6">
               <div class="text-sm">
                 <router-link to="/professor/earnings" class="font-medium text-indigo-600 hover:text-indigo-500">
-                  Ver histórico de ganhos <span aria-hidden="true">&rarr;</span>
+                  {{ $t('professor.earningsHistory') }} <span aria-hidden="true">&rarr;</span>
                 </router-link>
               </div>
             </div>
@@ -95,7 +95,7 @@
                 <div class="ml-5 w-0 flex-1">
                   <dl>
                     <dt class="text-sm font-medium text-gray-500 truncate">
-                      Meus Alunos
+                      {{ $t('professor.myStudents') }}
                     </dt>
                     <dd class="flex items-baseline">
                       <div class="text-2xl font-semibold text-gray-900">
@@ -109,7 +109,7 @@
             <div class="bg-gray-50 px-4 py-4 sm:px-6 mt-auto">
               <div class="text-sm">
                 <router-link to="/professor/students" class="font-medium text-indigo-600 hover:text-indigo-500">
-                  Ver todos os alunos <span aria-hidden="true">&rarr;</span>
+                  {{ $t('professor.students') }} <span aria-hidden="true">&rarr;</span>
                 </router-link>
               </div>
             </div>
@@ -141,7 +141,7 @@
                 <div class="ml-5 w-0 flex-1">
                   <dl>
                     <dt class="text-sm font-medium text-gray-500 truncate">
-                      Aulas Hoje
+                      {{ $t('professor.todayClasses') }}
                     </dt>
                     <dd class="flex items-baseline">
                       <div class="text-2xl font-semibold text-gray-900">
@@ -155,7 +155,7 @@
             <div class="bg-gray-50 px-4 py-4 sm:px-6 mt-auto">
               <div class="text-sm">
                 <router-link to="/professor/schedule" class="font-medium text-indigo-600 hover:text-indigo-500">
-                  Ver agenda completa <span aria-hidden="true">&rarr;</span>
+                  {{ $t('professor.schedule') }} <span aria-hidden="true">&rarr;</span>
                 </router-link>
               </div>
             </div>
@@ -236,14 +236,14 @@
                 
                 <!-- No messages -->
                 <div v-else class="text-center py-2 text-gray-500">
-                  Nenhuma mensagem recente
+                  {{ $t('professor.noRecentMessages') }}
                 </div>
               </div>
             </div>
             <div class="bg-gray-50 px-4 py-4 sm:px-6 mt-auto">
               <div class="text-sm">
                 <router-link to="/professor/messages" class="font-medium text-indigo-600 hover:text-indigo-500">
-                  Ver todas as mensagens <span aria-hidden="true">&rarr;</span>
+                  {{ $t('professor.viewAllMessages') }} <span aria-hidden="true">&rarr;</span>
                 </router-link>
               </div>
             </div>
@@ -253,11 +253,11 @@
 
       <!-- Student List Section -->
       <div class="mt-8 px-4 sm:px-0">
-        <h2 class="text-lg font-medium text-gray-900 mb-4">Alunos Recentes</h2>
+        <h2 class="text-lg font-medium text-gray-900 mb-4">{{ $t('professor.recentStudents') }}</h2>
         <div class="bg-white shadow overflow-hidden sm:rounded-md">
           <ul role="list" class="divide-y divide-gray-200">
             <li v-if="students.length === 0" class="px-6 py-4 text-gray-500">
-              Nenhum aluno encontrado.
+              {{ $t('professor.noStudents') }}
             </li>
             <li v-for="student in students.slice(0, 5)" :key="student.id" class="px-4 py-4 sm:px-6">
               <div class="flex items-center justify-between">
@@ -381,7 +381,10 @@
 <script setup>
 import { ref, onMounted, onActivated, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
+
+const { t } = useI18n();
 import { useStudentsStore } from '../../stores/students';
 import { usePaymentsStore } from '../../stores/payments';
 import { useAttendanceStore } from '../../stores/attendance';

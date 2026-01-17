@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Gerenciamento de Alunos</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $t('admin.studentsManagement') }}</h1>
         <button 
           @click="openAddStudentModal"
           class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
@@ -10,7 +10,7 @@
           <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
-          Adicionar Aluno
+          {{ $t('admin.addStudent') }}
         </button>
       </div>
     </header>
@@ -25,17 +25,17 @@
       <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4 sm:mb-6">
         <div class="px-4 py-4 sm:px-6 sm:py-5">
           <h3 class="text-base sm:text-lg leading-6 font-medium text-gray-900">
-            Detalhes da Empresa
+            {{ $t('admin.companyDetails') }}
           </h3>
           <p class="mt-1 max-w-2xl text-sm text-gray-500">
-            Informações da sua empresa registrada.
+            {{ $t('admin.companyInfo') }}
           </p>
         </div>
         <div class="border-t border-gray-200">
           <dl>
             <div class="bg-gray-50 px-4 py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">
-                Nome da Empresa
+                {{ $t('admin.companyName') }}
               </dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {{ companyName }}
@@ -43,7 +43,7 @@
             </div>
             <div class="bg-white px-4 py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">
-                Total de Alunos
+                {{ $t('admin.totalStudentsCount') }}
               </dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {{ studentsList.length }}
@@ -57,10 +57,10 @@
       <div class="bg-white shadow overflow-hidden sm:rounded-md">
         <div class="px-4 py-4 sm:px-6 sm:py-5">
           <h3 class="text-base sm:text-lg leading-6 font-medium text-gray-900">
-            Lista de Alunos
+            {{ $t('admin.studentList') }}
           </h3>
           <p class="mt-1 max-w-2xl text-sm text-gray-500">
-            Alunos associados à sua empresa.
+            {{ $t('admin.studentsAssociated') }}
           </p>
         </div>
         
@@ -69,19 +69,19 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <p class="mt-2 text-sm text-gray-500">Carregando alunos...</p>
+          <p class="mt-2 text-sm text-gray-500">{{ $t('admin.loadingStudents') }}</p>
         </div>
         
         <div v-else-if="studentsList.length === 0" class="text-center py-8 sm:py-10">
           <svg class="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <p class="mt-2 text-sm text-gray-500">Você ainda não possui alunos cadastrados.</p>
+          <p class="mt-2 text-sm text-gray-500">{{ $t('admin.noStudentsYet') }}</p>
           <button 
             @click="openAddStudentModal"
             class="mt-4 w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
           >
-            Adicionar Aluno
+            {{ $t('admin.addStudent') }}
           </button>
         </div>
         
@@ -104,13 +104,13 @@
                         'bg-green-100 text-green-800': student.planId,
                         'bg-gray-100 text-gray-800': !student.planId
                       }">
-                        {{ plansList.find(p => p.id === student.planId)?.title || 'Sem plano' }}
+                        {{ plansList.find(p => p.id === student.planId)?.title || $t('admin.noPlan') }}
                       </span>
                       <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="{
                         'bg-blue-100 text-blue-800': student.professorId,
                         'bg-gray-100 text-gray-800': !student.professorId
                       }">
-                        Professor: {{ professorsList.find(p => p.id === student.professorId)?.name || 'Não atribuído' }}
+                        {{ $t('admin.professor') }}: {{ professorsList.find(p => p.id === student.professorId)?.name || $t('admin.professorNotAssigned') }}
                       </span>
                     </div>
                   </div>
@@ -121,13 +121,13 @@
                   @click="openEditStudentModal(student)"
                   class="w-full sm:w-auto inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
                 >
-                  Editar
+                  {{ $t('common.edit') }}
                 </button>
                 <button 
                   @click="confirmDeleteStudent(student)"
                   class="w-full sm:w-auto inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 cursor-pointer"
                 >
-                  Remover
+                  {{ $t('common.remove') }}
                 </button>
               </div>
             </div>
@@ -504,8 +504,11 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
 import Breadcrumb from '@/components/Breadcrumb.vue';
+
+const { t } = useI18n();
 
 const router = useRouter();
 const authStore = useAuthStore();

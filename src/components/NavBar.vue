@@ -12,17 +12,17 @@
           </div>
           <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
             <router-link :to="homeOrDashboardLink" :class="[isActiveRoute('/') || isDashboardActive ? activeClass : inactiveClass]">
-              Início
+              {{ $t('nav.home') }}
             </router-link>
             <!-- Only show these links when user is not authenticated -->
             <router-link v-if="!authStore.isAuthenticated" to="/pricing" :class="[isActiveRoute('/pricing') ? activeClass : inactiveClass]">
-              Preços
+              {{ $t('nav.pricing') }}
             </router-link>
             <router-link v-if="!authStore.isAuthenticated" to="/guia" :class="[isActiveRoute('/guia') ? activeClass : inactiveClass]">
-              Guia
+              {{ $t('nav.guide') }}
             </router-link>
             <router-link v-if="!authStore.isAuthenticated" to="/privacy" :class="[isActiveRoute('/privacy') ? activeClass : inactiveClass]">
-              Privacidade
+              {{ $t('nav.privacy') }}
             </router-link>
             <!-- Show subscription link for admin users -->
             <router-link 
@@ -30,10 +30,10 @@
               :to="{name: 'SubscriptionPayment'}" 
               :class="[route.name === 'SubscriptionPayment' ? activeClass : inactiveClass]"
             >
-              Assinatura
+              {{ $t('nav.subscription') }}
             </router-link>
             <router-link to="/contact" :class="[isActiveRoute('/contact') ? activeClass : inactiveClass]">
-              Contato
+              {{ $t('nav.contact') }}
             </router-link>
           </div>
         </div>
@@ -41,10 +41,10 @@
         <!-- Login/Register buttons when user is not authenticated -->
         <div v-if="!authStore.isAuthenticated" class="flex items-center space-x-2 sm:space-x-4">
           <router-link to="/login" class="text-gray-500 hover:text-gray-900 px-2 sm:px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap">
-            Entrar
+            {{ $t('nav.login') }}
           </router-link>
           <router-link to="/register" class="bg-indigo-600 text-white px-3 sm:px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 whitespace-nowrap">
-            Cadastrar
+            {{ $t('nav.register') }}
           </router-link>
         </div>
         
@@ -73,7 +73,7 @@
                   <svg class="h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                   </svg>
-                  Dashboard Admin
+                  {{ $t('nav.adminDashboard') }}
                 </div>
               </router-link>
               
@@ -87,7 +87,7 @@
                   <svg class="h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                   </svg>
-                  Assinatura
+                  {{ $t('nav.subscription') }}
                 </div>
               </router-link>
               
@@ -100,7 +100,7 @@
                   <svg class="h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  Dashboard Professor
+                  {{ $t('nav.professorDashboard') }}
                 </div>
               </router-link>
               
@@ -115,7 +115,7 @@
                     <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
                   </svg>
-                  Dashboard Aluno
+                  {{ $t('nav.studentDashboard') }}
                 </div>
               </router-link>
               
@@ -126,7 +126,7 @@
                   <svg class="h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                   </svg>
-                  Sair
+                  {{ $t('nav.logout') }}
                 </div>
               </button>
             </div>
@@ -140,10 +140,12 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../stores/auth';
 
 const router = useRouter();
 const route = useRoute();
+const { t } = useI18n();
 const authStore = useAuthStore();
 const showDropdown = ref(false);
 
@@ -187,7 +189,7 @@ const handleLogout = async () => {
 
 // Computed properties for user info
 const userName = computed(() => {
-  return authStore.userProfile?.name || authStore.user?.email?.split('@')[0] || 'Usuário';
+  return authStore.userProfile?.name || authStore.user?.email?.split('@')[0] || t('common.user');
 });
 
 const userFirstLetter = computed(() => {

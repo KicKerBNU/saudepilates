@@ -5,7 +5,7 @@
        @touchend="handleTouchEnd">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900">Dashboard do Administrador</h1>
+        <h1 class="text-3xl font-bold text-gray-900">{{ $t('admin.dashboard') }}</h1>
       </div>
     </header>
     
@@ -27,48 +27,48 @@
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           <!-- Students Stats -->
           <StatsCard
-            title="Total de Alunos"
+            :title="$t('admin.totalStudents')"
             :value="totalStudents"
             :loading="loadingStudents"
             iconPath="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
             iconBgColor="bg-indigo-500"
             :linkTo="{name: 'StudentsManagement'}"
-            linkText="Ver todos os alunos"
+            :linkText="$t('admin.viewAllStudents')"
           />
 
           <!-- Professors Stats -->
           <StatsCard
-            title="Total de Professores"
+            :title="$t('admin.totalProfessors')"
             :value="totalProfessors"
             :loading="loadingProfessors"
             iconPath="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
             iconBgColor="bg-green-500"
             :linkTo="{name: 'ProfessorsManagement'}"
-            linkText="Ver todos os professores"
+            :linkText="$t('admin.viewAllProfessors')"
           />
 
           <!-- Payments Stats -->
           <router-link :to="{name: 'MonthlyPayments'}" class="cursor-pointer">
             <StatsCard
-              title="Receita Mensal"
+              :title="$t('admin.monthlyRevenue')"
               :value="monthlyRevenue ? `R$ ${monthlyRevenue.toFixed(2)}` : 'R$ 0.00'"
               :loading="loadingMonthlyRevenue"
               iconPath="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               iconBgColor="bg-yellow-500"
               :linkTo="{name: 'MonthlyPayments'}"
-              linkText="Ver detalhes dos pagamentos mensais"
+              :linkText="$t('admin.viewMonthlyPayments')"
             />
           </router-link>
 
           <!-- Plans Stats -->
           <StatsCard
-            title="Total de Planos"
+            :title="$t('admin.totalPlans')"
             :value="totalPlans"
             :loading="loadingPlans"
             iconPath="M12 4v16m8-8H4"
             iconBgColor="bg-blue-500"
             :linkTo="{name: 'PlansManagement'}"
-            linkText="Ver todos os planos"
+            :linkText="$t('admin.viewAllPlans')"
           />
         </div>
       </div>
@@ -76,8 +76,8 @@
       <!-- Payment Success Message -->
       <SuccessMessage 
         :show="showPaymentSuccess"
-        title="Pagamento registrado com sucesso!"
-        message="O pagamento foi registrado no sistema. A comissão do professor foi calculada automaticamente com base no valor final pago pelo aluno."
+        :title="$t('admin.paymentSuccess')"
+        :message="$t('admin.paymentSuccessMessage')"
         @dismiss="dismissPaymentSuccess"
       />
 
@@ -93,7 +93,10 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
+
+const { t } = useI18n();
 import { useStudentsStore } from '../../stores/students';
 import { useProfessorsStore } from '../../stores/professors';
 import { usePaymentsStore } from '../../stores/payments';

@@ -9,10 +9,10 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center">
         <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-          Preços simples e transparentes
+          {{ $t('pricing.simplePrices') }}
         </h2>
         <p class="mt-4 text-lg text-gray-600">
-          Escolha o plano ideal para o seu estúdio e otimize sua gestão
+          {{ $t('pricing.choosePlan') }}
         </p>
       </div>
 
@@ -23,7 +23,7 @@
             <div class="px-6 py-8 bg-white sm:p-10 sm:pb-6">
               <div class="flex justify-center">
                 <span class="inline-flex px-4 py-1 rounded-full text-sm font-semibold tracking-wide uppercase bg-indigo-100 text-indigo-600">
-                  Plano Mensal
+                  {{ $t('pricing.monthlyPlan') }}
                 </span>
               </div>
               <div class="mt-4 flex justify-center text-6xl font-extrabold text-gray-900">
@@ -32,7 +32,7 @@
                 <span class="ml-1 text-xl font-medium text-gray-500 leading-loose">/mês</span>
               </div>
               <p class="mt-5 text-lg text-gray-500 text-center">
-                Acesso completo a todos os recursos
+                {{ $t('pricing.accessAllFeatures') }}
               </p>
             </div>
             <div class="px-6 pt-6 pb-8 bg-gray-50 sm:p-10 sm:pt-6">
@@ -43,7 +43,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="ml-3 text-base text-gray-700">Acesso a todas as funcionalidades</p>
+                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.accessAllFeatures') }}</p>
                 </li>
                 <li class="flex items-start">
                   <div class="flex-shrink-0">
@@ -51,7 +51,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="ml-3 text-base text-gray-700">Até 10 professores</p>
+                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.upTo10Teachers') }}</p>
                 </li>
                 <li class="flex items-start">
                   <div class="flex-shrink-0">
@@ -59,7 +59,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="ml-3 text-base text-gray-700">Alunos ilimitados</p>
+                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.unlimitedStudents') }}</p>
                 </li>
                 <li class="flex items-start">
                   <div class="flex-shrink-0">
@@ -67,12 +67,12 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="ml-3 text-base text-gray-700">Suporte prioritário</p>
+                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.prioritySupport') }}</p>
                 </li>
               </ul>
               <div class="mt-6 rounded-md shadow">
                 <a href="#" @click="handlePlanSelect('mensal')" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                  Assinar Agora
+                  {{ $t('pricing.subscribeNow') }}
                 </a>
               </div>
             </div>
@@ -83,12 +83,12 @@
         <div class="relative w-full">
           <div class="rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 border-2 border-indigo-500">
             <div class="absolute top-0 right-0 px-3 py-1 bg-indigo-500 text-white text-xs font-semibold">
-              POPULAR
+              {{ $t('pricing.popular') }}
             </div>
             <div class="px-6 py-8 bg-white sm:p-10 sm:pb-6">
               <div class="flex justify-center">
                 <span class="inline-flex px-4 py-1 rounded-full text-sm font-semibold tracking-wide uppercase bg-indigo-100 text-indigo-600">
-                  Plano Trimestral
+                  {{ $t('pricing.quarterlyPlan') }}
                 </span>
               </div>
               <div class="mt-4 flex justify-center text-6xl font-extrabold text-gray-900">
@@ -97,7 +97,7 @@
                 <span class="ml-1 text-xl font-medium text-gray-500 leading-loose">/trimestre</span>
               </div>
               <p class="mt-5 text-lg text-gray-500 text-center">
-                Economize pagando trimestralmente
+                {{ $t('pricing.payQuarterly') }}
               </p>
             </div>
             <div class="px-6 pt-6 pb-8 bg-gray-50 sm:p-10 sm:pt-6">
@@ -108,7 +108,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="ml-3 text-base text-gray-700">Acesso a todas as funcionalidades</p>
+                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.accessAllFeatures') }}</p>
                 </li>
                 <li class="flex items-start">
                   <div class="flex-shrink-0">
@@ -116,7 +116,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="ml-3 text-base text-gray-700">Até 20 professores</p>
+                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.upTo20Teachers') }}</p>
                 </li>
                 <li class="flex items-start">
                   <div class="flex-shrink-0">
@@ -124,7 +124,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="ml-3 text-base text-gray-700">Alunos ilimitados</p>
+                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.unlimitedStudents') }}</p>
                 </li>
                 <li class="flex items-start">
                   <div class="flex-shrink-0">
@@ -132,7 +132,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="ml-3 text-base text-gray-700">Suporte prioritário</p>
+                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.prioritySupport') }}</p>
                 </li>
                 <li class="flex items-start">
                   <div class="flex-shrink-0">
@@ -140,12 +140,12 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="ml-3 text-base text-gray-700">Economia de 10%</p>
+                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.save10') }}</p>
                 </li>
               </ul>
               <div class="mt-6 rounded-md shadow">
                 <a href="#" @click="handlePlanSelect('trimestral')" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                  Assinar Agora
+                  {{ $t('pricing.subscribeNow') }}
                 </a>
               </div>
             </div>
@@ -158,7 +158,7 @@
             <div class="px-6 py-8 bg-white sm:p-10 sm:pb-6">
               <div class="flex justify-center">
                 <span class="inline-flex px-4 py-1 rounded-full text-sm font-semibold tracking-wide uppercase bg-indigo-100 text-indigo-600">
-                  Plano Anual
+                  {{ $t('pricing.annualPlan') }}
                 </span>
               </div>
               <div class="mt-4 flex justify-center text-6xl font-extrabold text-gray-900">
@@ -167,7 +167,7 @@
                 <span class="ml-1 text-xl font-medium text-gray-500 leading-loose">/ano</span>
               </div>
               <p class="mt-5 text-lg text-gray-500 text-center">
-                Melhor valor! Economize com o plano anual
+                {{ $t('pricing.bestValue') }}
               </p>
             </div>
             <div class="px-6 pt-6 pb-8 bg-gray-50 sm:p-10 sm:pt-6">
@@ -178,7 +178,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="ml-3 text-base text-gray-700">Acesso a todas as funcionalidades</p>
+                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.accessAllFeatures') }}</p>
                 </li>
                 <li class="flex items-start">
                   <div class="flex-shrink-0">
@@ -186,7 +186,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="ml-3 text-base text-gray-700">Professores ilimitados</p>
+                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.unlimitedTeachers') }}</p>
                 </li>
                 <li class="flex items-start">
                   <div class="flex-shrink-0">
@@ -194,7 +194,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="ml-3 text-base text-gray-700">Alunos ilimitados</p>
+                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.unlimitedStudents') }}</p>
                 </li>
                 <li class="flex items-start">
                   <div class="flex-shrink-0">
@@ -202,7 +202,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="ml-3 text-base text-gray-700">Suporte VIP</p>
+                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.vipSupport') }}</p>
                 </li>
                 <li class="flex items-start">
                   <div class="flex-shrink-0">
@@ -210,12 +210,12 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="ml-3 text-base text-gray-700">Economia de 20%</p>
+                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.save20') }}</p>
                 </li>
               </ul>
               <div class="mt-6 rounded-md shadow">
                 <a href="#" @click="handlePlanSelect('anual')" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                  Assinar Agora
+                  {{ $t('pricing.subscribeNow') }}
                 </a>
               </div>
             </div>
@@ -225,11 +225,11 @@
 
       <div class="mt-16 text-center">
         <p class="text-lg text-gray-600">
-          Não tem certeza de qual plano escolher? Experimente gratuitamente por 30 dias!
+          {{ $t('pricing.notSure') }}
         </p>
         <div class="mt-6">
           <a href="/register" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
-            Iniciar Período de Teste
+            {{ $t('pricing.startTrialPeriod') }}
           </a>
         </div>
       </div>
@@ -238,11 +238,14 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
 import MetaTags from '@/components/MetaTags.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 import { computed, onMounted, ref } from 'vue';
 import { getStripeUrl, STRIPE_PLANS } from '@/utils/stripeConfig';
+
+const { t } = useI18n();
 
 const authStore = useAuthStore();
 const router = useRouter();

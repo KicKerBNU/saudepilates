@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-md w-full mx-auto bg-white rounded-lg shadow-md overflow-hidden p-6">
-    <h2 class="text-2xl font-bold text-gray-900 text-center mb-6">Cadastro de Administrador</h2>
-    <p class="text-center text-gray-600 mb-4">Crie sua conta de administrador e comece a gerenciar sua empresa</p>
+    <h2 class="text-2xl font-bold text-gray-900 text-center mb-6">{{ $t('auth.registerTitle') }}</h2>
+    <p class="text-center text-gray-600 mb-4">{{ $t('auth.registerDescription') }}</p>
     
     <div v-if="error" class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
       {{ error }}
@@ -9,77 +9,77 @@
     
     <form @submit.prevent="handleRegister">
       <div class="mb-4">
-        <label for="companyName" class="block text-sm font-medium text-gray-700 mb-1">Nome da Empresa</label>
+        <label for="companyName" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('auth.companyName') }}</label>
         <input 
           type="text" 
           id="companyName" 
           v-model="companyData.name" 
           required
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Studio Pilates"
+          :placeholder="$t('auth.companyNamePlaceholder')"
         />
       </div>
       
       <div class="mb-4">
-        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('auth.fullName') }}</label>
         <input 
           type="text" 
           id="name" 
           v-model="userData.name" 
           required
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="João Silva"
+          :placeholder="$t('auth.fullNamePlaceholder')"
         />
       </div>
       
       <div class="mb-4">
-        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('auth.email') }}</label>
         <input 
           type="email" 
           id="email" 
           v-model="userData.email" 
           required
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="exemplo@email.com"
+          :placeholder="$t('auth.emailPlaceholder')"
         />
       </div>
       
       <div class="mb-4">
-        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('auth.phone') }}</label>
         <input 
           type="tel" 
           id="phone" 
           v-model="userData.phone" 
           required
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="(00) 00000-0000"
+          :placeholder="$t('auth.phonePlaceholder')"
         />
       </div>
       
 
       
       <div class="mb-4">
-        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('auth.password') }}</label>
         <input 
           type="password" 
           id="password" 
           v-model="userData.password" 
           required
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-          placeholder="******"
+          :placeholder="$t('auth.passwordPlaceholder')"
           minlength="6"
         />
       </div>
       
       <div class="mb-6">
-        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha</label>
+        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('auth.confirmPassword') }}</label>
         <input 
           type="password" 
           id="confirmPassword" 
           v-model="confirmPassword" 
           required
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-          placeholder="******"
+          :placeholder="$t('auth.passwordPlaceholder')"
           minlength="6"
         />
       </div>
@@ -94,9 +94,9 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          Registrando...
+          {{ $t('auth.registering') }}
         </span>
-        <span v-else>Cadastrar</span>
+        <span v-else>{{ $t('auth.register') }}</span>
       </button>
     </form>
   </div>
@@ -105,7 +105,10 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
+
+const { t } = useI18n();
 
 const userData = reactive({
   name: '',
@@ -134,14 +137,14 @@ const handleRegister = async () => {
   
   // Validate company name
   if (!companyData.name.trim()) {
-    error.value = 'Nome da empresa é obrigatório';
+    error.value = t('auth.companyNameRequired');
     isLoading.value = false;
     return;
   }
   
   // Validate passwords match
   if (userData.password !== confirmPassword.value) {
-    error.value = 'As senhas não coincidem';
+    error.value = t('auth.passwordsDontMatch');
     isLoading.value = false;
     return;
   }
@@ -165,15 +168,15 @@ const handleRegister = async () => {
   } catch (err) {
     // Set specific error messages based on Firebase error codes
     if (err.code === 'auth/email-already-in-use') {
-      error.value = 'Este email já está em uso';
+      error.value = t('auth.emailInUse');
     } else if (err.code === 'auth/weak-password') {
-      error.value = 'A senha é muito fraca. Use pelo menos 6 caracteres.';
+      error.value = t('auth.weakPassword');
     } else if (err.code === 'auth/invalid-email') {
-      error.value = 'Email inválido. Verifique o formato.';
+      error.value = t('auth.invalidEmail');
     } else if (err.code === 'auth/network-request-failed') {
-      error.value = 'Falha na conexão. Verifique sua internet.';
+      error.value = t('auth.networkError');
     } else {
-      error.value = 'Erro ao criar conta: ' + (err.message || 'Tente novamente.');
+      error.value = t('auth.registerError', { message: err.message || t('common.tryAgain') });
     }
 
   } finally {

@@ -17,19 +17,19 @@
                   <svg class="mr-2 h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  Teste Grátis por 30 Dias
+                  {{ $t('home.freeTrial') }}
                 </div>
                 <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                  <span class="block">Gerencie seu estúdio</span>
-                  <span class="block text-indigo-600">com eficiência</span>
+                  <span class="block">{{ $t('home.heroTitle1') }}</span>
+                  <span class="block text-indigo-600">{{ $t('home.heroTitle2') }}</span>
                 </h1>
                 <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                  Sistema completo para gestão de estúdios de Pilates. Controle financeiro, agendamento de aulas, gestão de alunos e professores em uma única plataforma.
+                  {{ $t('home.heroDescription') }}
                 </p>
                 <div class="mt-5 sm:mt-8 sm:flex sm:justify-start">
                   <div class="rounded-md shadow">
                     <router-link to="/register" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10">
-                      Começar Teste Grátis
+                      {{ $t('home.startFreeTrial') }}
                     </router-link>
                   </div>
                 </div>
@@ -47,14 +47,14 @@
     <div id="features" class="py-12 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="lg:text-center">
-          <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">Recursos</h2>
+          <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">{{ $t('home.features') }}</h2>
           <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            Tudo que você precisa para gerenciar seu estúdio
+            {{ $t('home.featuresTitle') }}
           </p>
         </div>
         
         <div class="mt-6 lg:text-center">
-          <h3 class="text-xl leading-6 font-bold text-gray-900 mb-4">Gestão Financeira</h3>
+          <h3 class="text-xl leading-6 font-bold text-gray-900 mb-4">{{ $t('home.financialManagement') }}</h3>
         </div>
 
         <div class="mt-10">
@@ -67,9 +67,9 @@
                 </svg>
               </div>
               <div class="mt-5">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Controle Financeiro</h3>
+                <h3 class="text-lg leading-6 font-medium text-gray-900">{{ $t('home.financialControl') }}</h3>
                 <p class="mt-2 text-base text-gray-500">
-                  Gerencie receitas, despesas e acompanhe o fluxo de caixa do seu estúdio com relatórios detalhados.
+                  {{ $t('home.financialControlDesc') }}
                 </p>
               </div>
             </div>
@@ -82,9 +82,9 @@
                 </svg>
               </div>
               <div class="mt-5">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Gestão de Pagamentos</h3>
+                <h3 class="text-lg leading-6 font-medium text-gray-900">{{ $t('home.paymentManagement') }}</h3>
                 <p class="mt-2 text-base text-gray-500">
-                  Controle mensalidades, gera boletos e acompanhe pagamentos em atraso de forma simples.
+                  {{ $t('home.paymentManagementDesc') }}
                 </p>
               </div>
             </div>
@@ -97,9 +97,9 @@
                 </svg>
               </div>
               <div class="mt-5">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Relatórios Financeiros</h3>
+                <h3 class="text-lg leading-6 font-medium text-gray-900">{{ $t('home.financialReports') }}</h3>
                 <p class="mt-2 text-base text-gray-500">
-                  Acesse relatórios detalhados de receitas, despesas e projeções financeiras para tomar decisões estratégicas.
+                  {{ $t('home.financialReportsDesc') }}
                 </p>
               </div>
             </div>
@@ -112,9 +112,9 @@
     <div class="py-12 bg-gray-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="lg:text-center">
-          <h3 class="text-xl leading-6 font-bold text-gray-900 mb-4">Gestão de Alunos e Aulas</h3>
+          <h3 class="text-xl leading-6 font-bold text-gray-900 mb-4">{{ $t('home.studentAndClassManagement') }}</h3>
           <p class="mt-2 text-2xl leading-8 font-bold tracking-tight text-indigo-600 sm:text-3xl">
-            Organize com Eficiência
+            {{ $t('home.organizeEfficiently') }}
           </p>
         </div>
 
@@ -132,10 +132,10 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                   </div>
-                  <h3 class="ml-4 text-lg leading-6 font-medium text-gray-900">Cadastro de Alunos</h3>
+                  <h3 class="ml-4 text-lg leading-6 font-medium text-gray-900">{{ $t('home.studentRegistration') }}</h3>
                 </div>
                 <p class="mt-2 ml-16 text-base text-gray-500">
-                  Cadastre alunos, mantenha histórico de evolução e gerencie planos de aula personalizados.
+                  {{ $t('home.studentRegistrationDesc') }}
                 </p>
               </div>
 
@@ -147,10 +147,10 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <h3 class="ml-4 text-lg leading-6 font-medium text-gray-900">Agenda de Aulas</h3>
+                  <h3 class="ml-4 text-lg leading-6 font-medium text-gray-900">{{ $t('home.classSchedule') }}</h3>
                 </div>
                 <p class="mt-2 ml-16 text-base text-gray-500">
-                  Organize horários, gerencie turmas e controle a lotação das aulas com facilidade.
+                  {{ $t('home.classScheduleDesc') }}
                 </p>
               </div>
 
@@ -162,10 +162,10 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                     </svg>
                   </div>
-                  <h3 class="ml-4 text-lg leading-6 font-medium text-gray-900">Controle de Presença</h3>
+                  <h3 class="ml-4 text-lg leading-6 font-medium text-gray-900">{{ $t('home.attendanceControl') }}</h3>
                 </div>
                 <p class="mt-2 ml-16 text-base text-gray-500">
-                  Registre presenças, controle frequência e gerencie reposições de aulas de forma simples.
+                  {{ $t('home.attendanceControlDesc') }}
                 </p>
               </div>
             </div>
@@ -178,9 +178,9 @@
     <div class="py-12 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="lg:text-center">
-          <h3 class="text-xl leading-6 font-bold text-gray-900 mb-4">Recursos Administrativos</h3>
+          <h3 class="text-xl leading-6 font-bold text-gray-900 mb-4">{{ $t('home.adminFeatures') }}</h3>
           <p class="mt-2 text-2xl leading-8 font-bold tracking-tight text-indigo-600 sm:text-3xl">
-            Gerencie com Poder e Precisão
+            {{ $t('home.manageWithPower') }}
           </p>
         </div>
 
@@ -196,10 +196,10 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
-                  <h3 class="ml-4 text-lg leading-6 font-medium text-gray-900">Configurações do Sistema</h3>
+                  <h3 class="ml-4 text-lg leading-6 font-medium text-gray-900">{{ $t('home.systemSettings') }}</h3>
                 </div>
                 <p class="mt-2 ml-16 text-base text-gray-500">
-                  Personalize planos, preços, horários e configure todos os aspectos do seu estúdio.
+                  {{ $t('home.systemSettingsDesc') }}
                 </p>
               </div>
 
@@ -211,10 +211,10 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                   </div>
-                  <h3 class="ml-4 text-lg leading-6 font-medium text-gray-900">Gestão de Usuários</h3>
+                  <h3 class="ml-4 text-lg leading-6 font-medium text-gray-900">{{ $t('home.userManagement') }}</h3>
                 </div>
                 <p class="mt-2 ml-16 text-base text-gray-500">
-                  Gerencie professores, alunos e funcionários com diferentes níveis de acesso.
+                  {{ $t('home.userManagementDesc') }}
                 </p>
               </div>
 
@@ -226,10 +226,10 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                     </svg>
                   </div>
-                  <h3 class="ml-4 text-lg leading-6 font-medium text-gray-900">Comunicação</h3>
+                  <h3 class="ml-4 text-lg leading-6 font-medium text-gray-900">{{ $t('home.communication') }}</h3>
                 </div>
                 <p class="mt-2 ml-16 text-base text-gray-500">
-                  Envie mensagens, notificações e mantenha todos informados sobre aulas e pagamentos.
+                  {{ $t('home.communicationDesc') }}
                 </p>
               </div>
             </div>
@@ -245,13 +245,13 @@
     <div class="bg-indigo-700">
       <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
         <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-          <span class="block">Comece a gerenciar seu estúdio hoje</span>
-          <span class="block text-indigo-200">30 dias de teste grátis, sem compromisso</span>
+          <span class="block">{{ $t('home.ctaTitle1') }}</span>
+          <span class="block text-indigo-200">{{ $t('home.ctaTitle2') }}</span>
         </h2>
         <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
           <div class="inline-flex rounded-md shadow">
             <router-link to="/register" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50">
-              Iniciar Teste Grátis
+              {{ $t('home.startFreeTrialButton') }}
             </router-link>
           </div>
         </div>
@@ -261,5 +261,8 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
 import MetaTags from '@/components/MetaTags.vue';
+
+const { t } = useI18n();
 </script>

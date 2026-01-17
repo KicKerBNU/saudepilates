@@ -1,6 +1,6 @@
 <template>
   <div class="mt-8 px-4 sm:px-0">
-    <h2 class="text-lg font-medium text-gray-900 mb-4">Ações Rápidas</h2>
+    <h2 class="text-lg font-medium text-gray-900 mb-4">{{ $t('admin.quickActions') }}</h2>
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <router-link :to="{name: 'PaymentRegistration'}" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
         <div class="px-4 py-5 sm:p-6">
@@ -11,9 +11,9 @@
               </svg>
             </div>
             <div class="ml-5 w-0 flex-1">
-              <h3 class="text-lg font-medium text-gray-900">Registrar Pagamento</h3>
+              <h3 class="text-lg font-medium text-gray-900">{{ $t('admin.registerPayment') }}</h3>
               <p class="mt-1 text-sm text-gray-500">
-                Registre um novo pagamento de mensalidade para alunos, incluindo opções para desconto em pagamentos antecipados.
+                {{ $t('admin.registerPaymentDesc') }}
               </p>
             </div>
           </div>
@@ -29,9 +29,9 @@
               </svg>
             </div>
             <div class="ml-5 w-0 flex-1">
-              <h3 class="text-lg font-medium text-gray-900">Visualização de Pagamentos</h3>
+              <h3 class="text-lg font-medium text-gray-900">{{ $t('admin.paymentVisualization') }}</h3>
               <p class="mt-1 text-sm text-gray-500">
-                Visualize gráficos e estatísticas dos pagamentos recebidos.
+                {{ $t('admin.paymentVisualizationDesc') }}
               </p>
             </div>
           </div>
@@ -42,5 +42,7 @@
 </template>
 
 <script setup>
-// Component logic can be added here if needed
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 </script> 

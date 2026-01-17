@@ -1,6 +1,6 @@
 <template>
   <div class="mt-8 px-4 sm:px-0">
-    <h2 class="text-lg font-medium text-gray-900 mb-4">Atividades Recentes</h2>
+    <h2 class="text-lg font-medium text-gray-900 mb-4">{{ $t('admin.recentActivities') }}</h2>
     <div class="bg-white shadow overflow-hidden sm:rounded-md">
       <div v-if="loading" class="flex items-center justify-center py-12">
         <svg class="animate-spin h-12 w-12 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -10,7 +10,7 @@
       </div>
       <ul v-else role="list" class="divide-y divide-gray-200">
         <li v-if="activities.length === 0" class="px-6 py-4 text-gray-500">
-          Nenhuma atividade recente.
+          {{ $t('admin.noRecentActivities') }}
         </li>
         <li v-for="activity in activities" :key="activity.id" class="px-4 py-4 sm:px-6">
           <div class="flex items-center justify-between">
@@ -36,7 +36,7 @@
                       <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                       </svg>
-                      Pago
+                      {{ $t('common.paid') }}
                     </p>
                   </div>
                 </div>
@@ -56,8 +56,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { usePaymentsStore } from '../../stores/payments';
 import { useAuthStore } from '../../stores/auth';
+
+const { t } = useI18n();
 
 const paymentsStore = usePaymentsStore();
 const authStore = useAuthStore();
