@@ -56,4 +56,9 @@ export default defineConfig({
     // Uncomment to allow external access (from other devices on your network)
     // host: '0.0.0.0',
   },
+  preview: {
+    port: 4173,
+    strictPort: false,
+    open: true,
+  },
 })

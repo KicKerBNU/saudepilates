@@ -1,4 +1,9 @@
 <template>
+  <MetaTags
+    title="Política de Privacidade - SaúdePilates | Sistema de Gestão para Pilates"
+    description="Política de Privacidade do SaúdePilates. Saiba como coletamos, usamos e protegemos suas informações pessoais."
+    keywords="política de privacidade, privacidade pilates, proteção de dados, LGPD, privacidade software pilates"
+  />
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="bg-white shadow-sm rounded-lg p-8">
       <h1 class="text-3xl font-bold text-gray-900 mb-8">{{ $t('privacy.title') }}</h1>
@@ -57,10 +62,10 @@
             <li>{{ $t('privacy.withdrawConsent') }}</li>
           </ul>
         </section>
-
+        
         <section>
           <h2 class="text-xl font-semibold text-gray-900 mb-4">{{ $t('privacy.contactTitle') }}</h2>
-          <p>{{ $t('privacy.contactText') }}</p>
+          <p>{{ $t('privacy.contactText', { email: 'saudepilatess@gmail.com' }) }}</p>
         </section>
 
         <section>
@@ -78,6 +83,7 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n';
+import MetaTags from '@/components/MetaTags.vue';
 
 const { t } = useI18n();
-</script> 
+</script>
