@@ -21,7 +21,8 @@ export default defineConfig({
           'pricing.html', 
           'contact.html',
           'guia.html',
-          'register.html'
+          'register.html',
+          'privacy.html'
         ];
         
         const indexContent = fs.readFileSync('dist/index.html', 'utf-8');
