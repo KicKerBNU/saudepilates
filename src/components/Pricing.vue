@@ -26,9 +26,8 @@
                   {{ $t('pricing.monthlyPlan') }}
                 </span>
               </div>
-              <div class="mt-4 flex justify-center text-6xl font-extrabold text-gray-900">
-                <span class="ml-1 mr-3 text-xl font-medium text-gray-500 leading-loose">R$</span>
-                129<span class="text-3xl">,90</span>
+              <div class="mt-4 flex items-baseline justify-center text-6xl font-extrabold text-gray-900">
+                <span>{{ formatCurrency(129.9) }}</span>
                 <span class="ml-1 text-xl font-medium text-gray-500 leading-loose">/mês</span>
               </div>
               <p class="mt-5 text-lg text-gray-500 text-center">
@@ -79,45 +78,25 @@
           </div>
         </div>
 
-        <!-- Plano Trimestral -->
+        <!-- Plano Gratuito -->
         <div class="relative w-full">
           <div class="rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 border-2 border-indigo-500">
-            <div class="absolute top-0 right-0 px-3 py-1 bg-indigo-500 text-white text-xs font-semibold">
-              {{ $t('pricing.popular') }}
-            </div>
             <div class="px-6 py-8 bg-white sm:p-10 sm:pb-6">
               <div class="flex justify-center">
                 <span class="inline-flex px-4 py-1 rounded-full text-sm font-semibold tracking-wide uppercase bg-indigo-100 text-indigo-600">
-                  {{ $t('pricing.quarterlyPlan') }}
+                  {{ $t('pricing.freePlan') }}
                 </span>
               </div>
-              <div class="mt-4 flex justify-center text-6xl font-extrabold text-gray-900">
-                <span class="ml-1 mr-3 text-xl font-medium text-gray-500 leading-loose">R$</span>
-                349<span class="text-3xl">,90</span>
-                <span class="ml-1 text-xl font-medium text-gray-500 leading-loose">/trimestre</span>
+              <div class="mt-4 flex items-baseline justify-center text-6xl font-extrabold text-gray-900">
+                <span>{{ formatCurrency(0) }}</span>
+                <span class="ml-1 text-xl font-medium text-gray-500 leading-loose">/mês</span>
               </div>
               <p class="mt-5 text-lg text-gray-500 text-center">
-                {{ $t('pricing.payQuarterly') }}
+                {{ $t('pricing.freePlanDescription') }}
               </p>
             </div>
             <div class="px-6 pt-6 pb-8 bg-gray-50 sm:p-10 sm:pt-6">
               <ul class="space-y-4">
-                <li class="flex items-start">
-                  <div class="flex-shrink-0">
-                    <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.accessAllFeatures') }}</p>
-                </li>
-                <li class="flex items-start">
-                  <div class="flex-shrink-0">
-                    <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.upTo20Teachers') }}</p>
-                </li>
                 <li class="flex items-start">
                   <div class="flex-shrink-0">
                     <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,21 +111,17 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.prioritySupport') }}</p>
-                </li>
-                <li class="flex items-start">
-                  <div class="flex-shrink-0">
-                    <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.save10') }}</p>
+                  <p class="ml-3 text-base text-gray-700">{{ $t('pricing.accessAllFeatures') }}</p>
                 </li>
               </ul>
               <div class="mt-6 rounded-md shadow">
-                <a href="#" @click="handlePlanSelect('trimestral')" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                  {{ $t('pricing.subscribeNow') }}
-                </a>
+                <button
+                  type="button"
+                  @click="goToRegister"
+                  class="flex items-center justify-center w-full px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                >
+                  {{ $t('pricing.startTrialPeriod') }}
+                </button>
               </div>
             </div>
           </div>
@@ -161,9 +136,8 @@
                   {{ $t('pricing.annualPlan') }}
                 </span>
               </div>
-              <div class="mt-4 flex justify-center text-6xl font-extrabold text-gray-900">
-                <span class="ml-1 mr-3 text-xl font-medium text-gray-500 leading-loose">R$</span>
-                1.299<span class="text-3xl">,90</span>
+              <div class="mt-4 flex items-baseline justify-center text-6xl font-extrabold text-gray-900">
+                <span>{{ formatCurrency(1299.9) }}</span>
                 <span class="ml-1 text-xl font-medium text-gray-500 leading-loose">/ano</span>
               </div>
               <p class="mt-5 text-lg text-gray-500 text-center">
@@ -242,19 +216,82 @@ import { useI18n } from 'vue-i18n';
 import MetaTags from '@/components/MetaTags.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { getStripeUrl, STRIPE_PLANS } from '@/utils/stripeConfig';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const authStore = useAuthStore();
 const router = useRouter();
+
+const brlToUsdRate = ref(0.2);
+
+const currencyConfig = computed(() => {
+  if (locale.value && locale.value.toLowerCase().startsWith('en')) {
+    return {
+      currency: 'USD',
+      rate: brlToUsdRate.value,
+    };
+  }
+
+  return {
+    currency: 'BRL',
+    rate: 1,
+  };
+});
+
+const currencyFormatter = computed(
+  () =>
+    new Intl.NumberFormat(locale.value, {
+      style: 'currency',
+      currency: currencyConfig.value.currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+);
+
+const formatCurrency = (valueInBRL) =>
+  currencyFormatter.value.format(valueInBRL * currencyConfig.value.rate);
+
+const fetchExchangeRate = async () => {
+  if (!locale.value || !locale.value.toLowerCase().startsWith('en')) return;
+
+  try {
+    const response = await fetch(
+      'https://api.frankfurter.dev/v1/latest?base=BRL&symbols=USD'
+    );
+    if (!response.ok) return;
+
+    const data = await response.json();
+    const rate = data && data.rates && data.rates.USD;
+
+    if (typeof rate === 'number' && rate > 0) {
+      brlToUsdRate.value = rate;
+    }
+  } catch (error) {
+    
+  }
+};
+
+watch(
+  () => locale.value,
+  (newLocale) => {
+    if (newLocale && newLocale.toLowerCase().startsWith('en')) {
+      fetchExchangeRate();
+    }
+  },
+  { immediate: true }
+);
 
 // Debug variables
 const showDebug = ref(true); // Set to false for production
 
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 const userEmail = computed(() => authStore.user?.email || '');
+
+const goToRegister = () => {
+  router.push('/register');
+};
 
 // Force auth initialization
 const forceInit = async () => {
