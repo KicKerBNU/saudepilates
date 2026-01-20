@@ -363,6 +363,7 @@
     "noCompanyId": "Company ID not found."
   },
   "professor": {
+    "professor": "Professor",
     "dashboard": "Professor Dashboard",
     "monthlyEarnings": "Monthly Earnings",
     "potentialEarnings": "Potential Earnings",
@@ -512,7 +513,27 @@
     "professorPhoneNotFound": "Professor phone number not found. Please try again later.",
     "errorSendingMessage": "Error sending message. Please try again.",
     "upcomingAppointments": "Upcoming Appointments",
-    "noUpcomingAppointments": "No upcoming appointments"
+    "noUpcomingAppointments": "No upcoming appointments",
+    "yourScheduledClasses": "Your scheduled classes",
+    "noAppointmentsThisWeek": "You don't have any classes scheduled for this week.",
+    "notInformed": "Not informed",
+    "trackYourProgress": "Track your progress",
+    "generalEvaluation": "General Evaluation",
+    "seeLess": "See less",
+    "seeMore": "See more",
+    "professorInformation": "Professor Information",
+    "professorContactDetails": "Your professor's contact details",
+    "professorInformationNotAvailable": "Professor information not available.",
+    "contactProfessor": "Contact Professor",
+    "willOpenApp": "will open the app",
+    "messageHistory": "Message History",
+    "noMessagesSentYet": "No messages sent yet.",
+    "timeNotAvailable": "Time not available",
+    "defaultMessageCannotAttend": "Hello professor, unfortunately I won't be able to attend class today. Can we reschedule?",
+    "defaultMessageWillBeLate": "Hello professor, I will arrive a few minutes late for today's class.",
+    "defaultMessageQuestionAboutExercise": "Hello professor, I have questions about the exercises you gave me in the last class. Could you guide me?",
+    "defaultMessageScheduleEvaluation": "Hello professor, I would like to schedule a physical evaluation. What times do you have available?",
+    "sent": "sent"
   },
   "notFound": {
     "title": "404",

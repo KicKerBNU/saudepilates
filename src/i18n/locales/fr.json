@@ -363,6 +363,7 @@
     "noCompanyId": "ID de l'entreprise introuvable."
   },
   "professor": {
+    "professor": "Professeur",
     "dashboard": "Tableau de bord Professeur",
     "monthlyEarnings": "Gains Mensuels",
     "potentialEarnings": "Gains Potentiels",
@@ -512,7 +513,27 @@
     "professorPhoneNotFound": "Numéro de téléphone du professeur non trouvé. Veuillez réessayer plus tard.",
     "errorSendingMessage": "Erreur lors de l'envoi du message. Veuillez réessayer.",
     "upcomingAppointments": "Rendez-vous à Venir",
-    "noUpcomingAppointments": "Aucun rendez-vous à venir"
+    "noUpcomingAppointments": "Aucun rendez-vous à venir",
+    "yourScheduledClasses": "Vos cours programmés",
+    "noAppointmentsThisWeek": "Vous n'avez pas de cours programmés pour cette semaine.",
+    "notInformed": "Non informé",
+    "trackYourProgress": "Suivez votre progression",
+    "generalEvaluation": "Évaluation Générale",
+    "seeLess": "Voir moins",
+    "seeMore": "Voir plus",
+    "professorInformation": "Informations du Professeur",
+    "professorContactDetails": "Détails de contact de votre professeur",
+    "professorInformationNotAvailable": "Informations du professeur non disponibles.",
+    "contactProfessor": "Contacter le Professeur",
+    "willOpenApp": "ouvrira l'application",
+    "messageHistory": "Historique des Messages",
+    "noMessagesSentYet": "Aucun message envoyé pour le moment.",
+    "timeNotAvailable": "Heure non disponible",
+    "defaultMessageCannotAttend": "Bonjour professeur, malheureusement je ne pourrai pas assister au cours aujourd'hui. Pouvons-nous reprogrammer?",
+    "defaultMessageWillBeLate": "Bonjour professeur, j'arriverai quelques minutes en retard au cours d'aujourd'hui.",
+    "defaultMessageQuestionAboutExercise": "Bonjour professeur, j'ai des questions sur les exercices que vous m'avez donnés lors du dernier cours. Pourriez-vous me guider?",
+    "defaultMessageScheduleEvaluation": "Bonjour professeur, j'aimerais programmer une évaluation physique. Quels horaires avez-vous disponibles?",
+    "sent": "envoyé"
   },
   "notFound": {
     "title": "404",

@@ -363,6 +363,7 @@
     "noCompanyId": "ID de empresa no encontrado."
   },
   "professor": {
+    "professor": "Profesor",
     "dashboard": "Panel de Profesor",
     "monthlyEarnings": "Ganancias Mensuales",
     "potentialEarnings": "Ganancias Potenciales",
@@ -512,7 +513,27 @@
     "professorPhoneNotFound": "Número de teléfono del profesor no encontrado. Por favor, intente más tarde.",
     "errorSendingMessage": "Error al enviar mensaje. Por favor, intente de nuevo.",
     "upcomingAppointments": "Próximas Citas",
-    "noUpcomingAppointments": "No hay citas próximas"
+    "noUpcomingAppointments": "No hay citas próximas",
+    "yourScheduledClasses": "Tus clases programadas",
+    "noAppointmentsThisWeek": "No tienes clases programadas para esta semana.",
+    "notInformed": "No informado",
+    "trackYourProgress": "Acompaña tu progreso",
+    "generalEvaluation": "Evaluación General",
+    "seeLess": "Ver menos",
+    "seeMore": "Ver más",
+    "professorInformation": "Información del Profesor",
+    "professorContactDetails": "Detalles de contacto de tu profesor",
+    "professorInformationNotAvailable": "Información del profesor no disponible.",
+    "contactProfessor": "Contactar Profesor",
+    "willOpenApp": "abrirá la aplicación",
+    "messageHistory": "Historial de Mensajes",
+    "noMessagesSentYet": "Aún no se han enviado mensajes.",
+    "timeNotAvailable": "Hora no disponible",
+    "defaultMessageCannotAttend": "Hola profesor, desafortunadamente no podré asistir a la clase hoy. ¿Podemos reprogramar?",
+    "defaultMessageWillBeLate": "Hola profesor, llegaré unos minutos tarde a la clase de hoy.",
+    "defaultMessageQuestionAboutExercise": "Hola profesor, tengo dudas sobre los ejercicios que me dio en la última clase. ¿Podría orientarme?",
+    "defaultMessageScheduleEvaluation": "Hola profesor, me gustaría agendar una evaluación física. ¿Qué horarios tiene disponible?",
+    "sent": "enviado"
   },
   "notFound": {
     "title": "404",

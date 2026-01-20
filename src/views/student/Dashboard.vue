@@ -41,7 +41,7 @@
                 </svg>
                 {{ $t('student.mySchedule') }}
               </h3>
-              <p class="mt-1 max-w-2xl text-sm text-gray-500">Suas aulas agendadas</p>
+              <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ $t('student.yourScheduledClasses') }}</p>
             </div>
             <!-- Calendar Controls -->
             <div class="flex items-center">
@@ -60,7 +60,7 @@
                 @click="today" 
                 class="ml-3 px-3 py-1 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                Hoje
+                {{ $t('professor.today') }}
               </button>
             </div>
           </div>
@@ -78,7 +78,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <p class="text-gray-500">Você não tem aulas agendadas para esta semana.</p>
+            <p class="text-gray-500">{{ $t('student.noAppointmentsThisWeek') }}</p>
           </div>
 
           <!-- Schedule Display -->
@@ -98,7 +98,7 @@
                         {{ formatTime(appt.time) }} - {{ getEndTime(appt.time, appt.duration) }}
                       </p>
                       <p class="text-sm text-gray-500">
-                        Professor: {{ appt.professorName || 'Não informado' }}
+                        {{ $t('professor.professor') }}: {{ appt.professorName || $t('student.notInformed') }}
                       </p>
                       <p v-if="appt.notes" class="text-sm text-gray-500 mt-1">
                         {{ appt.notes }}
@@ -120,7 +120,7 @@
               </svg>
               {{ $t('student.myEvolution') }}
             </h3>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">Acompanhe seu progresso</p>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ $t('student.trackYourProgress') }}</p>
           </div>
 
           <!-- Loading State -->
@@ -145,16 +145,16 @@
               <div v-for="evolution in evolutions.slice(0, 3)" :key="evolution.id" class="border-b border-gray-200 pb-4 last:border-b-0 last:pb-0">
                 <div class="flex justify-between items-start">
                   <h4 class="font-medium text-indigo-600">{{ formatDate(evolution.date) }}</h4>
-                  <span class="text-sm text-gray-500">Professor: {{ evolution.professorName || 'Não informado' }}</span>
+                  <span class="text-sm text-gray-500">{{ $t('professor.professor') }}: {{ evolution.professorName || $t('student.notInformed') }}</span>
                 </div>
                 
                 <!-- Added Evolution Type and Stars -->
                 <div class="mt-2 mb-2 flex items-center justify-between">
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {{ evolution.category || 'Avaliação Geral' }}
+                    {{ evolution.category || $t('student.generalEvaluation') }}
                   </span>
                   <div class="flex items-center">
-                    <span class="text-xs text-gray-500 mr-1">Avaliação:</span>
+                    <span class="text-xs text-gray-500 mr-1">{{ $t('professor.rating') }}:</span>
                     <div class="flex">
                       <template v-for="i in 5" :key="i">
                         <svg 
@@ -183,23 +183,23 @@
             </div>
             <div v-if="evolutions.length > 3" class="mt-4 text-center">
               <button @click="showAllEvolutions = !showAllEvolutions" class="text-sm text-indigo-600 hover:text-indigo-500">
-                {{ showAllEvolutions ? 'Ver menos' : 'Ver mais' }}
+                {{ showAllEvolutions ? $t('student.seeLess') : $t('student.seeMore') }}
               </button>
             </div>
             <div v-if="showAllEvolutions" class="mt-4 space-y-4">
               <div v-for="evolution in evolutions.slice(3)" :key="evolution.id" class="border-b border-gray-200 pb-4 last:border-b-0 last:pb-0">
                 <div class="flex justify-between items-start">
                   <h4 class="font-medium text-indigo-600">{{ formatDate(evolution.date) }}</h4>
-                  <span class="text-sm text-gray-500">Professor: {{ evolution.professorName || 'Não informado' }}</span>
+                  <span class="text-sm text-gray-500">{{ $t('professor.professor') }}: {{ evolution.professorName || $t('student.notInformed') }}</span>
                 </div>
                 
                 <!-- Added Evolution Type and Stars for additional evolutions -->
                 <div class="mt-2 mb-2 flex items-center justify-between">
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {{ evolution.category || 'Avaliação Geral' }}
+                    {{ evolution.category || $t('student.generalEvaluation') }}
                   </span>
                   <div class="flex items-center">
-                    <span class="text-xs text-gray-500 mr-1">Avaliação:</span>
+                    <span class="text-xs text-gray-500 mr-1">{{ $t('professor.rating') }}:</span>
                     <div class="flex">
                       <template v-for="i in 5" :key="i">
                         <svg 
@@ -241,9 +241,9 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                Informações do Professor
+                {{ $t('student.professorInformation') }}
               </h3>
-              <p class="mt-1 max-w-2xl text-sm text-gray-500">Detalhes de contato do seu professor</p>
+              <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ $t('student.professorContactDetails') }}</p>
             </div>
           </div>
           
@@ -257,20 +257,20 @@
           
           <!-- Professor Not Found -->
           <div v-else-if="!professorInfo" class="px-4 py-5 sm:p-6 text-center text-gray-500">
-            Informações do professor não disponíveis.
+            {{ $t('student.professorInformationNotAvailable') }}
           </div>
           
           <!-- Professor Info Display -->
           <div v-else class="border-t border-gray-200">
             <dl>
               <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt class="text-sm font-medium text-gray-500">Nome</dt>
+                <dt class="text-sm font-medium text-gray-500">{{ $t('common.name') }}</dt>
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {{ professorInfo.name || 'Não informado' }}
+                  {{ professorInfo.name || $t('student.notInformed') }}
                 </dd>
               </div>
               <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt class="text-sm font-medium text-gray-500">E-mail</dt>
+                <dt class="text-sm font-medium text-gray-500">{{ $t('common.email') }}</dt>
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                   <a 
                     v-if="professorInfo.email" 
@@ -279,11 +279,11 @@
                   >
                     {{ professorInfo.email }}
                   </a>
-                  <span v-else>Não informado</span>
+                  <span v-else>{{ $t('student.notInformed') }}</span>
                 </dd>
               </div>
               <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt class="text-sm font-medium text-gray-500">Telefone</dt>
+                <dt class="text-sm font-medium text-gray-500">{{ $t('common.phone') }}</dt>
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                   <a 
                     v-if="professorInfo.phone" 
@@ -292,7 +292,7 @@
                   >
                     {{ formatPhone(professorInfo.phone) }}
                   </a>
-                  <span v-else>Não informado</span>
+                  <span v-else>{{ $t('student.notInformed') }}</span>
                 </dd>
               </div>
               <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -309,7 +309,7 @@
                     </svg>
                     {{ formatPhone(professorInfo.whatsapp) }}
                   </a>
-                  <span v-else>Não informado</span>
+                  <span v-else>{{ $t('student.notInformed') }}</span>
                 </dd>
               </div>
             </dl>
@@ -323,9 +323,9 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654z"/>
               </svg>
-              Contatar Professor
+              {{ $t('student.contactProfessor') }}
             </h3>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">Envie uma mensagem para seu professor</p>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ $t('student.sendMessageToProfessor') }}</p>
           </div>
 
           <div class="px-4 py-5 sm:p-6">
@@ -383,14 +383,14 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-4 w-4 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
                   </svg>
-                  {{ $t('student.sendMessage') }} <span class="text-xs ml-1">(abrirá o app)</span>
+                  {{ $t('student.sendMessage') }} <span class="text-xs ml-1">({{ $t('student.willOpenApp') }})</span>
                 </button>
               </div>
             </form>
 
             <!-- Message History -->
             <div class="mt-6">
-              <h4 class="font-medium text-gray-900 mb-4">Histórico de Mensagens</h4>
+              <h4 class="font-medium text-gray-900 mb-4">{{ $t('student.messageHistory') }}</h4>
               
               <!-- Loading State -->
               <div v-if="loadingMessages" class="flex justify-center items-center h-24">
@@ -402,7 +402,7 @@
 
               <!-- No Messages -->
               <div v-else-if="messages.length === 0" class="text-center py-6 bg-gray-50 rounded-lg">
-                <p class="text-gray-500">Nenhuma mensagem enviada ainda.</p>
+                <p class="text-gray-500">{{ $t('student.noMessagesSentYet') }}</p>
               </div>
 
               <!-- Message List -->
@@ -435,7 +435,7 @@ import { useEvolutionStore } from '../../stores/evolution';
 import { collection, addDoc, query, where, getDocs, orderBy, Timestamp, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { formatISO, addDays, startOfWeek, endOfWeek, format, parseISO, add } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { ptBR, enUS, es as esLocale, fr as frLocale } from 'date-fns/locale';
 import Breadcrumb from '@/components/Breadcrumb.vue';
 
 export default {
@@ -445,7 +445,7 @@ export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const { t } = useI18n();
+    const { t, locale } = useI18n();
     const authStore = useAuthStore();
     const scheduleStore = useScheduleStore();
     const evolutionStore = useEvolutionStore();
@@ -466,28 +466,47 @@ export default {
     const defaultMessages = computed(() => [
       { 
         preview: t('student.cannotAttend'), 
-        text: "Olá professor, infelizmente não poderei comparecer à aula hoje. Podemos remarcar?"
+        text: t('student.defaultMessageCannotAttend')
       },
       { 
         preview: t('student.willBeLate'), 
-        text: "Olá professor, chegarei alguns minutos atrasado para a aula de hoje."
+        text: t('student.defaultMessageWillBeLate')
       },
       { 
         preview: t('student.questionAboutExercise'), 
-        text: "Olá professor, estou com dúvidas sobre os exercícios que me passou na última aula. Poderia me orientar?"
+        text: t('student.defaultMessageQuestionAboutExercise')
       },
       { 
         preview: t('student.scheduleEvaluation'), 
-        text: "Olá professor, gostaria de agendar uma avaliação física. Quais horários você tem disponível?"
+        text: t('student.defaultMessageScheduleEvaluation')
       }
     ]);
+
+    // Get date-fns locale based on i18n locale
+    const dateFnsLocale = computed(() => {
+      const localeMap = {
+        'pt': ptBR,
+        'en': enUS,
+        'es': esLocale,
+        'fr': frLocale
+      };
+      return localeMap[locale.value] || ptBR;
+    });
 
     // Format the week range for display
     const formattedWeekRange = computed(() => {
       const start = startOfWeek(currentWeek.value, { weekStartsOn: 0 });
       const end = endOfWeek(currentWeek.value, { weekStartsOn: 0 });
       
-      return `${format(start, 'dd/MM', { locale: ptBR })} - ${format(end, 'dd/MM/yyyy', { locale: ptBR })}`;
+      if (locale.value === 'en') {
+        return `${format(start, 'MM/dd', { locale: dateFnsLocale.value })} - ${format(end, 'MM/dd/yyyy', { locale: dateFnsLocale.value })}`;
+      } else if (locale.value === 'es') {
+        return `${format(start, 'dd/MM', { locale: dateFnsLocale.value })} - ${format(end, 'dd/MM/yyyy', { locale: dateFnsLocale.value })}`;
+      } else if (locale.value === 'fr') {
+        return `${format(start, 'dd/MM', { locale: dateFnsLocale.value })} - ${format(end, 'dd/MM/yyyy', { locale: dateFnsLocale.value })}`;
+      } else {
+        return `${format(start, 'dd/MM', { locale: dateFnsLocale.value })} - ${format(end, 'dd/MM/yyyy', { locale: dateFnsLocale.value })}`;
+      }
     });
 
     // Group appointments by date for easier display
@@ -515,7 +534,14 @@ export default {
     // Format functions
     const formatDateToDisplay = (dateStr) => {
       const date = new Date(dateStr);
-      return format(date, "EEEE, dd 'de' MMMM", { locale: ptBR });
+      const formatString = locale.value === 'en' 
+        ? "EEEE, MMMM dd"
+        : locale.value === 'es'
+        ? "EEEE, dd 'de' MMMM"
+        : locale.value === 'fr'
+        ? "EEEE, dd MMMM"
+        : "EEEE, dd 'de' MMMM";
+      return format(date, formatString, { locale: dateFnsLocale.value });
     };
 
     const formatTime = (timeStr) => {
@@ -557,7 +583,7 @@ export default {
         return format(new Date(timeStr), 'HH:mm');
       } catch (error) {
         console.warn('Error formatting time:', error, timeStr);
-        return 'Horário não disponível';
+        return t('student.timeNotAvailable');
       }
     };
 
@@ -597,14 +623,17 @@ export default {
         return format(endTime, 'HH:mm');
       } catch (error) {
         console.warn('Error calculating end time:', error, startTimeStr);
-        return 'Horário não disponível';
+        return t('student.timeNotAvailable');
       }
     };
 
     const formatDate = (dateStr) => {
       if (!dateStr) return '';
       const date = typeof dateStr === 'string' ? new Date(dateStr) : dateStr.toDate();
-      return format(date, "dd/MM/yyyy", { locale: ptBR });
+      const formatString = locale.value === 'en' 
+        ? "MM/dd/yyyy"
+        : "dd/MM/yyyy";
+      return format(date, formatString, { locale: dateFnsLocale.value });
     };
 
     const formatDateTime = (dateTimeStr) => {
@@ -630,7 +659,14 @@ export default {
         date = new Date();
       }
       
-      return format(date, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+      const formatString = locale.value === 'en' 
+        ? "MM/dd/yyyy 'at' HH:mm"
+        : locale.value === 'es'
+        ? "dd/MM/yyyy 'a las' HH:mm"
+        : locale.value === 'fr'
+        ? "dd/MM/yyyy 'à' HH:mm"
+        : "dd/MM/yyyy 'às' HH:mm";
+      return format(date, formatString, { locale: dateFnsLocale.value });
     };
 
     // Calendar Navigation
@@ -712,7 +748,7 @@ export default {
 
     // Helper function to get professor name
     const getProfessorName = async (professorId) => {
-      if (!professorId) return 'Não informado';
+      if (!professorId) return t('student.notInformed');
       
       try {
         // Get the professor document directly by its ID
@@ -721,7 +757,7 @@ export default {
         
         if (professorDoc.exists()) {
           const userData = professorDoc.data();
-          return userData.name || userData.displayName || 'Professor';
+          return userData.name || userData.displayName || t('professor.professor');
         }
         
         // Fallback to looking for a field match if direct lookup fails
@@ -733,13 +769,13 @@ export default {
         
         if (!userSnapshot.empty) {
           const userData = userSnapshot.docs[0].data();
-          return userData.name || userData.displayName || 'Professor';
+          return userData.name || userData.displayName || t('professor.professor');
         }
         
-        return 'Professor';
+        return t('professor.professor');
       } catch (error) {
         console.error('Error fetching professor name:', error);
-        return 'Professor';
+        return t('professor.professor');
       }
     };
 
@@ -801,11 +837,11 @@ export default {
         // Store the message in Firestore
         const messageData = {
           studentId: authStore.userId,
-          studentName: userProfile.value.name || 'Aluno',
+          studentName: userProfile.value.name || t('student.student'),
           professorId: userProfile.value.professorId,
           text: messageText.value,
           createdAt: new Date(),
-          status: 'enviado',
+          status: t('student.sent'),
           isRead: false
         };
         
@@ -868,11 +904,11 @@ export default {
         // Store the message in Firestore
         const messageData = {
           studentId: authStore.userId,
-          studentName: userProfile.value.name || 'Aluno',
+          studentName: userProfile.value.name || t('student.student'),
           professorId: userProfile.value.professorId,
           text: message.text,
           createdAt: new Date(),
-          status: 'enviado',
+          status: t('student.sent'),
           isRead: false
         };
         
@@ -933,7 +969,7 @@ export default {
           const userData = userDoc.data();
           professorInfo.value = {
             id: professorId,
-            name: userData.displayName || userData.name || 'Professor',
+            name: userData.displayName || userData.name || t('professor.professor'),
             email: userData.email || '',
             phone: userData.phone || '',
             whatsapp: userData.whatsapp || userData.phone || ''
