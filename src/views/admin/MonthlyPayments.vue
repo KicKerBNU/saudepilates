@@ -102,7 +102,41 @@
       <!-- Payment List -->
       <div class="bg-white shadow overflow-hidden sm:rounded-lg">
         <div class="px-4 py-4 sm:px-6 sm:py-5">
-          <h3 class="text-base sm:text-lg font-medium text-gray-900">{{ $t('admin.paymentList') }}</h3>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <div>
+              <h3 class="text-base sm:text-lg font-medium text-gray-900">{{ $t('admin.paymentList') }}</h3>
+              <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                {{ $t('admin.paymentsForSelectedMonth') }}
+              </p>
+            </div>
+          </div>
+          <!-- Search Input -->
+          <div class="w-full sm:w-80">
+            <label for="search-payments" class="sr-only">{{ $t('admin.searchPayments') }}</label>
+            <div class="relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                id="search-payments"
+                v-model="searchQuery"
+                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                :placeholder="$t('admin.searchPaymentsPlaceholder')"
+              />
+              <button
+                v-if="searchQuery"
+                @click="searchQuery = ''"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center"
+              >
+                <svg class="h-5 w-5 text-gray-400 hover:text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
         
         <div v-if="loading" class="text-center py-8">
@@ -117,7 +151,8 @@
           <svg class="mx-auto h-10 w-10 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <p class="mt-2 text-sm text-gray-500">{{ $t('admin.noPaymentsFound') }}</p>
+          <p v-if="debouncedSearchQuery" class="mt-2 text-sm text-gray-500">{{ $t('admin.noPaymentsFoundForSearch', { query: debouncedSearchQuery }) }}</p>
+          <p v-else class="mt-2 text-sm text-gray-500">{{ $t('admin.noPaymentsFound') }}</p>
         </div>
         
         <ul v-else role="list" class="divide-y divide-gray-200">
@@ -219,7 +254,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
@@ -282,6 +317,23 @@ const currentMonthYear = computed(() => {
 
 // Filter state
 const activeFilter = ref('all');
+
+// Search state
+const searchQuery = ref('');
+const debouncedSearchQuery = ref('');
+
+// Simple debounce function
+let debounceTimer = null;
+const updateDebouncedSearch = () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    debouncedSearchQuery.value = searchQuery.value;
+  }, 300);
+};
+
+watch(searchQuery, () => {
+  updateDebouncedSearch();
+});
 
 // Data
 const allPayments = ref([]);
@@ -490,12 +542,36 @@ const calculateTotalProjection = () => {
   return formatCurrency(paid + pending);
 };
 
-// Filter payments based on active filter
+// Sort payments alphabetically by student name
+const sortedPayments = computed(() => {
+  return [...allPayments.value].sort((a, b) => {
+    const nameA = (a.studentName || '').toLowerCase();
+    const nameB = (b.studentName || '').toLowerCase();
+    return nameA.localeCompare(nameB);
+  });
+});
+
+// Filter payments based on active filter and search query
 const filteredPayments = computed(() => {
+  let filtered = [];
+  
   if (activeFilter.value === 'all' || activeFilter.value === 'withStudents') {
-    return allPayments.value;
+    filtered = sortedPayments.value;
+  } else {
+    filtered = [];
   }
-  return [];
+  
+  // Apply search filter
+  if (debouncedSearchQuery.value) {
+    const query = debouncedSearchQuery.value.toLowerCase();
+    filtered = filtered.filter(payment =>
+      (payment.studentName && payment.studentName.toLowerCase().includes(query)) ||
+      (payment.description && payment.description.toLowerCase().includes(query)) ||
+      (payment.planTitle && payment.planTitle.toLowerCase().includes(query))
+    );
+  }
+  
+  return filtered;
 });
 
 // Compute students who haven't made a payment this month
@@ -580,8 +656,11 @@ onMounted(async () => {
   document.addEventListener('click', handleClickOutside);
 });
 
-// Clean up event listener
+// Clean up event listener and debounce timer
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
 });
 </script>
