@@ -38,16 +38,8 @@ export const useScheduleStore = defineStore('schedule', () => {
       const firestoreStartDate = dateToFirebaseTimestamp(startDate);
       const firestoreEndDate = dateToFirebaseTimestamp(endDate);
       
-      // Fetch from attendanceRecords AND scheduledClasses collections
-      // First get attendance records
-      const attendanceQuery = query(
-        collection(db, 'attendanceRecords'),
-        where('professorId', '==', professorId)
-      );
-      
-      const querySnapshot = await getDocs(attendanceQuery);
-      
-      // Then get scheduled classes
+      // Only fetch from scheduledClasses collection
+      // attendanceRecords are used only for earnings calculation, not for schedule display
       const classesQuery = query(
         collection(db, 'scheduledClasses'),
         where('professorId', '==', professorId)
@@ -55,38 +47,8 @@ export const useScheduleStore = defineStore('schedule', () => {
       
       const classesSnapshot = await getDocs(classesQuery);
       
-      // Transform the attendance records into appointment objects
+      // Transform scheduled classes into appointment objects
       const appointmentsList = [];
-      
-      // Process attendance records
-      for (const document of querySnapshot.docs) {
-        const data = document.data();
-        
-        // Use our date utilities to handle dates consistently
-        const localAppointmentDate = firebaseTimestampToLocalDate(data.date);
-        
-        // Filter dates in memory - compare only the date part
-        if (
-          localAppointmentDate >= new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()) && 
-          localAppointmentDate <= new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate())
-        ) {
-          // Fetch student name
-          const studentDoc = await getStudentName(data.studentId);
-          appointmentsList.push({
-            id: document.id,
-            studentId: data.studentId,
-            studentName: studentDoc?.name || 'Aluno não encontrado',
-            professorId: data.professorId,
-            date: localAppointmentDate,
-            time: data.startTime || data.time || data.date?.toDate().toISOString() || localAppointmentDate.toISOString(),
-            duration: data.duration || 60,
-            type: data.type || 'individual',
-            status: data.status || 'confirmed',
-            notes: data.notes || '',
-            source: 'attendance'
-          });
-        }
-      }
       
       // Process scheduled classes
       for (const document of classesSnapshot.docs) {
