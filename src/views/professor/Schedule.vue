@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900">Agenda de Aulas</h1>
+        <h1 class="text-3xl font-bold text-gray-900">{{ $t('professor.classSchedule') }}</h1>
       </div>
     </header>
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -31,7 +31,7 @@
             @click="today" 
             class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            Hoje
+            {{ $t('professor.today') }}
           </button>
         </div>
 
@@ -90,7 +90,7 @@
                   v-if="day.appointments.length === 0"
                   class="text-xs text-gray-400 italic text-center mt-2"
                 >
-                  Sem aulas
+                  {{ $t('professor.noClasses') }}
                 </div>
                 <div 
                   v-for="appointment in day.appointments" 
@@ -116,12 +116,15 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
 import { useScheduleStore } from '../../stores/schedule';
 import { startOfMonth, endOfMonth, setMonth, isSameDay, format, parseISO, addDays, subDays, startOfWeek, endOfWeek } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { ptBR, enUS, es as esLocale, fr as frLocale } from 'date-fns/locale';
 import { dateToFirebaseTimestamp, firebaseTimestampToLocalDate, formatDateYYYYMMDD } from '../../utils/dateUtils';
 import Breadcrumb from '@/components/Breadcrumb.vue';
+
+const { t, locale } = useI18n();
 
 const router = useRouter();
 const route = useRoute();
@@ -131,8 +134,8 @@ const scheduleStore = useScheduleStore();
 // Breadcrumb items
 const breadcrumbItems = computed(() => {
   return [
-    { name: 'Professor', path: '/professor' },
-    { name: 'Agenda', path: '/professor/schedule' }
+    { name: t('professor.dashboard'), path: '/professor' },
+    { name: t('professor.schedule'), path: '/professor/schedule' }
   ];
 });
 
@@ -152,9 +155,25 @@ const weekDays = computed(() => {
   const dayOfWeek = weekStart.getDay(); // 0 = Sunday, 6 = Saturday
   weekStart.setDate(weekStart.getDate() - dayOfWeek); // Go back to Sunday
   
-  // Create array of 7 days (Sunday to Saturday)
-  const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-  const shortDayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  // Create array of 7 days (Sunday to Saturday) - using i18n
+  const dayNames = [
+    t('common.days.sunday'),
+    t('common.days.monday'),
+    t('common.days.tuesday'),
+    t('common.days.wednesday'),
+    t('common.days.thursday'),
+    t('common.days.friday'),
+    t('common.days.saturday')
+  ];
+  const shortDayNames = [
+    t('common.days.sun'),
+    t('common.days.mon'),
+    t('common.days.tue'),
+    t('common.days.wed'),
+    t('common.days.thu'),
+    t('common.days.fri'),
+    t('common.days.sat')
+  ];
   
   for (let i = 0; i < 7; i++) {
     const date = new Date(weekStart);
@@ -194,6 +213,17 @@ const weekDays = computed(() => {
   return days;
 });
 
+// Get date-fns locale based on i18n locale
+const dateFnsLocale = computed(() => {
+  const localeMap = {
+    'pt': ptBR,
+    'en': enUS,
+    'es': esLocale,
+    'fr': frLocale
+  };
+  return localeMap[locale.value] || ptBR;
+});
+
 // Formatted date range for the week
 const formattedWeekRange = computed(() => {
   if (weekDays.value.length === 0) return '';
@@ -203,11 +233,11 @@ const formattedWeekRange = computed(() => {
   
   // If same month
   if (firstDay.getMonth() === lastDay.getMonth()) {
-    return `${format(firstDay, 'd')} - ${format(lastDay, 'd')} de ${format(firstDay, 'MMMM yyyy', { locale: ptBR })}`;
+    return `${format(firstDay, 'd')} - ${format(lastDay, 'd')} ${t('common.of')} ${format(firstDay, 'MMMM yyyy', { locale: dateFnsLocale.value })}`;
   }
   
   // If different months
-  return `${format(firstDay, 'd MMM', { locale: ptBR })} - ${format(lastDay, 'd MMM yyyy', { locale: ptBR })}`;
+  return `${format(firstDay, 'd MMM', { locale: dateFnsLocale.value })} - ${format(lastDay, 'd MMM yyyy', { locale: dateFnsLocale.value })}`;
 });
 
 // Navigate to previous week
@@ -257,7 +287,13 @@ const formatTime = (timeString) => {
       }
       return '--:--';
     }
-    return time.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const localeMap = {
+      'pt': 'pt-BR',
+      'en': 'en-US',
+      'es': 'es-ES',
+      'fr': 'fr-FR'
+    };
+    return time.toLocaleTimeString(localeMap[locale.value] || 'pt-BR', { hour: '2-digit', minute: '2-digit' });
   } catch (error) {
     console.error('Error formatting time:', error);
     return '--:--';

@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900">Evolução de Alunos</h1>
+        <h1 class="text-3xl font-bold text-gray-900">{{ $t('professor.studentEvolution') }}</h1>
       </div>
     </header>
     
@@ -17,8 +17,8 @@
         <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
           <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
             <div>
-              <h3 class="text-lg font-medium leading-6 text-gray-900">Selecionar Aluno</h3>
-              <p class="mt-1 max-w-2xl text-sm text-gray-500">Escolha o aluno para visualizar ou adicionar informações de evolução</p>
+              <h3 class="text-lg font-medium leading-6 text-gray-900">{{ $t('professor.selectStudent') }}</h3>
+              <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ $t('professor.selectStudentForEvolution') }}</p>
             </div>
           </div>
           <div class="px-4 py-5 sm:p-6">
@@ -27,7 +27,7 @@
             </div>
             <div v-else-if="error" class="text-red-500">{{ error }}</div>
             <div v-else class="w-full max-w-2xl mx-auto">
-              <label for="student-select" class="block text-sm font-medium text-gray-700 mb-1">Aluno:</label>
+              <label for="student-select" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('professor.student') }}:</label>
               <div class="relative">
                 <select
                   id="student-select"
@@ -35,7 +35,7 @@
                   @change="onStudentChange"
                   class="block w-full pl-3 pr-10 py-3 text-base border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 sm:text-sm rounded-lg shadow-sm appearance-none"
                 >
-                  <option value="" disabled>Selecione um aluno</option>
+                  <option value="" disabled>{{ $t('professor.selectAStudent') }}</option>
                   <option v-for="student in students" :key="student.id" :value="student.id">
                     {{ student.name }}
                   </option>
@@ -57,22 +57,22 @@
               <div>
                 <h3 class="text-lg font-medium leading-6 text-gray-900">{{ formTitle }}</h3>
                 <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                  {{ editingEvolution ? 'Atualize os dados da evolução do aluno' : 'Registre o progresso atual do aluno' }}
+                  {{ editingEvolution ? $t('professor.updateEvolutionData') : $t('professor.registerCurrentProgress') }}
                 </p>
               </div>
               <button
                 @click="toggleAddForm"
                 class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                <span v-if="showAddForm">Fechar</span>
-                <span v-else>Adicionar</span>
+                <span v-if="showAddForm">{{ $t('common.close') }}</span>
+                <span v-else>{{ $t('common.add') }}</span>
               </button>
             </div>
             <div v-if="showAddForm" class="px-4 py-5 sm:p-6 border-t border-gray-200">
               <form @submit.prevent="saveEvolution">
                 <div class="grid grid-cols-1 gap-y-8 gap-x-6 sm:grid-cols-6">
                   <div class="sm:col-span-6">
-                    <label for="date" class="block text-sm font-medium text-gray-700">Data</label>
+                    <label for="date" class="block text-sm font-medium text-gray-700">{{ $t('common.date') }}</label>
                     <div class="mt-2">
                       <input
                         type="date"
@@ -85,7 +85,7 @@
                   </div>
                   
                   <div class="sm:col-span-3">
-                    <label for="category" class="block text-sm font-medium text-gray-700">Categoria</label>
+                    <label for="category" class="block text-sm font-medium text-gray-700">{{ $t('professor.category') }}</label>
                     <div class="mt-2 relative">
                       <select
                         id="category"
@@ -93,13 +93,13 @@
                         required
                         class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-2 border-gray-300 rounded-lg px-4 py-3 appearance-none"
                       >
-                        <option value="" disabled>Selecione uma categoria</option>
-                        <option value="postura">Postura</option>
-                        <option value="flexibilidade">Flexibilidade</option>
-                        <option value="forca">Força</option>
-                        <option value="equilibrio">Equilíbrio</option>
-                        <option value="respiracao">Respiração</option>
-                        <option value="outro">Outro</option>
+                        <option value="" disabled>{{ $t('professor.selectCategory') }}</option>
+                        <option value="postura">{{ $t('professor.categoryPosture') }}</option>
+                        <option value="flexibilidade">{{ $t('professor.categoryFlexibility') }}</option>
+                        <option value="forca">{{ $t('professor.categoryStrength') }}</option>
+                        <option value="equilibrio">{{ $t('professor.categoryBalance') }}</option>
+                        <option value="respiracao">{{ $t('professor.categoryBreathing') }}</option>
+                        <option value="outro">{{ $t('professor.categoryOther') }}</option>
                       </select>
                       <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-indigo-600">
                         <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -110,7 +110,7 @@
                   </div>
                   
                   <div class="sm:col-span-3">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Avaliação</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('professor.rating') }}</label>
                     <div class="mt-2">
                       <div class="flex h-[46px] border-2 border-gray-300 rounded-lg shadow-sm bg-white px-4 py-3 items-center">
                         <div class="flex justify-between w-full">
@@ -144,7 +144,7 @@
                   </div>
                   
                   <div class="sm:col-span-6">
-                    <label for="notes" class="block text-sm font-medium text-gray-700">Observações</label>
+                    <label for="notes" class="block text-sm font-medium text-gray-700">{{ $t('professor.observations') }}</label>
                     <div class="mt-2 relative">
                       <textarea
                         id="notes"
@@ -152,7 +152,7 @@
                         rows="4"
                         required
                         class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-2 border-gray-300 rounded-lg px-4 py-3"
-                        placeholder="Adicione observações detalhadas sobre a evolução do aluno..."
+                        :placeholder="$t('professor.addDetailedObservations')"
                       ></textarea>
                     </div>
                   </div>
@@ -163,14 +163,14 @@
                     @click="toggleAddForm"
                     class="mr-3 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
-                    Cancelar
+                    {{ $t('common.cancel') }}
                   </button>
                   <button
                     type="submit"
                     :disabled="saving"
                     class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
-                    <span v-if="saving">Salvando...</span>
+                    <span v-if="saving">{{ $t('common.saving') }}</span>
                     <span v-else>{{ saveButtonText }}</span>
                   </button>
                 </div>
@@ -181,8 +181,8 @@
           <!-- Evolution History Card -->
           <div class="bg-white shadow overflow-hidden sm:rounded-lg">
             <div class="px-4 py-5 sm:px-6">
-              <h3 class="text-lg font-medium leading-6 text-gray-900">Histórico de Evolução</h3>
-              <p class="mt-1 max-w-2xl text-sm text-gray-500">Registro da progressão do aluno</p>
+              <h3 class="text-lg font-medium leading-6 text-gray-900">{{ $t('professor.evolutionHistory') }}</h3>
+              <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ $t('professor.studentProgressionRecord') }}</p>
             </div>
             <div v-if="loadingEvolutions" class="px-4 py-5 sm:p-6 flex justify-center">
               <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
@@ -191,7 +191,7 @@
               {{ evolutionError }}
             </div>
             <div v-else-if="studentEvolutions.length === 0" class="px-4 py-5 sm:p-6 text-gray-500">
-              Nenhum registro de evolução encontrado para este aluno.
+              {{ $t('professor.noEvolutionRecordsFound') }}
             </div>
             <div v-else class="border-t border-gray-200">
               <div class="overflow-hidden sm:rounded-lg">
@@ -250,11 +250,13 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useStudentsStore } from '@/stores/students';
 import { useAuthStore } from '@/stores/auth';
 import { useEvolutionStore } from '@/stores/evolution';
 import Breadcrumb from '@/components/Breadcrumb.vue';
 
+const { t, locale } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const studentsStore = useStudentsStore();
@@ -264,8 +266,8 @@ const evolutionStore = useEvolutionStore();
 // Breadcrumb items
 const breadcrumbItems = computed(() => {
   return [
-    { name: 'Professor', path: '/professor' },
-    { name: 'Evolução de Alunos', path: '/professor/evolution' }
+    { name: t('professor.dashboard'), path: '/professor' },
+    { name: t('professor.studentEvolution'), path: '/professor/evolution' }
   ];
 });
 
@@ -301,7 +303,7 @@ const fetchStudents = async () => {
     students.value = professorStudents || [];
   } catch (err) {
     console.error('Error fetching students:', err);
-    error.value = 'Erro ao carregar alunos: ' + err.message;
+    error.value = t('professor.errorLoadingStudents', { message: err.message });
   } finally {
     loading.value = false;
   }
@@ -318,7 +320,7 @@ const fetchStudentEvolutions = async (studentId) => {
     studentEvolutions.value = evolutions || [];
   } catch (err) {
     console.error('Error fetching evolutions:', err);
-    evolutionError.value = 'Erro ao carregar evoluções: ' + err.message;
+    evolutionError.value = t('professor.errorLoadingEvolutions', { message: err.message });
   } finally {
     loadingEvolutions.value = false;
   }
@@ -400,7 +402,7 @@ const saveEvolution = async () => {
     resetForm();
   } catch (err) {
     console.error('Error saving evolution:', err);
-    evolutionError.value = 'Erro ao salvar evolução: ' + err.message;
+    evolutionError.value = t('professor.errorSavingEvolution', { message: err.message });
   } finally {
     saving.value = false;
   }
@@ -408,13 +410,13 @@ const saveEvolution = async () => {
 
 // Confirm deletion
 const confirmDelete = async (evolution) => {
-  if (confirm('Tem certeza que deseja excluir esta evolução? Esta ação não pode ser desfeita.')) {
+  if (confirm(t('professor.confirmDeleteEvolution'))) {
     try {
       await evolutionStore.deleteEvolution(evolution.id);
       await fetchStudentEvolutions(selectedStudentId.value);
     } catch (err) {
       console.error('Error deleting evolution:', err);
-      evolutionError.value = 'Erro ao excluir evolução: ' + err.message;
+      evolutionError.value = t('professor.errorDeletingEvolution', { message: err.message });
     }
   }
 };
@@ -423,7 +425,13 @@ const confirmDelete = async (evolution) => {
 const formatDate = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
-  return date.toLocaleDateString('pt-BR');
+  const localeMap = {
+    'pt': 'pt-BR',
+    'en': 'en-US',
+    'es': 'es-ES',
+    'fr': 'fr-FR'
+  };
+  return date.toLocaleDateString(localeMap[locale.value] || 'pt-BR');
 };
 
 // Sort evolutions by date (most recent first)
@@ -437,29 +445,29 @@ const sortedEvolutions = computed(() => {
 const ratingDescription = computed(() => {
   switch(newEvolution.value.rating) {
     case 1: 
-      return 'Necessita muita melhoria';
+      return t('professor.ratingNeedsImprovement');
     case 2:
-      return 'Ainda com dificuldades';
+      return t('professor.ratingStillDifficulties');
     case 3:
-      return 'Desenvolvimento adequado';
+      return t('professor.ratingAdequateDevelopment');
     case 4:
-      return 'Bom progresso';
+      return t('professor.ratingGoodProgress');
     case 5:
-      return 'Excelente evolução';
+      return t('professor.ratingExcellentEvolution');
     default:
-      return 'Selecione uma avaliação';
+      return t('professor.selectRating');
   }
 });
 
 // Get category label
 const getCategoryLabel = (category) => {
   const categories = {
-    'postura': 'Postura',
-    'flexibilidade': 'Flexibilidade',
-    'forca': 'Força',
-    'equilibrio': 'Equilíbrio',
-    'respiracao': 'Respiração',
-    'outro': 'Outro'
+    'postura': t('professor.categoryPosture'),
+    'flexibilidade': t('professor.categoryFlexibility'),
+    'forca': t('professor.categoryStrength'),
+    'equilibrio': t('professor.categoryBalance'),
+    'respiracao': t('professor.categoryBreathing'),
+    'outro': t('professor.categoryOther')
   };
   return categories[category] || category;
 };
@@ -479,12 +487,12 @@ const getCategoryClass = (category) => {
 
 // Update form title based on edit/add mode
 const formTitle = computed(() => {
-  return editingEvolution.value ? 'Editar Evolução' : 'Adicionar Nova Evolução';
+  return editingEvolution.value ? t('professor.editEvolution') : t('professor.addNewEvolution');
 });
 
 // Update button text based on edit/add mode
 const saveButtonText = computed(() => {
-  return editingEvolution.value ? 'Salvar Alterações' : 'Salvar';
+  return editingEvolution.value ? t('admin.saveChanges') : t('common.save');
 });
 
 onMounted(async () => {

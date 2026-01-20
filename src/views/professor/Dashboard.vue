@@ -189,11 +189,11 @@
                   <div class="ml-5 w-0 flex-1">
                     <dl>
                       <dt class="text-sm font-medium text-gray-500 truncate">
-                        Mensagens de Alunos
+                        {{ $t('professor.studentMessages') }}
                       </dt>
                       <dd class="mt-1">
                         <div class="text-2xl font-semibold text-gray-900">
-                          {{ unreadMessages }} <span class="text-sm text-gray-500">não lidas</span>
+                          {{ unreadMessages }} <span class="text-sm text-gray-500">{{ $t('professor.unread') }}</span>
                         </div>
                       </dd>
                     </dl>
@@ -219,7 +219,7 @@
                         v-if="!message.isRead"
                         class="text-xs text-indigo-600 hover:text-indigo-800"
                       >
-                        Marcar como lido
+                        {{ $t('professor.markAsRead') }}
                       </button>
                       <button 
                         @click="replyToMessage(message)" 
@@ -228,7 +228,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654z"/>
                         </svg>
-                        Responder
+                        {{ $t('professor.reply') }}
                       </button>
                     </div>
                   </div>
@@ -300,7 +300,7 @@
 
       <!-- Quick Actions -->
       <div class="mt-8 px-4 sm:px-0">
-        <h2 class="text-lg font-medium text-gray-900 mb-4">Ações Rápidas</h2>
+        <h2 class="text-lg font-medium text-gray-900 mb-4">{{ $t('professor.quickActions') }}</h2>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <!-- Attendance Control Button -->
           <router-link to="/professor/attendance-control" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
@@ -312,8 +312,8 @@
                   </svg>
                 </div>
                 <div class="ml-5">
-                  <h3 class="text-lg font-medium text-gray-900">Controle de Presença</h3>
-                  <p class="mt-1 text-sm text-gray-500">Gerenciar a presença de seus alunos e agendar aulas</p>
+                  <h3 class="text-lg font-medium text-gray-900">{{ $t('professor.attendanceControl') }}</h3>
+                  <p class="mt-1 text-sm text-gray-500">{{ $t('professor.attendanceControlDesc') }}</p>
                 </div>
               </div>
             </div>
@@ -327,9 +327,9 @@
                   </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
-                  <h3 class="text-lg font-medium text-gray-900">Gerenciar Alunos</h3>
+                  <h3 class="text-lg font-medium text-gray-900">{{ $t('professor.manageStudents') }}</h3>
                   <p class="mt-1 text-sm text-gray-500">
-                    Acesse a lista completa de alunos e gerencie suas informações.
+                    {{ $t('professor.manageStudentsDesc') }}
                   </p>
                 </div>
               </div>
@@ -345,9 +345,9 @@
                   </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
-                  <h3 class="text-lg font-medium text-gray-900">Evolução dos Alunos</h3>
+                  <h3 class="text-lg font-medium text-gray-900">{{ $t('professor.studentEvolution') }}</h3>
                   <p class="mt-1 text-sm text-gray-500">
-                    Acompanhe o progresso e cadastre a evolução dos alunos.
+                    {{ $t('professor.studentEvolutionDesc') }}
                   </p>
                 </div>
               </div>
@@ -364,9 +364,9 @@
                   </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
-                  <h3 class="text-lg font-medium text-gray-900">Agenda</h3>
+                  <h3 class="text-lg font-medium text-gray-900">{{ $t('professor.schedule') }}</h3>
                   <p class="mt-1 text-sm text-gray-500">
-                    Visualize sua agenda completa de aulas com todos os alunos.
+                    {{ $t('professor.scheduleDesc') }}
                   </p>
                 </div>
               </div>

@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900">Histórico de Ganhos</h1>
+        <h1 class="text-3xl font-bold text-gray-900">{{ $t('professor.earningsHistory') }}</h1>
       </div>
     </header>
 
@@ -15,23 +15,23 @@
       <!-- Filters Section -->
       <div class="px-4 sm:px-0 mb-8">
         <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6">
-          <h2 class="text-lg font-medium text-gray-900 mb-4">Filtros</h2>
+          <h2 class="text-lg font-medium text-gray-900 mb-4">{{ $t('professor.filters') }}</h2>
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
             <div>
-              <label for="year" class="block text-sm font-medium text-gray-700">Ano</label>
+              <label for="year" class="block text-sm font-medium text-gray-700">{{ $t('professor.year') }}</label>
               <select id="year" v-model="selectedYear" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                 <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
               </select>
             </div>
             <div>
-              <label for="month" class="block text-sm font-medium text-gray-700">Mês</label>
+              <label for="month" class="block text-sm font-medium text-gray-700">{{ $t('professor.month') }}</label>
               <select id="month" v-model="selectedMonth" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                 <option v-for="(month, index) in months" :key="index" :value="index">{{ month }}</option>
               </select>
             </div>
             <div class="flex items-end">
               <button @click="applyFilters" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Aplicar Filtros
+                {{ $t('professor.applyFilters') }}
               </button>
             </div>
           </div>
@@ -43,24 +43,24 @@
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">
           <div class="px-4 py-5 sm:px-6 bg-green-50">
             <h3 class="text-lg leading-6 font-medium text-gray-900">
-              Resumo de Ganhos - {{ months[selectedMonth] }} {{ selectedYear }}
+              {{ $t('professor.earningsSummary') }} - {{ months[selectedMonth] }} {{ selectedYear }}
             </h3>
             <p class="mt-1 max-w-2xl text-sm text-gray-500">
-              Comissão: {{ commission }}%
+              {{ $t('professor.commission') }}: {{ commission }}%
             </p>
           </div>
           <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="bg-white shadow-sm rounded-lg p-4 border border-gray-200">
-                <h4 class="text-sm font-medium text-gray-500">Total de Ganhos</h4>
-                <p class="mt-1 text-2xl font-semibold text-gray-900">R$ {{ totalEarnings.toFixed(2) }}</p>
+                <h4 class="text-sm font-medium text-gray-500">{{ $t('professor.totalEarnings') }}</h4>
+                <p class="mt-1 text-2xl font-semibold text-gray-900">{{ currency }} {{ formatCurrency(totalEarnings) }}</p>
               </div>
               <div class="bg-white shadow-sm rounded-lg p-4 border border-gray-200">
-                <h4 class="text-sm font-medium text-gray-500">Média por Aula</h4>
-                <p class="mt-1 text-2xl font-semibold text-gray-900">R$ {{ averagePerClass.toFixed(2) }}</p>
+                <h4 class="text-sm font-medium text-gray-500">{{ $t('professor.averagePerClass') }}</h4>
+                <p class="mt-1 text-2xl font-semibold text-gray-900">{{ currency }} {{ formatCurrency(averagePerClass) }}</p>
               </div>
               <div class="bg-white shadow-sm rounded-lg p-4 border border-gray-200">
-                <h4 class="text-sm font-medium text-gray-500">Total de Aulas</h4>
+                <h4 class="text-sm font-medium text-gray-500">{{ $t('professor.totalClasses') }}</h4>
                 <p class="mt-1 text-2xl font-semibold text-gray-900">{{ totalClasses }}</p>
               </div>
             </div>
@@ -73,40 +73,40 @@
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">
           <div class="px-4 py-5 sm:px-6">
             <h3 class="text-lg leading-6 font-medium text-gray-900">
-              Ganhos por Aluno
+              {{ $t('professor.earningsByStudent') }}
             </h3>
             <p class="mt-1 max-w-2xl text-sm text-gray-500">
-              Detalhamento por aluno no período selecionado
+              {{ $t('professor.earningsByStudentDesc') }}
             </p>
           </div>
           <div v-if="loading" class="px-4 py-8 text-center">
             <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mx-auto"></div>
-            <p class="mt-2 text-sm text-gray-500">Carregando dados...</p>
+            <p class="mt-2 text-sm text-gray-500">{{ $t('professor.loadingData') }}</p>
           </div>
           <div v-else-if="error" class="px-4 py-5 sm:p-6 text-center text-red-500">
             {{ error }}
           </div>
           <div v-else-if="studentEarnings.length === 0" class="px-4 py-5 sm:p-6 text-center">
-            <p class="text-gray-500">Nenhum registro de ganhos para o período selecionado.</p>
+            <p class="text-gray-500">{{ $t('professor.noEarningsForPeriod') }}</p>
           </div>
           <div v-else class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
                 <tr>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Aluno
+                    {{ $t('professor.student') }}
                   </th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Plano
+                    {{ $t('professor.plan') }}
                   </th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Aulas
+                    {{ $t('professor.classes') }}
                   </th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Valor por Aula
+                    {{ $t('professor.valuePerClass') }}
                   </th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total
+                    {{ $t('professor.total') }}
                   </th>
                 </tr>
               </thead>
@@ -116,16 +116,16 @@
                     <div class="text-sm font-medium text-gray-900">{{ earning.studentName }}</div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">{{ earning.planTitle || 'Sem plano' }}</div>
+                    <div class="text-sm text-gray-900">{{ earning.planTitle || $t('professor.noPlan') }}</div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {{ earning.classes }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    R$ {{ earning.valuePerClass.toFixed(2) }}
+                    {{ currency }} {{ formatCurrency(earning.valuePerClass) }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                    R$ {{ earning.total.toFixed(2) }}
+                    {{ currency }} {{ formatCurrency(earning.total) }}
                   </td>
                 </tr>
               </tbody>
@@ -139,23 +139,23 @@
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">
           <div class="px-4 py-5 sm:px-6">
             <h3 class="text-lg leading-6 font-medium text-gray-900">
-              Histórico Mensal
+              {{ $t('professor.monthlyHistory') }}
             </h3>
             <p class="mt-1 max-w-2xl text-sm text-gray-500">
-              Ganhos nos últimos 12 meses
+              {{ $t('professor.earningsLast12Months') }}
             </p>
           </div>
           <div v-if="loadingHistory" class="px-4 py-8 text-center">
             <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mx-auto"></div>
-            <p class="mt-2 text-sm text-gray-500">Carregando histórico...</p>
+            <p class="mt-2 text-sm text-gray-500">{{ $t('professor.loadingHistory') }}</p>
           </div>
           <div v-else-if="errorHistory" class="px-4 py-5 sm:p-6 text-center text-red-500">
             {{ errorHistory }}
           </div>
           <div v-else class="border-t border-gray-200 px-4 py-5 sm:p-6">
             <div class="h-64 bg-gray-50 rounded-lg p-4 flex flex-col justify-center items-center">
-              <p class="text-center text-gray-500">O histórico de ganhos será exibido aqui em um gráfico.</p>
-              <p class="text-center text-sm text-gray-400 mt-2">Implementação futura com biblioteca de gráficos</p>
+              <p class="text-center text-gray-500">{{ $t('professor.earningsChartPlaceholder') }}</p>
+              <p class="text-center text-sm text-gray-400 mt-2">{{ $t('professor.futureImplementation') }}</p>
             </div>
           </div>
         </div>
@@ -167,7 +167,7 @@
           <svg class="mr-2 -ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
           </svg>
-          Voltar para o Dashboard
+          {{ $t('professor.backToDashboard') }}
         </router-link>
       </div>
     </main>
@@ -177,10 +177,15 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAttendanceStore } from '../../stores/attendance';
 import { useAuthStore } from '../../stores/auth';
 import { useStudentsStore } from '../../stores/students';
 import Breadcrumb from '@/components/Breadcrumb.vue';
+import { useCompanyCurrency } from '@/composables/useCompanyCurrency';
+
+const { t } = useI18n();
+const { currency, formatCurrency, currencyLocale } = useCompanyCurrency();
 
 // Stores
 const attendanceStore = useAttendanceStore();
@@ -192,8 +197,8 @@ const route = useRoute();
 // Breadcrumb items
 const breadcrumbItems = computed(() => {
   return [
-    { name: 'Professor', path: '/professor' },
-    { name: 'Histórico de Ganhos', path: '/professor/earnings' }
+    { name: t('professor.dashboard'), path: '/professor' },
+    { name: t('professor.earningsHistory'), path: '/professor/earnings' }
   ];
 });
 
@@ -211,10 +216,20 @@ const currentDate = new Date();
 const selectedYear = ref(currentDate.getFullYear());
 const selectedMonth = ref(currentDate.getMonth());
 const availableYears = ref([]);
-const months = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-];
+const months = computed(() => [
+  t('common.months.january'),
+  t('common.months.february'),
+  t('common.months.march'),
+  t('common.months.april'),
+  t('common.months.may'),
+  t('common.months.june'),
+  t('common.months.july'),
+  t('common.months.august'),
+  t('common.months.september'),
+  t('common.months.october'),
+  t('common.months.november'),
+  t('common.months.december')
+]);
 
 // Calculated values
 const totalEarnings = computed(() => {
@@ -254,7 +269,7 @@ onMounted(async () => {
     await fetchMonthlyHistory();
   } catch (err) {
     console.error('Error initializing earnings page:', err);
-    error.value = 'Erro ao inicializar página: ' + err.message;
+    error.value = t('professor.errorInitializingPage', { message: err.message });
   }
 });
 
@@ -318,7 +333,7 @@ const fetchEarningsData = async () => {
           studentId,
           studentName: studentDoc.name,
           planId: studentDoc.planId,
-          planTitle: planData?.title || 'Sem plano',
+          planTitle: planData?.title || t('professor.noPlan'),
           classes: attendanceCount,
           valuePerClass,
           total
@@ -333,7 +348,7 @@ const fetchEarningsData = async () => {
     
   } catch (err) {
     console.error('Error fetching earnings data:', err);
-    error.value = 'Erro ao carregar dados: ' + err.message;
+    error.value = t('professor.errorLoadingData', { message: err.message });
   } finally {
     loading.value = false;
   }
@@ -358,7 +373,7 @@ const fetchMonthlyHistory = async () => {
       const year = currentYear - Math.floor((i - currentMonth) / 12);
       
       monthlyHistory.value.push({
-        month: months[monthIndex],
+        month: months.value[monthIndex],
         year,
         earnings: 0 // Placeholder - would calculate real earnings
       });
@@ -366,7 +381,7 @@ const fetchMonthlyHistory = async () => {
     
   } catch (err) {
     console.error('Error fetching monthly history:', err);
-    errorHistory.value = 'Erro ao carregar histórico: ' + err.message;
+    errorHistory.value = t('professor.errorLoadingHistory', { message: err.message });
   } finally {
     loadingHistory.value = false;
   }

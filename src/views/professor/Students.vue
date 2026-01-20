@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900">Meus Alunos</h1>
+        <h1 class="text-3xl font-bold text-gray-900">{{ $t('professor.myStudents') }}</h1>
       </div>
     </header>
     
@@ -25,7 +25,7 @@
           <div v-else>
             <ul role="list" class="divide-y divide-gray-200">
               <li v-if="sortedStudents.length === 0" class="px-6 py-4 text-gray-500">
-                Nenhum aluno encontrado.
+                {{ $t('professor.noStudentsFound') }}
               </li>
               <li v-for="student in sortedStudents" :key="student.id" class="px-4 py-4 sm:px-6">
                 <div class="flex items-center justify-between">
@@ -40,10 +40,10 @@
                       <div class="hidden md:block">
                         <div>
                           <p class="text-sm text-gray-900">
-                            Telefone: {{ student.phone }}
+                            {{ $t('common.phone') }}: {{ student.phone }}
                           </p>
                           <p class="mt-2 text-sm text-gray-500">
-                            Plano: {{ student.planId && !student.plan ? 'Carregando plano...' : (student.plan ? `${student.plan.title} (${student.plan.sessionsPerWeek}x/semana)` : 'Sem plano') }}
+                            {{ $t('professor.plan') }}: {{ student.planId && !student.plan ? $t('professor.loadingPlan') : (student.plan ? `${student.plan.title} (${student.plan.sessionsPerWeek}${$t('professor.perWeek')})` : $t('professor.noPlan')) }}
                           </p>
                         </div>
                       </div>
@@ -52,13 +52,13 @@
                 </div>
                 <div class="ml-5 flex-shrink-0">
                   <span v-if="student.planId && !student.plan" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                    Carregando...
+                    {{ $t('common.loading') }}
                   </span>
                   <span v-else-if="student.plan" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
                     {{ student.plan.title }}
                   </span>
                   <span v-else class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                    Sem plano
+                    {{ $t('professor.noPlan') }}
                   </span>
                 </div>
               </li>
@@ -73,10 +73,12 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useStudentsStore } from '@/stores/students';
 import { useAuthStore } from '@/stores/auth';
 import Breadcrumb from '@/components/Breadcrumb.vue';
 
+const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const studentsStore = useStudentsStore();
@@ -89,8 +91,8 @@ const error = ref(null);
 // Breadcrumb items
 const breadcrumbItems = computed(() => {
   return [
-    { name: 'Professor', path: '/professor' },
-    { name: 'Meus Alunos', path: '/professor/students' }
+    { name: t('professor.dashboard'), path: '/professor' },
+    { name: t('professor.myStudents'), path: '/professor/students' }
   ];
 });
 
@@ -135,7 +137,7 @@ const fetchStudents = async () => {
     students.value = studentsWithPlans;
   } catch (err) {
     console.error('Error fetching students:', err);
-    error.value = 'Erro ao carregar alunos: ' + err.message;
+    error.value = t('professor.errorLoadingStudents', { message: err.message });
   } finally {
     loading.value = false;
   }

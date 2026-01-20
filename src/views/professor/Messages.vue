@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900">Mensagens dos Alunos</h1>
+        <h1 class="text-3xl font-bold text-gray-900">{{ $t('professor.studentMessages') }}</h1>
       </div>
     </header>
     
@@ -18,14 +18,14 @@
           <div class="px-4 py-5 sm:p-6">
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div class="space-y-2">
-                <label for="search" class="block text-sm font-medium text-gray-700">Buscar mensagens</label>
+                <label for="search" class="block text-sm font-medium text-gray-700">{{ $t('professor.searchMessages') }}</label>
                 <div class="relative rounded-md shadow-sm">
                   <input
                     type="text"
                     id="search"
                     v-model="searchQuery"
                     class="block w-full px-4 py-3 rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    placeholder="Buscar por nome do aluno ou conteúdo..."
+                    :placeholder="$t('professor.searchMessagesPlaceholder')"
                   />
                   <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -35,15 +35,15 @@
                 </div>
               </div>
               <div class="space-y-2">
-                <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                <label for="status" class="block text-sm font-medium text-gray-700">{{ $t('common.status') }}</label>
                 <select
                   id="status"
                   v-model="filterStatus"
                   class="block w-full px-4 py-3 rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 >
-                  <option value="all">Todas</option>
-                  <option value="unread">Não lidas</option>
-                  <option value="read">Lidas</option>
+                  <option value="all">{{ $t('professor.allMessages') }}</option>
+                  <option value="unread">{{ $t('professor.unreadMessages') }}</option>
+                  <option value="read">{{ $t('professor.readMessages') }}</option>
                 </select>
               </div>
             </div>
@@ -60,7 +60,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
             </svg>
-            <p class="text-gray-500">Nenhuma mensagem encontrada</p>
+            <p class="text-gray-500">{{ $t('professor.noMessagesFound') }}</p>
           </div>
 
           <ul v-else class="divide-y divide-gray-200">
@@ -76,7 +76,7 @@
                   <div class="ml-2 flex-shrink-0 flex">
                     <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                        :class="message.isRead ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
-                      {{ message.isRead ? 'Lida' : 'Não lida' }}
+                      {{ message.isRead ? $t('professor.read') : $t('professor.unread') }}
                     </p>
                   </div>
                 </div>
@@ -101,13 +101,13 @@
                     @click="markAsRead(message.id)"
                     class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
-                    Marcar como lida
+                    {{ $t('professor.markAsRead') }}
                   </button>
                   <button
                     @click="replyToStudent(message)"
                     class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
-                    Responder via WhatsApp
+                    {{ $t('professor.replyViaWhatsApp') }}
                   </button>
                 </div>
               </div>
@@ -122,14 +122,16 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores/auth';
 import { collection, query, where, getDocs, doc, updateDoc, orderBy } from 'firebase/firestore';
 import { db } from '@/firebase/config';
 import Breadcrumb from '@/components/Breadcrumb.vue';
 import { Timestamp } from 'firebase/firestore';
 import { format, isValid } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { ptBR, enUS, es as esLocale, fr as frLocale } from 'date-fns/locale';
 
+const { t, locale } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
@@ -143,8 +145,8 @@ const filterStatus = ref('all');
 // Breadcrumb items
 const breadcrumbItems = computed(() => {
   return [
-    { name: 'Professor', path: '/professor' },
-    { name: 'Mensagens', path: '/professor/messages' }
+    { name: t('professor.dashboard'), path: '/professor' },
+    { name: t('professor.messages'), path: '/professor/messages' }
   ];
 });
 
@@ -213,13 +215,24 @@ const markAsRead = async (messageId) => {
 // Reply to student via WhatsApp
 const replyToStudent = (message) => {
   if (!message.studentPhone) {
-    alert('Número de telefone do aluno não disponível');
+    alert(t('professor.studentPhoneNotAvailable'));
     return;
   }
 
   const whatsappUrl = `https://wa.me/${message.studentPhone}`;
   window.open(whatsappUrl, '_blank');
 };
+
+// Get date-fns locale based on i18n locale
+const dateFnsLocale = computed(() => {
+  const localeMap = {
+    'pt': ptBR,
+    'en': enUS,
+    'es': esLocale,
+    'fr': frLocale
+  };
+  return localeMap[locale.value] || ptBR;
+});
 
 // Format date and time
 const formatDateTime = (timestamp) => {
@@ -231,10 +244,19 @@ const formatDateTime = (timestamp) => {
     : (timestamp.seconds ? new Date(timestamp.seconds * 1000) : new Date(timestamp));
 
   if (!isValid(date)) {
-    return 'Data inválida';
+    return t('professor.invalidDate');
   }
 
-  return format(date, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+  // Use locale-specific format
+  const formatString = locale.value === 'en' 
+    ? "MM/dd/yyyy 'at' HH:mm"
+    : locale.value === 'es'
+    ? "dd/MM/yyyy 'a las' HH:mm"
+    : locale.value === 'fr'
+    ? "dd/MM/yyyy 'à' HH:mm"
+    : "dd/MM/yyyy 'às' HH:mm";
+
+  return format(date, formatString, { locale: dateFnsLocale.value });
 };
 
 onMounted(async () => {

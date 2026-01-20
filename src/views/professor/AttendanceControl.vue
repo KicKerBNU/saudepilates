@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900">Controle de Presença</h1>
+        <h1 class="text-3xl font-bold text-gray-900">{{ $t('professor.attendanceControl') }}</h1>
       </div>
     </header>
     
@@ -27,7 +27,7 @@
                     'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm'
                   ]"
                 >
-                  Agendar Aulas
+                  {{ $t('professor.scheduleClass') }}
                 </button>
                 <button 
                   @click="activeTab = 'attendance'"
@@ -38,7 +38,7 @@
                     'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm'
                   ]"
                 >
-                  Registrar Presença
+                  {{ $t('professor.registerAttendance') }}
                 </button>
               </nav>
             </div>
@@ -54,9 +54,9 @@
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      Agendar Nova Aula
+                      {{ $t('professor.scheduleNewClass') }}
                     </h2>
-                    <p class="text-indigo-100 text-sm mt-1">Preencha os dados abaixo para agendar uma nova aula</p>
+                    <p class="text-indigo-100 text-sm mt-1">{{ $t('professor.fillScheduleForm') }}</p>
                   </div>
                   
                   <!-- Form Body -->
@@ -67,14 +67,14 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        <label for="student" class="block text-sm font-semibold text-indigo-900">Selecione o Aluno</label>
+                        <label for="student" class="block text-sm font-semibold text-indigo-900">{{ $t('professor.selectStudent') }}</label>
                       </div>
                       <select 
                         id="student" 
                         v-model="selectedStudent" 
                         class="block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg shadow-sm transition duration-150 ease-in-out"
                       >
-                        <option value="">-- Selecione um aluno --</option>
+                        <option value="">{{ $t('professor.selectAStudent') }}</option>
                         <option v-for="student in students" :key="student.id" :value="student.id">
                           {{ student.name }}
                         </option>
@@ -83,7 +83,7 @@
                     
                     <!-- Date and Time Section -->
                     <div class="border-t border-gray-200 pt-6">
-                      <h3 class="text-lg font-medium text-gray-900 mb-4">Data e Horário</h3>
+                      <h3 class="text-lg font-medium text-gray-900 mb-4">{{ $t('professor.dateAndTime') }}</h3>
                       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <!-- Date Picker -->
                         <div class="relative">
@@ -91,7 +91,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            <label class="block text-sm font-medium text-gray-700">Data da Aula</label>
+                            <label class="block text-sm font-medium text-gray-700">{{ $t('professor.classDate') }}</label>
                           </div>
                           <input 
                             type="date" 
@@ -106,7 +106,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <label class="block text-sm font-medium text-gray-700">Hora de Início</label>
+                            <label class="block text-sm font-medium text-gray-700">{{ $t('professor.startTime') }}</label>
                           </div>
                           <input 
                             type="time" 
@@ -124,7 +124,7 @@
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <label class="block text-sm font-medium text-gray-700">Duração da Aula</label>
+                          <label class="block text-sm font-medium text-gray-700">{{ $t('professor.classDuration') }}</label>
                         </div>
                         <div class="flex items-center">
                           <input 
@@ -134,7 +134,7 @@
                             step="15"
                             class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-lg p-3 bg-white"
                           />
-                          <span class="ml-2 text-sm text-gray-500">minutos</span>
+                          <span class="ml-2 text-sm text-gray-500">{{ $t('professor.minutes') }}</span>
                         </div>
                         
                         <!-- Quick Duration Buttons -->
@@ -175,7 +175,7 @@
                       <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                       </svg>
-                      Cancelar
+                      {{ $t('common.cancel') }}
                     </button>
                     <button 
                       type="button" 
@@ -186,7 +186,7 @@
                       <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      {{ isSubmitting ? 'Agendando...' : 'Agendar Aula' }}
+                      {{ isSubmitting ? $t('professor.scheduling') : $t('professor.scheduleClassButton') }}
                     </button>
                   </div>
                   
@@ -200,13 +200,13 @@
                       </div>
                       <div class="ml-3">
                         <p class="text-sm text-yellow-700">
-                          Preencha todos os campos obrigatórios para agendar a aula.
+                          {{ $t('professor.fillAllRequiredFields') }}
                         </p>
                         <ul class="mt-2 text-sm text-yellow-700 list-disc list-inside">
-                          <li v-if="!selectedStudent">Selecione um aluno</li>
-                          <li v-if="!selectedDate">Escolha a data da aula</li>
-                          <li v-if="!startTime">Defina o horário de início</li>
-                          <li v-if="!duration || duration <= 0">Informe a duração da aula</li>
+                          <li v-if="!selectedStudent">{{ $t('professor.selectAStudentRequired') }}</li>
+                          <li v-if="!selectedDate">{{ $t('professor.chooseClassDate') }}</li>
+                          <li v-if="!startTime">{{ $t('professor.defineStartTime') }}</li>
+                          <li v-if="!duration || duration <= 0">{{ $t('professor.informClassDuration') }}</li>
                         </ul>
                       </div>
                     </div>
@@ -217,7 +217,7 @@
               <div v-if="activeTab === 'attendance'" class="space-y-6 p-4">
                 <div class="flex space-x-4 mb-4 p-2">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700">Data</label>
+                    <label class="block text-sm font-medium text-gray-700">{{ $t('common.date') }}</label>
                     <input 
                       type="date" 
                       v-model="attendanceDate"
@@ -225,11 +225,11 @@
                     />
                   </div>
                   <div class="flex-1">
-                    <label class="block text-sm font-medium text-gray-700">Filtrar por nome</label>
+                    <label class="block text-sm font-medium text-gray-700">{{ $t('professor.filterByName') }}</label>
                     <input
                       type="text"
                       v-model="searchQuery"
-                      placeholder="Buscar aluno..."
+                      :placeholder="$t('professor.searchStudent')"
                       class="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md p-3"
                     />
                   </div>
@@ -240,12 +240,12 @@
                 </div>
                 
                 <div v-else-if="scheduledClasses.length === 0" class="py-8 px-4 text-center">
-                  <p class="text-gray-500">Não há aulas agendadas para esta data.</p>
+                  <p class="text-gray-500">{{ $t('professor.noClassesScheduled') }}</p>
                   <button
                     @click="activeTab = 'schedule'"
                     class="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
-                    Agendar Aula
+                    {{ $t('professor.scheduleClassButton') }}
                   </button>
                 </div>
                 
@@ -254,16 +254,16 @@
                     <thead class="bg-gray-50">
                       <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Aluno
+                          {{ $t('professor.student') }}
                         </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Horário
+                          {{ $t('professor.startTime') }}
                         </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Duração
+                          {{ $t('professor.classDuration') }}
                         </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Presença
+                          {{ $t('professor.registerAttendance') }}
                         </th>
                         <th scope="col" class="relative px-6 py-3">
                           <span class="sr-only">Ações</span>
@@ -298,7 +298,7 @@
                                 'inline-flex items-center px-2.5 py-1.5 border text-xs font-medium rounded'
                               ]"
                             >
-                              Presente
+                              {{ $t('common.present') }}
                             </button>
                             <button
                               @click="markAttendance(classItem.id, false)"
@@ -309,7 +309,7 @@
                                 'inline-flex items-center px-2.5 py-1.5 border text-xs font-medium rounded'
                               ]"
                             >
-                              Ausente
+                              {{ $t('common.absent') }}
                             </button>
                           </div>
                         </td>
@@ -318,7 +318,7 @@
                             @click="deleteClass(classItem.id)"
                             class="text-red-600 hover:text-red-900"
                           >
-                            Excluir
+                            {{ $t('common.delete') }}
                           </button>
                         </td>
                       </tr>
@@ -337,7 +337,10 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
+
+const { t } = useI18n();
 import { useStudentsStore } from '../../stores/students';
 import { useAttendanceStore } from '../../stores/attendance';
 import Breadcrumb from '@/components/Breadcrumb.vue';
@@ -366,8 +369,8 @@ const attendanceStore = useAttendanceStore();
 // Breadcrumb items
 const breadcrumbItems = computed(() => {
   return [
-    { name: 'Professor', path: '/professor' },
-    { name: 'Controle de Presença', path: '/professor/attendance-control' }
+    { name: t('professor.dashboard'), path: '/professor' },
+    { name: t('professor.attendanceControl'), path: '/professor/attendance-control' }
   ];
 });
 
