@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8 flex justify-between items-center">
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Pagamentos Mensais</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $t('admin.monthlyPayments') }}</h1>
         <div class="flex items-center space-x-4">
           <span class="text-gray-600">
             {{ currentMonthYear }}
@@ -42,19 +42,19 @@
       <!-- Summary Card -->
       <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4 sm:mb-6">
         <div class="px-4 py-4 sm:px-6 sm:py-5">
-          <h2 class="text-lg font-medium text-gray-900">Resumo do Mês</h2>
+          <h2 class="text-lg font-medium text-gray-900">{{ $t('admin.monthSummary') }}</h2>
           <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div class="bg-indigo-50 overflow-hidden rounded-lg px-4 py-4">
-              <dt class="text-sm font-medium text-indigo-800 truncate">Total Recebido</dt>
-              <dd class="mt-1 text-2xl sm:text-3xl font-semibold text-indigo-900">R$ {{ calculateTotalPaid() }}</dd>
+              <dt class="text-sm font-medium text-indigo-800 truncate">{{ $t('admin.totalReceived') }}</dt>
+              <dd class="mt-1 text-2xl sm:text-3xl font-semibold text-indigo-900">{{ $t('common.currency') }} {{ calculateTotalPaid() }}</dd>
             </div>
             <div class="bg-yellow-50 overflow-hidden rounded-lg px-4 py-4">
-              <dt class="text-sm font-medium text-yellow-800 truncate">Pagamentos Pendentes</dt>
-              <dd class="mt-1 text-2xl sm:text-3xl font-semibold text-yellow-900">R$ {{ calculateTotalPending() }}</dd>
+              <dt class="text-sm font-medium text-yellow-800 truncate">{{ $t('admin.pendingPayments') }}</dt>
+              <dd class="mt-1 text-2xl sm:text-3xl font-semibold text-yellow-900">{{ $t('common.currency') }} {{ calculateTotalPending() }}</dd>
             </div>
             <div class="bg-green-50 overflow-hidden rounded-lg px-4 py-4">
-              <dt class="text-sm font-medium text-green-800 truncate">Projeção Total</dt>
-              <dd class="mt-1 text-2xl sm:text-3xl font-semibold text-green-900">R$ {{ calculateTotalProjection() }}</dd>
+              <dt class="text-sm font-medium text-green-800 truncate">{{ $t('admin.totalProjection') }}</dt>
+              <dd class="mt-1 text-2xl sm:text-3xl font-semibold text-green-900">{{ $t('common.currency') }} {{ calculateTotalProjection() }}</dd>
             </div>
           </div>
         </div>
@@ -72,7 +72,7 @@
                 : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
             ]"
           >
-            Todos Pagamentos
+            {{ $t('admin.allPayments') }}
           </button>
           <button 
             @click="activeFilter = 'withStudents'" 
@@ -83,7 +83,7 @@
                 : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
             ]"
           >
-            Com Pagamento
+            {{ $t('admin.withPayment') }}
           </button>
           <button 
             @click="activeFilter = 'withoutStudents'" 
@@ -94,7 +94,7 @@
                 : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
             ]"
           >
-            Sem Pagamento
+            {{ $t('admin.withoutPayment') }}
           </button>
         </div>
       </div>
@@ -102,7 +102,7 @@
       <!-- Payment List -->
       <div class="bg-white shadow overflow-hidden sm:rounded-lg">
         <div class="px-4 py-4 sm:px-6 sm:py-5">
-          <h3 class="text-base sm:text-lg font-medium text-gray-900">Lista de Pagamentos</h3>
+          <h3 class="text-base sm:text-lg font-medium text-gray-900">{{ $t('admin.paymentList') }}</h3>
         </div>
         
         <div v-if="loading" class="text-center py-8">
@@ -110,14 +110,14 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <p class="mt-2 text-sm text-gray-500">Carregando pagamentos...</p>
+          <p class="mt-2 text-sm text-gray-500">{{ $t('admin.loadingPayments') }}</p>
         </div>
         
         <div v-else-if="filteredPayments.length === 0" class="text-center py-8">
           <svg class="mx-auto h-10 w-10 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <p class="mt-2 text-sm text-gray-500">Nenhum pagamento encontrado para este filtro.</p>
+          <p class="mt-2 text-sm text-gray-500">{{ $t('admin.noPaymentsFound') }}</p>
         </div>
         
         <ul v-else role="list" class="divide-y divide-gray-200">
@@ -136,13 +136,13 @@
                     <div class="mt-2 sm:flex sm:justify-between">
                       <div class="sm:flex">
                         <p class="flex items-center text-sm text-gray-700">
-                          <span class="mr-2">Período:</span>
+                          <span class="mr-2">{{ $t('admin.period') }}:</span>
                           <span class="font-medium">{{ getPaymentPeriodText(payment) }}</span>
                         </p>
                       </div>
                       <div class="mt-2 flex items-center text-sm text-gray-700 sm:mt-0">
                         <p class="text-sm">
-                          Data: {{ formatDate(payment.paymentDate) }}
+                          {{ $t('common.date') }}: {{ formatDate(payment.paymentDate) }}
                         </p>
                       </div>
                     </div>
@@ -151,10 +151,10 @@
               </div>
               <div class="mt-4 sm:mt-0 sm:ml-4 flex flex-col sm:flex-row gap-2">
                 <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                  Pago
+                  {{ $t('admin.paid') }}
                 </span>
                 <span class="px-2 py-1 inline-flex text-sm leading-4 font-medium">
-                  R$ {{ (payment.finalAmount || payment.amount).toFixed(2) }}
+                  {{ $t('common.currency') }} {{ (payment.finalAmount || payment.amount).toFixed(2) }}
                 </span>
               </div>
             </div>
@@ -165,9 +165,9 @@
       <!-- Students Without Payments Section -->
       <div v-if="showStudentsWithoutPayments" class="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
         <div class="px-4 py-4 sm:px-6 sm:py-5">
-          <h3 class="text-base sm:text-lg font-medium text-gray-900">Alunos sem Pagamento</h3>
+          <h3 class="text-base sm:text-lg font-medium text-gray-900">{{ $t('admin.studentsWithoutPayment') }}</h3>
           <p class="mt-1 max-w-2xl text-sm text-gray-500">
-            Alunos que ainda não realizaram o pagamento deste mês.
+            {{ $t('admin.studentsWithoutPaymentDesc') }}
           </p>
         </div>
         
@@ -175,7 +175,7 @@
           <svg class="mx-auto h-10 w-10 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <p class="mt-2 text-sm text-gray-500">Todos os alunos realizaram seus pagamentos.</p>
+          <p class="mt-2 text-sm text-gray-500">{{ $t('admin.allStudentsPaid') }}</p>
         </div>
         
         <ul v-else role="list" class="divide-y divide-gray-200">
@@ -194,8 +194,8 @@
                     <div class="mt-2 sm:flex sm:justify-between">
                       <div class="sm:flex">
                         <p class="flex items-center text-sm text-gray-700">
-                          <span class="mr-2">Valor Esperado:</span>
-                          <span class="font-medium">R$ {{ (student.expectedAmount || 0).toFixed(2) }}</span>
+                          <span class="mr-2">{{ $t('admin.expectedAmount') }}:</span>
+                          <span class="font-medium">{{ $t('common.currency') }} {{ (student.expectedAmount || 0).toFixed(2) }}</span>
                         </p>
                       </div>
                     </div>
@@ -207,7 +207,7 @@
                   :to="{name: 'PaymentRegistration', query: { studentId: student.id }}" 
                   class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  Registrar Pagamento
+                  {{ $t('admin.registerPayment') }}
                 </router-link>
               </div>
             </div>
@@ -221,10 +221,13 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
 import { usePaymentsStore } from '../../stores/payments';
 import PaymentChart from '../../components/admin/PaymentChart.vue';
 import Breadcrumb from '@/components/Breadcrumb.vue';
+
+const { t, locale } = useI18n();
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -242,27 +245,37 @@ const breadcrumbItems = computed(() => {
     
     // Special handling for specific segments
     if (segment === 'payments') {
-      name = 'Pagamentos';
+      name = t('admin.payments');
       path = '/admin';
     } else if (segment === 'monthly') {
-      name = 'Mensal';
+      name = t('admin.monthly');
     }
     
     return { name, path };
   });
 });
 
-// Month selection
-const months = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-];
+// Month selection - using i18n
+const months = computed(() => [
+  t('common.months.january'),
+  t('common.months.february'),
+  t('common.months.march'),
+  t('common.months.april'),
+  t('common.months.may'),
+  t('common.months.june'),
+  t('common.months.july'),
+  t('common.months.august'),
+  t('common.months.september'),
+  t('common.months.october'),
+  t('common.months.november'),
+  t('common.months.december')
+]);
 const isMonthSelectorOpen = ref(false);
 const selectedMonth = ref(new Date().getMonth());
 const selectedYear = ref(new Date().getFullYear());
 
 const currentMonthYear = computed(() => {
-  return `${months[selectedMonth.value]} ${selectedYear.value}`;
+  return `${months.value[selectedMonth.value]} ${selectedYear.value}`;
 });
 
 // Filter state
@@ -295,16 +308,16 @@ const fetchData = async () => {
         const plan = plansMap[student.planId];
         return {
           ...student,
-          planTitle: plan.title || 'Plano não encontrado',
+          planTitle: plan.title || t('admin.planNotFound'),
           planPrice: plan.price || 0,
-          studentName: student.name || `${student.firstName || ''} ${student.lastName || ''}`.trim() || 'Aluno sem nome'
+          studentName: student.name || `${student.firstName || ''} ${student.lastName || ''}`.trim() || t('admin.studentWithoutName')
         };
       }
       return {
         ...student,
-        planTitle: 'Sem plano',
+        planTitle: t('admin.noPlan'),
         planPrice: 0,
-        studentName: student.name || `${student.firstName || ''} ${student.lastName || ''}`.trim() || 'Aluno sem nome'
+        studentName: student.name || `${student.firstName || ''} ${student.lastName || ''}`.trim() || t('admin.studentWithoutName')
       };
     });
     
@@ -391,8 +404,8 @@ const fetchData = async () => {
       return {
         ...payment,
         status: 'paid', // Force status to be paid
-        studentName: student ? student.studentName : `Aluno ID: ${payment.studentId?.substring(0, 6)}...`,
-        planTitle: student ? student.planTitle : 'Plano não encontrado'
+        studentName: student ? student.studentName : t('admin.studentId', { id: payment.studentId?.substring(0, 6) }),
+        planTitle: student ? student.planTitle : t('admin.planNotFound')
       };
     });
     
@@ -411,7 +424,7 @@ const calculateExpectedPayments = () => {
   expectedPayments.value = allStudents.value.map(student => ({
     studentId: student.id,
     studentName: student.name || `${student.firstName || ''} ${student.lastName || ''}`.trim(),
-    planTitle: student.planTitle || 'Sem plano',
+    planTitle: student.planTitle || t('admin.noPlan'),
     expectedAmount: student.planPrice || 0,
     status: 'pending'
   }));
@@ -513,13 +526,13 @@ const selectMonth = (monthIndex) => {
 // Utility function to get a human-readable payment period text
 const getPaymentPeriodText = (payment) => {
   if (!payment.period || payment.period === 'month') {
-    return 'Mensal';
+    return t('admin.periodMonthly');
   } else if (payment.period === 'quarter') {
-    return 'Trimestral';
+    return t('admin.periodQuarterly');
   } else if (payment.period === 'semiannual') {
-    return 'Semestral';
+    return t('admin.periodSemiannual');
   } else if (payment.period === 'annual') {
-    return 'Anual';
+    return t('admin.periodAnnual');
   }
   return payment.period;
 };
@@ -527,7 +540,13 @@ const getPaymentPeriodText = (payment) => {
 // Format date
 const formatDate = (dateString) => {
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat('pt-BR', {
+  const localeMap = {
+    'pt': 'pt-BR',
+    'en': 'en-US',
+    'es': 'es-ES',
+    'fr': 'fr-FR'
+  };
+  return new Intl.DateTimeFormat(localeMap[locale.value] || 'pt-BR', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'

@@ -1,17 +1,8 @@
 <template>
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
-      <div class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $t('admin.plansManagement') }}</h1>
-        <button 
-          @click="openAddPlanModal"
-          class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          {{ $t('admin.addPlan') }}
-        </button>
       </div>
     </header>
     
@@ -47,8 +38,17 @@
 
       <!-- Plans List -->
       <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div class="px-4 py-4 sm:px-6 sm:py-5 border-b border-gray-200">
+        <div class="px-4 py-4 sm:px-6 sm:py-5 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h3 class="text-base sm:text-lg font-medium text-gray-900">{{ $t('admin.planList') }}</h3>
+          <button 
+            @click="openAddPlanModal"
+            class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            {{ $t('admin.addPlan') }}
+          </button>
         </div>
         <ul role="list" class="divide-y divide-gray-200">
           <li v-for="plan in plansList" :key="plan.id" class="px-4 py-4 sm:px-6 hover:bg-gray-50">
@@ -69,20 +69,20 @@
                           'bg-yellow-100 text-yellow-800': plan.sessionsPerWeek === 2,
                           'bg-blue-100 text-blue-800': plan.sessionsPerWeek === 1
                         }">
-                        {{ plan.sessionsPerWeek }} {{ plan.sessionsPerWeek === 1 ? 'sessão' : 'sessões' }}/semana
+                        {{ plan.sessionsPerWeek }} {{ plan.sessionsPerWeek === 1 ? $t('admin.session') : $t('admin.sessions') }}/{{ $t('admin.week') }}
                       </span>
                     </div>
-                    <div class="mt-1 text-sm text-gray-500">{{ plan.description || 'Nenhuma descrição disponível' }}</div>
-                    <div class="mt-2 text-sm font-medium text-gray-900">R$ {{ plan.price.toFixed(2) }}/mês</div>
+                    <div class="mt-1 text-sm text-gray-500">{{ plan.description || $t('admin.noDescriptionAvailable') }}</div>
+                    <div class="mt-2 text-sm font-medium text-gray-900">{{ $t('common.currency') }} {{ plan.price.toFixed(2) }}/{{ $t('admin.month') }}</div>
                     <div class="mt-2 flex flex-wrap gap-2">
                       <span v-if="plan.discountQuarterly > 0" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                        Trimestral: {{ plan.discountQuarterly }}% off
+                        {{ $t('admin.quarterly') }}: {{ plan.discountQuarterly }}% {{ $t('admin.off') }}
                       </span>
                       <span v-if="plan.discountSemiannual > 0" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                        Semestral: {{ plan.discountSemiannual }}% off
+                        {{ $t('admin.semiannual') }}: {{ plan.discountSemiannual }}% {{ $t('admin.off') }}
                       </span>
                       <span v-if="plan.discountAnnual > 0" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                        Anual: {{ plan.discountAnnual }}% off
+                        {{ $t('admin.annual') }}: {{ plan.discountAnnual }}% {{ $t('admin.off') }}
                       </span>
                     </div>
                   </div>
@@ -96,7 +96,7 @@
                   <svg class="-ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
-                  Editar
+                  {{ $t('common.edit') }}
                 </button>
                 <button 
                   @click="confirmDeletePlan(plan)"
@@ -105,7 +105,7 @@
                   <svg class="-ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
-                  Remover
+                  {{ $t('common.remove') }}
                 </button>
               </div>
             </div>
@@ -132,7 +132,7 @@
               @click="closeAddPlanModal"
               class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
-              <span class="sr-only">Fechar</span>
+              <span class="sr-only">{{ $t('common.close') }}</span>
               <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -147,11 +147,11 @@
             </div>
             <div class="text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
               <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                Adicionar Novo Plano
+                {{ $t('admin.addNewPlan') }}
               </h3>
               <div>
                 <p class="text-sm text-gray-500">
-                  Preencha os detalhes do novo plano abaixo. Campos marcados com * são obrigatórios.
+                  {{ $t('admin.fillPlanDetails') }}
                 </p>
               </div>
               <div class="mt-4">
@@ -171,7 +171,7 @@
                           'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500': !formErrors.title
                         }"
                         class="block w-full rounded-md shadow-sm sm:text-sm px-4 py-3 border"
-                        placeholder="Ex: Plano Básico" 
+                        :placeholder="$t('admin.planTitlePlaceholder')" 
                         required 
                         @input="validateField('title')"
                       />
@@ -196,10 +196,10 @@
                             'rounded-md py-3 px-3 text-sm font-semibold shadow-sm'
                           ]"
                         >
-                          {{ count }} {{ count === 1 ? 'sessão' : 'sessões' }}
+                          {{ count }} {{ count === 1 ? $t('admin.session') : $t('admin.sessions') }}
                         </button>
                       </div>
-                      <p class="mt-2 text-sm text-gray-500">Escolha o número de sessões semanais</p>
+                      <p class="mt-2 text-sm text-gray-500">{{ $t('admin.chooseWeeklySessions') }}</p>
                     </div>
                   </div>
 
@@ -210,7 +210,7 @@
                     </label>
                     <div class="mt-1 relative rounded-md shadow-sm">
                       <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <span class="text-gray-500 sm:text-sm">R$</span>
+                        <span class="text-gray-500 sm:text-sm">{{ $t('common.currency') }}</span>
                       </div>
                       <input 
                         type="number" 
@@ -233,7 +233,7 @@
                   <div>
                     <label for="description" class="block text-sm font-medium text-gray-900">
                       {{ $t('admin.description') }}
-                      <span class="text-gray-500">(Opcional)</span>
+                      <span class="text-gray-500">({{ $t('common.optional') }})</span>
                     </label>
                     <div class="mt-1">
                       <textarea 
@@ -241,9 +241,9 @@
                         v-model="newPlan.description" 
                         rows="4"
                         class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3"
-                        placeholder="Descreva os benefícios e características do plano"
+                        :placeholder="$t('admin.describePlanBenefits')"
                       ></textarea>
-                      <p class="mt-2 text-sm text-gray-500">Breve descrição do plano e seus benefícios</p>
+                      <p class="mt-2 text-sm text-gray-500">{{ $t('admin.briefPlanDescription') }}</p>
                     </div>
                   </div>
 
@@ -311,7 +311,7 @@
                     <div class="mt-1">
                       <input type="text" id="editTitle" v-model="editingPlan.title"
                         class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3"
-                        placeholder="Ex: Plano Básico" required />
+                        :placeholder="$t('admin.planTitlePlaceholder')" required />
                     </div>
                   </div>
 
@@ -320,19 +320,19 @@
                     <div class="mt-1">
                       <select id="editSessionsPerWeek" v-model="editingPlan.sessionsPerWeek"
                         class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3">
-                        <option value="1">1 sessão por semana</option>
-                        <option value="2">2 sessões por semana</option>
-                        <option value="3">3 sessões por semana</option>
+                        <option value="1">1 {{ $t('admin.session') }} {{ $t('admin.perWeek') }}</option>
+                        <option value="2">2 {{ $t('admin.sessions') }} {{ $t('admin.perWeek') }}</option>
+                        <option value="3">3 {{ $t('admin.sessions') }} {{ $t('admin.perWeek') }}</option>
                       </select>
                     </div>
-                    <p class="mt-2 text-sm text-gray-500">Escolha entre 1 a 3 sessões semanais</p>
+                    <p class="mt-2 text-sm text-gray-500">{{ $t('admin.chooseBetweenSessions') }}</p>
                   </div>
 
                   <div>
-                    <label for="editPrice" class="block text-sm font-medium text-gray-900">Preço Mensal</label>
+                    <label for="editPrice" class="block text-sm font-medium text-gray-900">{{ $t('admin.monthlyPrice') }}</label>
                     <div class="mt-1 relative rounded-md shadow-sm">
                       <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <span class="text-gray-500 sm:text-sm">R$</span>
+                        <span class="text-gray-500 sm:text-sm">{{ $t('common.currency') }}</span>
                       </div>
                       <input type="number" id="editPrice" v-model="editingPlan.price"
                         class="block w-full rounded-md border border-gray-300 pl-10 pr-3 py-3 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -343,18 +343,18 @@
                   <div>
                     <label for="editDescription" class="block text-sm font-medium text-gray-900">
                       Descrição
-                      <span class="text-gray-500">(Opcional)</span>
+                      <span class="text-gray-500">({{ $t('common.optional') }})</span>
                     </label>
                     <div class="mt-1">
                       <textarea id="editDescription" v-model="editingPlan.description" rows="4"
                         class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3"
-                        placeholder="Descreva os benefícios e características do plano"></textarea>
+                        :placeholder="$t('admin.describePlanBenefits')"></textarea>
                     </div>
                   </div>
 
                   <div>
                     <label for="editCommission" class="block text-sm font-medium text-gray-900">
-                      Comissão do Professor (%)
+                      {{ $t('admin.professorCommission') }}
                     </label>
                     <div class="mt-1">
                       <input 
@@ -368,18 +368,18 @@
                         placeholder="40"
                       />
                     </div>
-                    <p class="mt-1 text-xs text-gray-500">Porcentagem que será repassada ao professor por cada aluno neste plano.</p>
+                    <p class="mt-1 text-xs text-gray-500">{{ $t('admin.commissionDescription') }}</p>
                   </div>
 
                   <div class="mt-4 mb-2">
-                    <h4 class="text-sm font-medium text-gray-900 mb-2">Descontos para Pagamentos Antecipados</h4>
-                    <p class="text-xs text-gray-500 mb-2">Configure descontos para incentivar pagamentos por períodos mais longos.</p>
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">{{ $t('admin.advancePaymentDiscounts') }}</h4>
+                    <p class="text-xs text-gray-500 mb-2">{{ $t('admin.configureDiscountsDescription') }}</p>
                     
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                       <!-- Quarterly Discount -->
                       <div>
                         <label for="editDiscountQuarterly" class="block text-sm font-medium text-gray-900">
-                          Trimestral (%)
+                          {{ $t('admin.quarterly') }} (%)
                         </label>
                         <div class="mt-1">
                           <input 
@@ -398,7 +398,7 @@
                       <!-- Semi-annual Discount -->
                       <div>
                         <label for="editDiscountSemiannual" class="block text-sm font-medium text-gray-900">
-                          Semestral (%)
+                          {{ $t('admin.semiannual') }} (%)
                         </label>
                         <div class="mt-1">
                           <input 
@@ -417,7 +417,7 @@
                       <!-- Annual Discount -->
                       <div>
                         <label for="editDiscountAnnual" class="block text-sm font-medium text-gray-900">
-                          Anual (%)
+                          {{ $t('admin.annual') }} (%)
                         </label>
                         <div class="mt-1">
                           <input 
@@ -451,7 +451,7 @@
                       type="submit"
                       class="w-full sm:w-auto inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
-                      Salvar Alterações
+                      {{ $t('admin.saveChanges') }}
                     </button>
                   </div>
                 </form>
@@ -482,8 +482,7 @@
               </h3>
               <div class="mt-1">
                 <p class="text-sm text-gray-500">
-                  Tem certeza que deseja remover o plano <span class="font-semibold">{{ planToDelete?.title }}</span>?
-                  Esta ação não pode ser desfeita.
+                  {{ $t('admin.confirmDeletePlan', { plan: planToDelete?.title }) }}
                 </p>
               </div>
             </div>
@@ -510,7 +509,7 @@
               @click="cancelDelete"
               class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm"
             >
-              Cancelar
+              {{ $t('common.cancel') }}
             </button>
           </div>
         </div>
@@ -556,8 +555,7 @@ async function fetchPlans() {
   try {
     plansList.value = await authStore.getPlans();
   } catch (error) {
-    error.value = 'Erro ao carregar planos: ' + error.message;
-    error.value = error.message;
+    error.value = t('admin.errorLoadingPlans') + ': ' + error.message;
   }
 }
 
@@ -657,8 +655,7 @@ async function addPlan() {
     await fetchPlans();
     closeAddPlanModal();
   } catch (err) {
-    error.value = 'Erro ao adicionar plano: ' + err.message;
-    error.value = err.message || 'Erro ao adicionar plano. Tente novamente.';
+    error.value = err.message || t('admin.errorAddingPlan');
   } finally {
     isAdding.value = false;
   }
@@ -675,7 +672,7 @@ async function updatePlan() {
     await fetchPlans();
     closeEditPlanModal();
   } catch (error) {
-    error.value = 'Erro ao atualizar plano: ' + error.message;
+    error.value = t('admin.errorUpdatingPlan') + ': ' + error.message;
     error.value = error.message;
   }
 }
@@ -689,7 +686,7 @@ async function deletePlan() {
     await fetchPlans();
     cancelDelete();
   } catch (error) {
-    error.value = 'Erro ao remover plano: ' + error.message;
+    error.value = t('admin.errorRemovingPlan') + ': ' + error.message;
     error.value = error.message;
   } finally {
     isDeleting.value = false;

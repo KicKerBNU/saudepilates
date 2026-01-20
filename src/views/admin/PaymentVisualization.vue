@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8">
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Visualização de Receitas</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $t('admin.paymentVisualization') }}</h1>
       </div>
     </header>
     
@@ -34,8 +34,8 @@
                 </div>
                 <div class="ml-4 sm:ml-5 w-0 flex-1">
                   <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Receita Total (Mês Atual)</dt>
-                    <dd class="text-base sm:text-lg font-medium text-gray-900">R$ {{ formatCurrency(totalCurrentMonth) }}</dd>
+                    <dt class="text-sm font-medium text-gray-500 truncate">{{ $t('admin.totalRevenueCurrentMonth') }}</dt>
+                    <dd class="text-base sm:text-lg font-medium text-gray-900">{{ $t('common.currency') }} {{ formatCurrency(totalCurrentMonth) }}</dd>
                   </dl>
                 </div>
               </div>
@@ -53,8 +53,8 @@
                 </div>
                 <div class="ml-4 sm:ml-5 w-0 flex-1">
                   <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Pagamento Professores (Mês Atual)</dt>
-                    <dd class="text-base sm:text-lg font-medium text-gray-900">R$ {{ formatCurrency(totalProfessorPaymentsCurrentMonth) }}</dd>
+                    <dt class="text-sm font-medium text-gray-500 truncate">{{ $t('admin.professorPaymentsCurrentMonth') }}</dt>
+                    <dd class="text-base sm:text-lg font-medium text-gray-900">{{ $t('common.currency') }} {{ formatCurrency(totalProfessorPaymentsCurrentMonth) }}</dd>
                   </dl>
                 </div>
               </div>
@@ -72,8 +72,8 @@
                 </div>
                 <div class="ml-4 sm:ml-5 w-0 flex-1">
                   <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Lucro Líquido (Mês Atual)</dt>
-                    <dd class="text-base sm:text-lg font-medium text-gray-900">R$ {{ formatCurrency(netProfitCurrentMonth) }}</dd>
+                    <dt class="text-sm font-medium text-gray-500 truncate">{{ $t('admin.netProfitCurrentMonth') }}</dt>
+                    <dd class="text-base sm:text-lg font-medium text-gray-900">{{ $t('common.currency') }} {{ formatCurrency(netProfitCurrentMonth) }}</dd>
                   </dl>
                 </div>
               </div>
@@ -93,10 +93,13 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
 import { usePaymentsStore } from '../../stores/payments';
 import PaymentChart from '../../components/admin/PaymentChart.vue';
 import Breadcrumb from '@/components/Breadcrumb.vue';
+
+const { t, locale } = useI18n();
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -117,12 +120,12 @@ const breadcrumbItems = computed(() => {
     
     // Special handling for specific segments
     if (segment === 'payments') {
-      name = 'Pagamentos';
+      name = t('admin.payments');
       path = '/admin';
     } else if (segment === 'monthly') {
-      name = 'Mensal';
+      name = t('admin.monthly');
     } else if (segment === 'visualization') {
-      name = 'Visualização';
+      name = t('admin.visualization');
     }
     
     return { name, path };
@@ -164,7 +167,13 @@ const netProfitCurrentMonth = computed(() => {
 
 // Helper function to format currency
 function formatCurrency(value) {
-  return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const localeMap = {
+    'pt': 'pt-BR',
+    'en': 'en-US',
+    'es': 'es-ES',
+    'fr': 'fr-FR'
+  };
+  return value.toLocaleString(localeMap[locale.value] || 'pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 // Fetch payments data

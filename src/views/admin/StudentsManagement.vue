@@ -1,17 +1,8 @@
 <template>
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
-      <div class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $t('admin.studentsManagement') }}</h1>
-        <button 
-          @click="openAddStudentModal"
-          class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
-        >
-          <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          {{ $t('admin.addStudent') }}
-        </button>
       </div>
     </header>
     
@@ -56,12 +47,52 @@
       <!-- Students List -->
       <div class="bg-white shadow overflow-hidden sm:rounded-md">
         <div class="px-4 py-4 sm:px-6 sm:py-5">
-          <h3 class="text-base sm:text-lg leading-6 font-medium text-gray-900">
-            {{ $t('admin.studentList') }}
-          </h3>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">
-            {{ $t('admin.studentsAssociated') }}
-          </p>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <div>
+              <h3 class="text-base sm:text-lg leading-6 font-medium text-gray-900">
+                {{ $t('admin.studentList') }}
+              </h3>
+              <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                {{ $t('admin.studentsAssociated') }}
+              </p>
+            </div>
+            <button 
+              @click="openAddStudentModal"
+              class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
+            >
+              <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              {{ $t('admin.addStudent') }}
+            </button>
+          </div>
+          <!-- Search Input -->
+          <div class="w-full sm:w-80">
+            <label for="search-students" class="sr-only">{{ $t('admin.searchStudents') }}</label>
+            <div class="relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                id="search-students"
+                v-model="searchQuery"
+                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                :placeholder="$t('admin.searchStudentsPlaceholder')"
+              />
+              <button
+                v-if="searchQuery"
+                @click="searchQuery = ''"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center"
+              >
+                <svg class="h-5 w-5 text-gray-400 hover:text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
         
         <div v-if="loading" class="text-center py-8 sm:py-10">
@@ -85,8 +116,15 @@
           </button>
         </div>
         
+        <div v-else-if="filteredAndSortedStudents.length === 0" class="text-center py-8 sm:py-10">
+          <svg class="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <p class="mt-2 text-sm text-gray-500">{{ $t('admin.noStudentsFound', { query: debouncedSearchQuery }) }}</p>
+        </div>
+        
         <ul v-else role="list" class="divide-y divide-gray-200">
-          <li v-for="student in studentsList" :key="student.id" class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+          <li v-for="student in filteredAndSortedStudents" :key="student.id" class="px-4 py-4 sm:px-6 hover:bg-gray-50">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div class="min-w-0 flex-1">
                 <div class="flex items-center">
@@ -502,7 +540,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
@@ -538,6 +576,8 @@ const isDeleting = ref(false);
 const studentToDelete = ref(null);
 const missingProfessors = ref(false);
 const missingPlans = ref(false);
+const searchQuery = ref('');
+const debouncedSearchQuery = ref('');
 
 // Data
 const studentsList = ref([]);
@@ -563,6 +603,47 @@ const confirmPassword = ref('');
 
 // Computed properties
 const companyName = computed(() => authStore.companyName || 'Carregando...');
+
+// Sort students alphabetically by name
+const sortedStudentsList = computed(() => {
+  return [...studentsList.value].sort((a, b) => {
+    const nameA = (a.name || '').toLowerCase();
+    const nameB = (b.name || '').toLowerCase();
+    return nameA.localeCompare(nameB);
+  });
+});
+
+// Filter and sort students based on search query
+const filteredAndSortedStudents = computed(() => {
+  let filtered = sortedStudentsList.value;
+  
+  if (debouncedSearchQuery.value) {
+    const query = debouncedSearchQuery.value.toLowerCase().trim();
+    filtered = filtered.filter(student => {
+      const name = (student.name || '').toLowerCase();
+      const email = (student.email || '').toLowerCase();
+      const phone = (student.phone || '').toLowerCase();
+      
+      return name.includes(query) || 
+             email.includes(query) || 
+             phone.includes(query);
+    });
+  }
+  
+  return filtered;
+});
+
+// Debounce search query
+let searchTimeout = null;
+watch(searchQuery, (newValue) => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+  
+  searchTimeout = setTimeout(() => {
+    debouncedSearchQuery.value = newValue;
+  }, 300); // 300ms debounce delay
+});
 
 // Lifecycle hooks
 onMounted(async () => {
