@@ -11,10 +11,10 @@
             <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
               <router-link
                 v-for="item in navigation"
-                :key="item.name"
+                :key="item.href"
                 :to="item.href"
                 :class="[
-                  $route.path === item.href
+                  route.path === item.href || route.path.startsWith(item.href + '/')
                     ? 'border-indigo-500 text-gray-900'
                     : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
                   'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
@@ -29,7 +29,7 @@
               @click="logout"
               class="ml-4 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Sair
+              {{ t('nav.logout') }}
             </button>
           </div>
         </div>
@@ -50,20 +50,23 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores/auth';
 import Breadcrumb from '@/components/Breadcrumb.vue';
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
+const { t } = useI18n();
 
-const navigation = [
-  { name: 'Dashboard', href: '/admin' },
-  { name: 'Alunos', href: '/admin/students' },
-  { name: 'Professores', href: '/admin/professors' },
-  { name: 'Pagamentos', href: '/admin/payments' },
-  { name: 'Configurações', href: '/admin/settings' }
-];
+const navigation = computed(() => [
+  { name: t('nav.dashboard'), href: '/admin' },
+  { name: t('admin.studentsManagement'), href: '/admin/students' },
+  { name: t('admin.professorsManagement'), href: '/admin/professors' },
+  { name: t('admin.payments'), href: '/admin/payments' },
+  { name: t('admin.settings'), href: '/admin/settings' }
+]);
 
 const breadcrumbItems = computed(() => {
   const path = router.currentRoute.value.path;

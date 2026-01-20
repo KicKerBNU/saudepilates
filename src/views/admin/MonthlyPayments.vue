@@ -46,15 +46,15 @@
           <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div class="bg-indigo-50 overflow-hidden rounded-lg px-4 py-4">
               <dt class="text-sm font-medium text-indigo-800 truncate">{{ $t('admin.totalReceived') }}</dt>
-              <dd class="mt-1 text-2xl sm:text-3xl font-semibold text-indigo-900">{{ $t('common.currency') }} {{ calculateTotalPaid() }}</dd>
+              <dd class="mt-1 text-2xl sm:text-3xl font-semibold text-indigo-900">{{ currency }} {{ calculateTotalPaid() }}</dd>
             </div>
             <div class="bg-yellow-50 overflow-hidden rounded-lg px-4 py-4">
               <dt class="text-sm font-medium text-yellow-800 truncate">{{ $t('admin.pendingPayments') }}</dt>
-              <dd class="mt-1 text-2xl sm:text-3xl font-semibold text-yellow-900">{{ $t('common.currency') }} {{ calculateTotalPending() }}</dd>
+              <dd class="mt-1 text-2xl sm:text-3xl font-semibold text-yellow-900">{{ currency }} {{ calculateTotalPending() }}</dd>
             </div>
             <div class="bg-green-50 overflow-hidden rounded-lg px-4 py-4">
               <dt class="text-sm font-medium text-green-800 truncate">{{ $t('admin.totalProjection') }}</dt>
-              <dd class="mt-1 text-2xl sm:text-3xl font-semibold text-green-900">{{ $t('common.currency') }} {{ calculateTotalProjection() }}</dd>
+              <dd class="mt-1 text-2xl sm:text-3xl font-semibold text-green-900">{{ currency }} {{ calculateTotalProjection() }}</dd>
             </div>
           </div>
         </div>
@@ -153,9 +153,9 @@
                 <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                   {{ $t('admin.paid') }}
                 </span>
-                <span class="px-2 py-1 inline-flex text-sm leading-4 font-medium">
-                  {{ $t('common.currency') }} {{ (payment.finalAmount || payment.amount).toFixed(2) }}
-                </span>
+                  <span class="px-2 py-1 inline-flex text-sm leading-4 font-medium">
+                    {{ currency }} {{ formatCurrency(payment.finalAmount || payment.amount) }}
+                  </span>
               </div>
             </div>
           </li>
@@ -195,7 +195,7 @@
                       <div class="sm:flex">
                         <p class="flex items-center text-sm text-gray-700">
                           <span class="mr-2">{{ $t('admin.expectedAmount') }}:</span>
-                          <span class="font-medium">{{ $t('common.currency') }} {{ (student.expectedAmount || 0).toFixed(2) }}</span>
+                            <span class="font-medium">{{ currency }} {{ formatCurrency(student.expectedAmount || 0) }}</span>
                         </p>
                       </div>
                     </div>
@@ -226,8 +226,10 @@ import { useAuthStore } from '../../stores/auth';
 import { usePaymentsStore } from '../../stores/payments';
 import PaymentChart from '../../components/admin/PaymentChart.vue';
 import Breadcrumb from '@/components/Breadcrumb.vue';
+import { useCompanyCurrency } from '@/composables/useCompanyCurrency';
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
+const { currency, formatCurrency, currencyLocale } = useCompanyCurrency();
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -435,7 +437,7 @@ const calculateTotalPaid = () => {
   let total = 0;
   
   if (!allPayments.value || allPayments.value.length === 0) {
-    return '0.00';
+    return formatCurrency(0);
   }
   
   // Manually sum all payment amounts
@@ -447,7 +449,7 @@ const calculateTotalPaid = () => {
     }
   }
   
-  return total.toFixed(2);
+  return formatCurrency(total);
 };
 
 // Calculate pending payments
@@ -462,14 +464,30 @@ const calculateTotalPending = () => {
     }
   }
   
-  return total.toFixed(2);
+  return formatCurrency(total);
 };
 
 // Calculate total projected revenue for the month
 const calculateTotalProjection = () => {
-  const paid = parseFloat(calculateTotalPaid());
-  const pending = parseFloat(calculateTotalPending());
-  return (paid + pending).toFixed(2);
+  let paid = 0;
+  if (allPayments.value && allPayments.value.length > 0) {
+    for (const payment of allPayments.value) {
+      const amount = parseFloat(payment.finalAmount || payment.amount || 0);
+      if (!isNaN(amount)) {
+        paid += amount;
+      }
+    }
+  }
+  
+  let pending = 0;
+  for (const student of studentsWithoutPayments.value) {
+    const amount = parseFloat(student.planPrice || 0);
+    if (!isNaN(amount)) {
+      pending += amount;
+    }
+  }
+  
+  return formatCurrency(paid + pending);
 };
 
 // Filter payments based on active filter
@@ -540,13 +558,7 @@ const getPaymentPeriodText = (payment) => {
 // Format date
 const formatDate = (dateString) => {
   const date = new Date(dateString);
-  const localeMap = {
-    'pt': 'pt-BR',
-    'en': 'en-US',
-    'es': 'es-ES',
-    'fr': 'fr-FR'
-  };
-  return new Intl.DateTimeFormat(localeMap[locale.value] || 'pt-BR', {
+  return new Intl.DateTimeFormat(currencyLocale.value, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'

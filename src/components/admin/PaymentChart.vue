@@ -42,8 +42,10 @@
 import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Line } from 'vue-chartjs';
+import { useCompanyCurrency } from '@/composables/useCompanyCurrency';
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
+const { currency, currencyLocale, formatCurrency } = useCompanyCurrency();
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -134,14 +136,6 @@ const chartData = computed(() => {
 
   const currentYear = new Date().getFullYear();
   const lastYear = currentYear - 1;
-
-  const localeMap = {
-    'pt': 'pt-BR',
-    'en': 'en-US',
-    'es': 'es-ES',
-    'fr': 'fr-FR'
-  };
-  const currentLocale = localeMap[locale.value] || 'pt-BR';
   
   return {
     labels: monthlyData.value.map(data => {
@@ -170,15 +164,6 @@ const chartData = computed(() => {
 });
 
 const chartOptions = computed(() => {
-  const localeMap = {
-    'pt': 'pt-BR',
-    'en': 'en-US',
-    'es': 'es-ES',
-    'fr': 'fr-FR'
-  };
-  const currentLocale = localeMap[locale.value] || 'pt-BR';
-  const currency = t('common.currency');
-  
   return {
     responsive: true,
     maintainAspectRatio: false,
@@ -186,7 +171,7 @@ const chartOptions = computed(() => {
       y: {
         beginAtZero: true,
         ticks: {
-          callback: (value) => `${currency} ${value.toLocaleString(currentLocale)}`
+          callback: (value) => `${currency.value} ${formatCurrency(value)}`
         }
       }
     },
@@ -197,7 +182,7 @@ const chartOptions = computed(() => {
       },
       tooltip: {
         callbacks: {
-          label: (context) => `${context.dataset.label}: ${currency} ${context.parsed.y.toLocaleString(currentLocale)}`
+          label: (context) => `${context.dataset.label}: ${currency.value} ${formatCurrency(context.parsed.y)}`
         }
       }
     }

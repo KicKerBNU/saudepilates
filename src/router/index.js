@@ -20,6 +20,7 @@ import PaymentRegistration from '../views/admin/PaymentRegistration.vue'
 import MonthlyPayments from '../views/admin/MonthlyPayments.vue'
 import SubscriptionPayment from '../views/admin/SubscriptionPayment.vue'
 import PaymentVisualization from '../views/admin/PaymentVisualization.vue'
+import CompanySettings from '../views/admin/CompanySettings.vue'
 import ProfessorMessages from '../views/professor/Messages.vue'
 import NotFound from '../views/NotFound.vue'
 import PrivacyPolicy from '../views/PrivacyPolicy.vue'
@@ -106,6 +107,12 @@ const routes = [
     path: '/admin/payments/visualization',
     name: 'PaymentVisualization',
     component: PaymentVisualization,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
+    path: '/admin/settings',
+    name: 'CompanySettings',
+    component: CompanySettings,
     meta: { requiresAuth: true, role: 'admin' }
   },
   {

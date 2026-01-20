@@ -35,7 +35,7 @@
                 <div class="ml-4 sm:ml-5 w-0 flex-1">
                   <dl>
                     <dt class="text-sm font-medium text-gray-500 truncate">{{ $t('admin.totalRevenueCurrentMonth') }}</dt>
-                    <dd class="text-base sm:text-lg font-medium text-gray-900">{{ $t('common.currency') }} {{ formatCurrency(totalCurrentMonth) }}</dd>
+                    <dd class="text-base sm:text-lg font-medium text-gray-900">{{ currency }} {{ formatCurrency(totalCurrentMonth) }}</dd>
                   </dl>
                 </div>
               </div>
@@ -54,7 +54,7 @@
                 <div class="ml-4 sm:ml-5 w-0 flex-1">
                   <dl>
                     <dt class="text-sm font-medium text-gray-500 truncate">{{ $t('admin.professorPaymentsCurrentMonth') }}</dt>
-                    <dd class="text-base sm:text-lg font-medium text-gray-900">{{ $t('common.currency') }} {{ formatCurrency(totalProfessorPaymentsCurrentMonth) }}</dd>
+                    <dd class="text-base sm:text-lg font-medium text-gray-900">{{ currency }} {{ formatCurrency(totalProfessorPaymentsCurrentMonth) }}</dd>
                   </dl>
                 </div>
               </div>
@@ -73,7 +73,7 @@
                 <div class="ml-4 sm:ml-5 w-0 flex-1">
                   <dl>
                     <dt class="text-sm font-medium text-gray-500 truncate">{{ $t('admin.netProfitCurrentMonth') }}</dt>
-                    <dd class="text-base sm:text-lg font-medium text-gray-900">{{ $t('common.currency') }} {{ formatCurrency(netProfitCurrentMonth) }}</dd>
+                    <dd class="text-base sm:text-lg font-medium text-gray-900">{{ currency }} {{ formatCurrency(netProfitCurrentMonth) }}</dd>
                   </dl>
                 </div>
               </div>
@@ -98,8 +98,10 @@ import { useAuthStore } from '../../stores/auth';
 import { usePaymentsStore } from '../../stores/payments';
 import PaymentChart from '../../components/admin/PaymentChart.vue';
 import Breadcrumb from '@/components/Breadcrumb.vue';
+import { useCompanyCurrency } from '@/composables/useCompanyCurrency';
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
+const { currency, formatCurrency } = useCompanyCurrency();
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -165,16 +167,6 @@ const netProfitCurrentMonth = computed(() => {
   return totalCurrentMonth.value - totalProfessorPaymentsCurrentMonth.value;
 });
 
-// Helper function to format currency
-function formatCurrency(value) {
-  const localeMap = {
-    'pt': 'pt-BR',
-    'en': 'en-US',
-    'es': 'es-ES',
-    'fr': 'fr-FR'
-  };
-  return value.toLocaleString(localeMap[locale.value] || 'pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
 
 // Fetch payments data
 async function fetchPayments() {

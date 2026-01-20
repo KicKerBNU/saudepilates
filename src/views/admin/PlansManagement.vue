@@ -73,7 +73,7 @@
                       </span>
                     </div>
                     <div class="mt-1 text-sm text-gray-500">{{ plan.description || $t('admin.noDescriptionAvailable') }}</div>
-                    <div class="mt-2 text-sm font-medium text-gray-900">{{ $t('common.currency') }} {{ plan.price.toFixed(2) }}/{{ $t('admin.month') }}</div>
+                    <div class="mt-2 text-sm font-medium text-gray-900">{{ currency }} {{ formatCurrency(plan.price) }}/{{ $t('admin.month') }}</div>
                     <div class="mt-2 flex flex-wrap gap-2">
                       <span v-if="plan.discountQuarterly > 0" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                         {{ $t('admin.quarterly') }}: {{ plan.discountQuarterly }}% {{ $t('admin.off') }}
@@ -210,7 +210,7 @@
                     </label>
                     <div class="mt-1 relative rounded-md shadow-sm">
                       <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <span class="text-gray-500 sm:text-sm">{{ $t('common.currency') }}</span>
+                        <span class="text-gray-500 sm:text-sm">{{ currency }}</span>
                       </div>
                       <input 
                         type="number" 
@@ -332,7 +332,7 @@
                     <label for="editPrice" class="block text-sm font-medium text-gray-900">{{ $t('admin.monthlyPrice') }}</label>
                     <div class="mt-1 relative rounded-md shadow-sm">
                       <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <span class="text-gray-500 sm:text-sm">{{ $t('common.currency') }}</span>
+                        <span class="text-gray-500 sm:text-sm">{{ currency }}</span>
                       </div>
                       <input type="number" id="editPrice" v-model="editingPlan.price"
                         class="block w-full rounded-md border border-gray-300 pl-10 pr-3 py-3 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -524,8 +524,10 @@ import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
 import Breadcrumb from '@/components/Breadcrumb.vue';
+import { useCompanyCurrency } from '@/composables/useCompanyCurrency';
 
 const { t } = useI18n();
+const { currency, formatCurrency } = useCompanyCurrency();
 
 const router = useRouter();
 const authStore = useAuthStore();

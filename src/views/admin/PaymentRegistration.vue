@@ -108,18 +108,18 @@
                   <div class="bg-gray-50 rounded-lg p-4 sm:p-6">
                     <div class="space-y-4">
                       <div class="flex justify-between items-center">
-                        <span class="text-sm font-medium text-gray-700">Valor Original:</span>
-                        <span class="text-sm font-medium text-gray-900">R$ {{ originalAmount.toFixed(2) }}</span>
+                        <span class="text-sm font-medium text-gray-700">{{ $t('admin.originalAmount') }}:</span>
+                        <span class="text-sm font-medium text-gray-900">{{ currency }} {{ formatCurrency(originalAmount) }}</span>
                       </div>
                       
                       <div v-if="discount > 0" class="flex justify-between items-center">
-                        <span class="text-sm font-medium text-gray-700">Desconto ({{ discount }}%):</span>
-                        <span class="text-sm font-medium text-green-600">- R$ {{ discountAmount.toFixed(2) }}</span>
+                        <span class="text-sm font-medium text-gray-700">{{ $t('admin.discount') }} ({{ discount }}%):</span>
+                        <span class="text-sm font-medium text-green-600">- {{ currency }} {{ formatCurrency(discountAmount) }}</span>
                       </div>
                       
                       <div class="flex justify-between items-center pt-2 border-t border-gray-200">
-                        <span class="text-base font-semibold text-gray-900">Valor Final:</span>
-                        <span class="text-base font-semibold text-indigo-600">R$ {{ finalAmount.toFixed(2) }}</span>
+                        <span class="text-base font-semibold text-gray-900">{{ $t('admin.finalAmount') }}:</span>
+                        <span class="text-base font-semibold text-indigo-600">{{ currency }} {{ formatCurrency(finalAmount) }}</span>
                       </div>
                     </div>
                   </div>
@@ -171,6 +171,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useStudentsStore } from '../../stores/students';
 import { useProfessorsStore } from '../../stores/professors';
 import { usePaymentsStore } from '../../stores/payments';
@@ -178,13 +179,16 @@ import { useAuthStore } from '../../stores/auth';
 import { collection, query, where, getDocs, getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import Breadcrumb from '@/components/Breadcrumb.vue';
+import { useCompanyCurrency } from '@/composables/useCompanyCurrency';
 
+const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const studentsStore = useStudentsStore();
 const professorsStore = useProfessorsStore();
 const paymentsStore = usePaymentsStore();
 const authStore = useAuthStore();
+const { currency, formatCurrency } = useCompanyCurrency();
 
 // State
 const loading = ref(false);

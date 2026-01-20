@@ -28,7 +28,8 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: (state) => !!state.user,
     userId: (state) => state.user?.uid,
     companyId: (state) => state.userProfile?.companyId || null,
-    companyName: (state) => state.companyInfo?.name || null
+    companyName: (state) => state.companyInfo?.name || null,
+    companyLanguage: (state) => state.companyInfo?.language || 'pt' // Default to Portuguese
   },
   
   actions: {
@@ -515,6 +516,38 @@ export const useAuthStore = defineStore('auth', {
         return true;
       } catch (error) {
 
+        this.error = error.message;
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    async updateCompanyLanguage(companyId, language) {
+      if (!this.isAdmin) {
+        throw new Error('Only administrators can update company settings');
+      }
+      
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const companyRef = doc(db, 'companies', companyId);
+        await updateDoc(companyRef, {
+          language: language,
+          updatedAt: new Date().toISOString()
+        });
+        
+        // Update local state
+        if (this.companyInfo && this.companyInfo.id === companyId) {
+          this.companyInfo = {
+            ...this.companyInfo,
+            language: language
+          };
+        }
+        
+        return true;
+      } catch (error) {
         this.error = error.message;
         throw error;
       } finally {

@@ -44,7 +44,7 @@
             </div>
             <div class="ml-5 flex-shrink-0">
               <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                R$ {{ activity.finalAmount ? activity.finalAmount.toFixed(2) : '0.00' }}
+                {{ currency }} {{ formatCurrency(activity.finalAmount || 0) }}
               </span>
             </div>
           </div>
@@ -55,12 +55,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { usePaymentsStore } from '../../stores/payments';
 import { useAuthStore } from '../../stores/auth';
+import { useCompanyCurrency } from '@/composables/useCompanyCurrency';
 
 const { t } = useI18n();
+const { currency, formatCurrency, currencyLocale } = useCompanyCurrency();
 
 const paymentsStore = usePaymentsStore();
 const authStore = useAuthStore();
@@ -70,7 +72,7 @@ const activities = ref([]);
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat('pt-BR', {
+  return new Intl.DateTimeFormat(currencyLocale.value, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'

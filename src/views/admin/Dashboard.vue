@@ -51,7 +51,7 @@
           <router-link :to="{name: 'MonthlyPayments'}" class="cursor-pointer">
             <StatsCard
               :title="$t('admin.monthlyRevenue')"
-              :value="monthlyRevenue ? `R$ ${monthlyRevenue.toFixed(2)}` : 'R$ 0.00'"
+              :value="formattedMonthlyRevenue"
               :loading="loadingMonthlyRevenue"
               iconPath="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               iconBgColor="bg-yellow-500"
@@ -95,8 +95,18 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
+import { useCompanyCurrency } from '@/composables/useCompanyCurrency';
 
 const { t } = useI18n();
+const { currency, formatCurrency } = useCompanyCurrency();
+
+// Computed property to format monthly revenue with currency
+const formattedMonthlyRevenue = computed(() => {
+  if (monthlyRevenue.value) {
+    return `${currency.value} ${formatCurrency(monthlyRevenue.value)}`;
+  }
+  return `${currency.value} ${formatCurrency(0)}`;
+});
 import { useStudentsStore } from '../../stores/students';
 import { useProfessorsStore } from '../../stores/professors';
 import { usePaymentsStore } from '../../stores/payments';
