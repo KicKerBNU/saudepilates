@@ -190,7 +190,7 @@ const sendEzmail = async () => {
   } catch (error) {
     console.error('Failed to send email:', error);
     console.error('Error details:', error.status, error.text);
-    alert(t('contact.errorSending', { message: error.text || t('common.tryAgain') }));
+    window.showErrorToast?.(t('contact.errorSending', { message: error.text || t('common.tryAgain') }));
   } finally {
     sending.value = false;
   }

@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import NavBar from './components/NavBar.vue';
+import Toast from './components/Toast.vue';
 
 const isLoading = ref(true);
 
@@ -22,6 +23,7 @@ onMounted(() => {
     <div v-else>
       <NavBar />
       <router-view></router-view>
+      <Toast />
     </div>
   </div>
 </template>

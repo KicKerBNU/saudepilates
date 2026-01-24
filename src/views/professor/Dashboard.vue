@@ -635,7 +635,7 @@ const replyToMessage = (message) => {
     const encodedReply = encodeURIComponent(`Resposta para sua mensagem: "${message.text.substring(0, 30)}..."`);
     window.open(`https://wa.me/${studentPhone.replace(/\D/g, '')}?text=${encodedReply}`, '_blank');
   } else {
-    alert('Número de telefone do aluno não disponível');
+    window.showWarningToast?.('Número de telefone do aluno não disponível');
   }
 };
 

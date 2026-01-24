@@ -868,11 +868,11 @@ export default {
           // Clear the message input after successful sending
           messageText.value = '';
         } else {
-          alert(t('student.professorPhoneNotFound'));
+          window.showWarningToast?.(t('student.professorPhoneNotFound'));
         }
       } catch (error) {
         console.error('Error sending message:', error);
-        alert(t('student.errorSendingMessage'));
+        window.showErrorToast?.(t('student.errorSendingMessage'));
       } finally {
         sendingMessage.value = false;
       }
@@ -886,7 +886,7 @@ export default {
     // Function that selects a default message and immediately sends it via WhatsApp
     const selectAndSendMessage = async (message) => {
       if (!userProfile.value?.professorId) {
-        alert(t('student.professorNotFound'));
+        window.showErrorToast?.(t('student.professorNotFound'));
         return;
       }
       
@@ -896,7 +896,7 @@ export default {
         const professorPhone = professorInfo.value?.whatsapp || professorInfo.value?.phone || '';
         
         if (!professorPhone) {
-          alert(t('student.professorPhoneNotFound'));
+          window.showWarningToast?.(t('student.professorPhoneNotFound'));
           sendingMessage.value = false;
           return;
         }
@@ -929,7 +929,7 @@ export default {
         window.open(whatsappUrl, '_blank');
       } catch (error) {
         console.error('Error sending direct message:', error);
-        alert(t('student.errorSendingMessage'));
+        window.showErrorToast?.(t('student.errorSendingMessage'));
       } finally {
         sendingMessage.value = false;
       }

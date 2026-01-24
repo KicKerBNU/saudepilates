@@ -215,7 +215,7 @@ const markAsRead = async (messageId) => {
 // Reply to student via WhatsApp
 const replyToStudent = (message) => {
   if (!message.studentPhone) {
-    alert(t('professor.studentPhoneNotAvailable'));
+    window.showWarningToast?.(t('professor.studentPhoneNotAvailable'));
     return;
   }
 

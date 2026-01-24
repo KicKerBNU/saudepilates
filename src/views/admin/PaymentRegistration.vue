@@ -537,7 +537,7 @@ const registerPayment = async () => {
     router.push({ path: '/admin', query: { paymentSuccess: 'true' } });
   } catch (error) {
     console.error('Error registering payment:', error);
-    alert('Erro ao registrar pagamento: ' + error.message);
+    window.showErrorToast?.('Erro ao registrar pagamento: ' + error.message);
   } finally {
     loading.value = false;
   }

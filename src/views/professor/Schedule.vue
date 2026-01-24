@@ -29,7 +29,7 @@
           </div>
           <button 
             @click="today" 
-            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 whitespace-nowrap"
           >
             {{ $t('professor.today') }}
           </button>
@@ -241,6 +241,22 @@
                 </div>
               </div>
 
+              <!-- Schedule Period -->
+              <div class="mb-4">
+                <label for="schedulePeriod" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('professor.schedulePeriod') }}</label>
+                <select 
+                  id="schedulePeriod" 
+                  v-model="schedulePeriod" 
+                  class="block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg shadow-sm"
+                >
+                  <option value="once">{{ $t('professor.once') }}</option>
+                  <option value="weekly">{{ $t('professor.everyWeek') }}</option>
+                  <option value="monthly">{{ $t('professor.entireMonth') }}</option>
+                  <option value="yearly">{{ $t('professor.entireYear') }}</option>
+                </select>
+                <p class="mt-1 text-xs text-gray-500">{{ $t('professor.schedulePeriodDescription') }}</p>
+              </div>
+
               <!-- Actions -->
               <div class="flex justify-end space-x-3">
                 <button 
@@ -315,7 +331,7 @@ import { useAuthStore } from '../../stores/auth';
 import { useScheduleStore } from '../../stores/schedule';
 import { useStudentsStore } from '../../stores/students';
 import { useAttendanceStore } from '../../stores/attendance';
-import { isSameDay, format, parseISO } from 'date-fns';
+import { isSameDay, format, parseISO, addDays, addWeeks, startOfMonth, endOfMonth, startOfYear, endOfYear, startOfDay, isAfter, isToday } from 'date-fns';
 import { ptBR, enUS, es as esLocale, fr as frLocale } from 'date-fns/locale';
 import { dateToFirebaseTimestamp, firebaseTimestampToLocalDate, createNormalizedDate, formatDateYYYYMMDD, isSameDay as dateUtilsIsSameDay } from '../../utils/dateUtils';
 import { collection, addDoc, query, where, getDocs, getDoc, doc, updateDoc, deleteDoc, setDoc, Timestamp } from 'firebase/firestore';
@@ -359,7 +375,9 @@ const selectedStudent = ref('');
 const selectedDate = ref(new Date().toISOString().split('T')[0]);
 const startTime = ref('');
 const duration = ref(60);
+const schedulePeriod = ref('once'); // 'once', 'weekly', 'monthly', 'yearly'
 const isSubmitting = ref(false);
+const isCopying = ref(false);
 
 // Weekly calendar calculations
 const weekDays = computed(() => {
@@ -647,6 +665,7 @@ const closeScheduleModal = () => {
   selectedDate.value = new Date().toISOString().split('T')[0];
   startTime.value = '';
   duration.value = 60;
+  schedulePeriod.value = 'once';
 };
 
 // Register presence
@@ -765,10 +784,79 @@ const markAttendance = async (present) => {
     await fetchAppointments();
   } catch (err) {
     console.error('Error marking attendance:', err);
-    alert(t('professor.errorMarkingAttendance') || 'Error marking attendance');
+    window.showErrorToast?.(t('professor.errorMarkingAttendance') || 'Error marking attendance');
   } finally {
     loading.value = false;
   }
+};
+
+// Generate dates based on schedule period
+const generateScheduleDates = (startDate, period) => {
+  const dates = [];
+  const [year, month, day] = startDate.split('-').map(Number);
+  const baseDate = createNormalizedDate(year, month, day);
+  const dayOfWeek = baseDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  
+  // Get today's date (normalized to start of day for comparison)
+  const today = startOfDay(new Date());
+  
+  if (period === 'once') {
+    // Single occurrence - only add if it's today or in the future
+    const normalizedBaseDate = startOfDay(baseDate);
+    if (isToday(normalizedBaseDate) || isAfter(normalizedBaseDate, today)) {
+      dates.push(baseDate);
+    }
+  } else if (period === 'weekly') {
+    // Every week for the next 52 weeks (1 year) - only future dates
+    for (let i = 0; i < 52; i++) {
+      const weekDate = addWeeks(baseDate, i);
+      const normalizedWeekDate = startOfDay(weekDate);
+      // Only add if it's today or in the future
+      if (isToday(normalizedWeekDate) || isAfter(normalizedWeekDate, today)) {
+        dates.push(weekDate);
+      }
+    }
+  } else if (period === 'monthly') {
+    // All occurrences of this day of week in the selected month - only future dates
+    const monthStart = startOfMonth(baseDate);
+    const monthEnd = endOfMonth(baseDate);
+    
+    // Find first occurrence of the day of week in the month
+    let currentDate = new Date(monthStart);
+    const daysToAdd = (dayOfWeek - currentDate.getDay() + 7) % 7;
+    currentDate = addDays(currentDate, daysToAdd);
+    
+    // Add all occurrences of this day of week in the month that are today or in the future
+    while (currentDate <= monthEnd) {
+      const normalizedCurrentDate = startOfDay(currentDate);
+      // Only add if it's today or in the future
+      if (isToday(normalizedCurrentDate) || isAfter(normalizedCurrentDate, today)) {
+        dates.push(new Date(currentDate));
+      }
+      currentDate = addDays(currentDate, 7);
+    }
+  } else if (period === 'yearly') {
+    // All occurrences of this day of week in the selected year - only future dates
+    const yearStart = startOfYear(baseDate);
+    const yearEnd = endOfYear(baseDate);
+    
+    // Find first occurrence of the day of week in the year
+    let currentDate = new Date(yearStart);
+    const daysToAdd = (dayOfWeek - currentDate.getDay() + 7) % 7;
+    currentDate = addDays(currentDate, daysToAdd);
+    
+    // Add all occurrences of this day of week in the year that are today or in the future
+    while (currentDate <= yearEnd) {
+      const normalizedCurrentDate = startOfDay(currentDate);
+      // Only add if it's today or in the future
+      if (isToday(normalizedCurrentDate) || isAfter(normalizedCurrentDate, today)) {
+        dates.push(new Date(currentDate));
+      }
+      currentDate = addDays(currentDate, 7);
+    }
+  }
+  
+  return dates;
 };
 
 // Schedule class
@@ -776,26 +864,95 @@ const scheduleClass = async () => {
   try {
     isSubmitting.value = true;
     
-    // Use date-fns to handle the date correctly
-    const [year, month, day] = selectedDate.value.split('-').map(Number);
+    // Parse time
     const [hours, minutes] = startTime.value.split(':').map(Number);
     
-    // First create a normalized date at noon
-    let classDate = createNormalizedDate(year, month, day);
+    // Generate all dates based on the selected period
+    const dates = generateScheduleDates(selectedDate.value, schedulePeriod.value);
     
-    // Then set the specific time from the time picker
-    classDate = new Date(classDate.setHours(hours, minutes, 0, 0));
+    if (dates.length === 0) {
+      window.showErrorToast?.(t('professor.noDatesGenerated') || 'No dates could be generated. Please try again.');
+      return;
+    }
     
-    // Add to Firestore
-    await addDoc(collection(db, 'scheduledClasses'), {
-      studentId: selectedStudent.value,
-      professorId: authStore.userId,
-      date: dateToFirebaseTimestamp(classDate),
-      startTime: startTime.value,
-      duration: Number(duration.value),
-      present: null,
-      createdAt: Timestamp.now()
-    });
+    // Create scheduled classes for all dates
+    let createdCount = 0;
+    let skippedCount = 0;
+    
+    for (const date of dates) {
+      // Set the specific time from the time picker
+      const classDate = new Date(date);
+      classDate.setHours(hours, minutes, 0, 0);
+      
+      // Check if a class already exists for this date, student, and time
+      const existingQuery = query(
+        collection(db, 'scheduledClasses'),
+        where('professorId', '==', authStore.userId),
+        where('studentId', '==', selectedStudent.value)
+      );
+      
+      const existingSnapshot = await getDocs(existingQuery);
+      const classDateNormalized = createNormalizedDate(
+        classDate.getFullYear(),
+        classDate.getMonth() + 1,
+        classDate.getDate()
+      );
+      
+      // Check if a similar class already exists
+      let alreadyExists = false;
+      for (const docSnapshot of existingSnapshot.docs) {
+        const existingData = docSnapshot.data();
+        const existingDate = firebaseTimestampToLocalDate(existingData.date);
+        const existingDateNormalized = createNormalizedDate(
+          existingDate.getFullYear(),
+          existingDate.getMonth() + 1,
+          existingDate.getDate()
+        );
+        
+        if (
+          isSameDay(existingDateNormalized, classDateNormalized) &&
+          existingData.startTime === startTime.value
+        ) {
+          alreadyExists = true;
+          break;
+        }
+      }
+      
+      if (alreadyExists) {
+        skippedCount++;
+        continue;
+      }
+      
+      // Create the scheduled class
+      await addDoc(collection(db, 'scheduledClasses'), {
+        studentId: selectedStudent.value,
+        professorId: authStore.userId,
+        date: dateToFirebaseTimestamp(classDate),
+        startTime: startTime.value,
+        duration: Number(duration.value),
+        present: null,
+        createdAt: Timestamp.now()
+      });
+      
+      createdCount++;
+    }
+    
+    // Show success message
+    if (createdCount > 0) {
+      // Simple success message
+      const message = t('professor.datesAddedSuccess') || 'Dates added successfully.';
+      window.showSuccessToast?.(message);
+      
+      // Show warning if some dates were skipped
+      if (skippedCount > 0) {
+        const skippedMessage = t('professor.someDatesSkipped', { count: skippedCount }) || 
+                              `${skippedCount} date(s) skipped (already exist).`;
+        window.showWarningToast?.(skippedMessage);
+      }
+    } else {
+      const message = t('professor.allClassesAlreadyExist') || 'All classes already exist.';
+      window.showWarningToast?.(message);
+    }
     
     // Reset form and close modal
     closeScheduleModal();
@@ -803,7 +960,7 @@ const scheduleClass = async () => {
     
   } catch (err) {
     console.error('Error scheduling class:', err);
-    alert(t('professor.errorSchedulingClass') || 'Error scheduling class');
+    window.showErrorToast?.(t('professor.errorSchedulingClass') || 'Error scheduling class');
   } finally {
     isSubmitting.value = false;
   }
@@ -889,9 +1046,164 @@ const fetchAppointments = async () => {
 // Fetch students
 const fetchStudents = async () => {
   try {
-    students.value = await studentsStore.fetchStudents();
+    const fetchedStudents = await studentsStore.fetchStudents();
+    // Sort students alphabetically by name
+    students.value = fetchedStudents.sort((a, b) => {
+      const nameA = (a.name || a.displayName || '').toLowerCase();
+      const nameB = (b.name || b.displayName || '').toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
   } catch (err) {
     console.error('Error fetching students:', err);
+  }
+};
+
+// Copy current week's schedule to next week
+const copyWeekToNext = async () => {
+  // Confirm action
+  if (!confirm(t('professor.confirmCopyWeek') || 'Are you sure you want to copy this week\'s schedule to next week?')) {
+    return;
+  }
+
+  try {
+    isCopying.value = true;
+    
+    // Get first and last day of the current week
+    const dayOfWeek = currentDate.value.getDay();
+    const firstDay = new Date(currentDate.value);
+    firstDay.setDate(currentDate.value.getDate() - dayOfWeek);
+    
+    const lastDay = new Date(firstDay);
+    lastDay.setDate(firstDay.getDate() + 6);
+    
+    // Get all scheduled classes for the current week
+    const classesQuery = query(
+      collection(db, 'scheduledClasses'),
+      where('professorId', '==', authStore.userId)
+    );
+    
+    const classesSnapshot = await getDocs(classesQuery);
+    const currentWeekClasses = [];
+    
+    // Filter classes that are in the current week
+    for (const docSnapshot of classesSnapshot.docs) {
+      const classData = docSnapshot.data();
+      const classDate = firebaseTimestampToLocalDate(classData.date);
+      
+      // Check if the class is within the current week
+      if (classDate >= firstDay && classDate <= lastDay) {
+        currentWeekClasses.push({
+          id: docSnapshot.id,
+          ...classData
+        });
+      }
+    }
+    
+    if (currentWeekClasses.length === 0) {
+      window.showWarningToast?.(t('professor.noClassesToCopy') || 'No classes found in the current week to copy.');
+      return;
+    }
+    
+    // Calculate next week's dates
+    const nextWeekFirstDay = new Date(firstDay);
+    nextWeekFirstDay.setDate(firstDay.getDate() + 7);
+    
+    const nextWeekLastDay = new Date(lastDay);
+    nextWeekLastDay.setDate(lastDay.getDate() + 7);
+    
+    // Check if there are already classes in the next week
+    const nextWeekClassesQuery = query(
+      collection(db, 'scheduledClasses'),
+      where('professorId', '==', authStore.userId)
+    );
+    
+    const nextWeekSnapshot = await getDocs(nextWeekClassesQuery);
+    const existingNextWeekClasses = [];
+    
+    for (const docSnapshot of nextWeekSnapshot.docs) {
+      const classData = docSnapshot.data();
+      const classDate = firebaseTimestampToLocalDate(classData.date);
+      
+      if (classDate >= nextWeekFirstDay && classDate <= nextWeekLastDay) {
+        existingNextWeekClasses.push({
+          studentId: classData.studentId,
+          startTime: classData.startTime,
+          date: classDate
+        });
+      }
+    }
+    
+    // Copy each class to next week (7 days later)
+    let copiedCount = 0;
+    let skippedCount = 0;
+    
+    for (const classItem of currentWeekClasses) {
+      const originalDate = firebaseTimestampToLocalDate(classItem.date);
+      
+      // Create new date 7 days later
+      const newDate = new Date(originalDate);
+      newDate.setDate(originalDate.getDate() + 7);
+      
+      // Check if a similar class already exists in the next week
+      const alreadyExists = existingNextWeekClasses.some(existing => {
+        const sameDate = isSameDay(existing.date, newDate);
+        const sameStudent = existing.studentId === classItem.studentId;
+        const sameTime = existing.startTime === classItem.startTime;
+        return sameDate && sameStudent && sameTime;
+      });
+      
+      if (alreadyExists) {
+        skippedCount++;
+        continue;
+      }
+      
+      // Create normalized date for the new week
+      const normalizedNewDate = createNormalizedDate(
+        newDate.getFullYear(),
+        newDate.getMonth() + 1,
+        newDate.getDate()
+      );
+      
+      // Set the time from the original class
+      const [hours, minutes] = (classItem.startTime || '00:00').split(':').map(Number);
+      normalizedNewDate.setHours(hours, minutes, 0, 0);
+      
+      // Create new scheduled class
+      await addDoc(collection(db, 'scheduledClasses'), {
+        studentId: classItem.studentId,
+        professorId: classItem.professorId,
+        date: dateToFirebaseTimestamp(normalizedNewDate),
+        startTime: classItem.startTime,
+        duration: classItem.duration || 60,
+        present: null, // Reset attendance status
+        createdAt: Timestamp.now()
+      });
+      
+      copiedCount++;
+    }
+    
+    // Show success message
+    let message = '';
+    if (copiedCount > 0) {
+      const baseMessage = t('professor.weekCopiedSuccess') || '{count} class(es) copied successfully.';
+      message = baseMessage.replace('{count}', copiedCount.toString());
+      if (skippedCount > 0) {
+        message += ` ${skippedCount} ${t('professor.skipped') || 'skipped (already exist).'}`;
+      }
+    } else {
+      message = t('professor.allClassesAlreadyExist') || 'All classes already exist in the next week.';
+    }
+    
+    window.showSuccessToast?.(message);
+    
+    // Refresh appointments to show the new schedule
+    await fetchAppointments();
+    
+  } catch (err) {
+    console.error('Error copying week:', err);
+    window.showErrorToast?.(t('professor.errorCopyingWeek') || 'Error copying schedule. Please try again.');
+  } finally {
+    isCopying.value = false;
   }
 };
 

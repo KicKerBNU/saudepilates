@@ -323,12 +323,126 @@ export const useScheduleStore = defineStore('schedule', () => {
     }
   };
   
+  /**
+   * Fetch all scheduled appointments for a company within a date range
+   * Optionally filter by studentId or professorId
+   * @param {string} companyId - ID of the company
+   * @param {Date} startDate - Start date for fetching appointments
+   * @param {Date} endDate - End date for fetching appointments
+   * @param {string} [studentId] - Optional student ID to filter by
+   * @param {string} [professorId] - Optional professor ID to filter by
+   * @returns {Promise<Array>} - Array of appointment objects
+   */
+  const fetchCompanySchedule = async (companyId, startDate, endDate, studentId = null, professorId = null) => {
+    try {
+      loading.value = true;
+      error.value = null;
+      
+      // First, get all students and professors in the company
+      const usersQuery = query(
+        collection(db, 'users'),
+        where('companyId', '==', companyId)
+      );
+      
+      const usersSnapshot = await getDocs(usersQuery);
+      const companyUserIds = usersSnapshot.docs.map(doc => doc.id);
+      
+      // If filtering by student or professor, validate they belong to the company
+      if (studentId && !companyUserIds.includes(studentId)) {
+        throw new Error('Student does not belong to this company');
+      }
+      if (professorId && !companyUserIds.includes(professorId)) {
+        throw new Error('Professor does not belong to this company');
+      }
+      
+      // Build query for scheduledClasses
+      let classesQuery;
+      if (studentId) {
+        classesQuery = query(
+          collection(db, 'scheduledClasses'),
+          where('studentId', '==', studentId)
+        );
+      } else if (professorId) {
+        classesQuery = query(
+          collection(db, 'scheduledClasses'),
+          where('professorId', '==', professorId)
+        );
+      } else {
+        // Fetch all classes and filter by company users in memory
+        classesQuery = query(collection(db, 'scheduledClasses'));
+      }
+      
+      const classesSnapshot = await getDocs(classesQuery);
+      
+      // Transform scheduled classes into appointment objects
+      const appointmentsList = [];
+      
+      for (const document of classesSnapshot.docs) {
+        const data = document.data();
+        
+        // Filter by company if not already filtered by student/professor
+        if (!studentId && !professorId) {
+          if (!companyUserIds.includes(data.studentId) || !companyUserIds.includes(data.professorId)) {
+            continue;
+          }
+        }
+        
+        // Use our date utilities to handle dates consistently
+        const localAppointmentDate = firebaseTimestampToLocalDate(data.date);
+        
+        // Filter dates in memory - compare only the date part
+        if (
+          localAppointmentDate >= new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()) && 
+          localAppointmentDate <= new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate())
+        ) {
+          // Fetch student and professor names
+          const studentDoc = await getStudentName(data.studentId);
+          const professorDoc = await getProfessorName(data.professorId);
+          
+          appointmentsList.push({
+            id: document.id,
+            studentId: data.studentId,
+            studentName: studentDoc?.name || 'Aluno não encontrado',
+            professorId: data.professorId,
+            professorName: professorDoc?.name || 'Professor não encontrado',
+            date: localAppointmentDate,
+            time: data.startTime || data.time || data.date?.toDate().toISOString() || localAppointmentDate.toISOString(),
+            duration: data.duration || 60,
+            type: data.type || 'scheduled',
+            status: data.status || 'scheduled',
+            notes: data.notes || '',
+            source: 'scheduled'
+          });
+        }
+      }
+      
+      // Sort appointments by date and time
+      appointmentsList.sort((a, b) => {
+        const dateCompare = a.date - b.date;
+        if (dateCompare === 0) {
+          return new Date(a.time) - new Date(b.time);
+        }
+        return dateCompare;
+      });
+      
+      appointments.value = appointmentsList;
+      return appointmentsList;
+    } catch (err) {
+      console.error('Error fetching company schedule:', err);
+      error.value = err.message;
+      return [];
+    } finally {
+      loading.value = false;
+    }
+  };
+  
   return {
     appointments,
     loading,
     error,
     fetchProfessorSchedule,
     fetchStudentSchedule,
+    fetchCompanySchedule,
     addAppointment,
     updateAppointment,
     deleteAppointment

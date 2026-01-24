@@ -37,6 +37,24 @@
           </div>
         </div>
       </router-link>
+
+      <router-link :to="{name: 'AdminSchedule'}" class="bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50">
+        <div class="px-4 py-5 sm:p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
+              <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <h3 class="text-lg font-medium text-gray-900">{{ $t('admin.classSchedule') }}</h3>
+              <p class="mt-1 text-sm text-gray-500">
+                {{ $t('admin.classScheduleDesc') }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </router-link>
     </div>
   </div>
 </template>
