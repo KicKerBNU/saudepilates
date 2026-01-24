@@ -428,11 +428,21 @@ const weekDays = computed(() => {
       return isSameDay(appointmentDate, date);
     });
     
-    // Sort appointments by time
+    // Sort appointments by time, then alphabetically by student name if same time
     dayAppointments.sort((a, b) => {
       const timeA = a.time || '';
       const timeB = b.time || '';
-      return timeA.localeCompare(timeB);
+      
+      // First compare by time
+      const timeCompare = timeA.localeCompare(timeB);
+      if (timeCompare !== 0) {
+        return timeCompare;
+      }
+      
+      // If times are the same, sort alphabetically by student name
+      const nameA = (a.studentName || '').toLowerCase();
+      const nameB = (b.studentName || '').toLowerCase();
+      return nameA.localeCompare(nameB);
     });
     
     days.push({
