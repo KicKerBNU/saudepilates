@@ -20,26 +20,17 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
-              <div class="min-w-0 flex-1 px-4 md:grid md:grid-cols-2 md:gap-4">
-                <div>
-                  <p class="text-sm font-medium text-indigo-600 truncate">{{ activity.studentName }}</p>
-                  <p class="mt-2 flex items-center text-sm text-gray-500">
-                    <span class="truncate">{{ activity.description }}</span>
-                  </p>
-                </div>
-                <div class="hidden md:block">
-                  <div>
-                    <p class="text-sm text-gray-900">
-                      {{ formatDate(activity.paymentDate) }}
-                    </p>
-                    <p class="mt-2 flex items-center text-sm text-green-600">
-                      <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                      </svg>
-                      {{ $t('common.paid') }}
-                    </p>
-                  </div>
-                </div>
+              <div class="min-w-0 flex-1 px-4">
+                <p class="text-sm font-medium text-indigo-600 truncate">{{ activity.studentName }}</p>
+                <p class="mt-1 flex items-center text-sm text-green-600">
+                  <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {{ $t('common.paid') }}
+                </p>
+                <p class="mt-1 text-sm text-gray-500">
+                  {{ formatDate(activity.paymentDate) }}
+                </p>
               </div>
             </div>
             <div class="ml-5 flex-shrink-0">

@@ -43,26 +43,6 @@
               </h3>
               <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ $t('student.yourScheduledClasses') }}</p>
             </div>
-            <!-- Calendar Controls -->
-            <div class="flex items-center">
-              <button @click="previousWeek" class="p-2 rounded-full hover:bg-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <span class="text-sm font-semibold text-gray-800 mx-2">{{ formattedWeekRange }}</span>
-              <button @click="nextWeek" class="p-2 rounded-full hover:bg-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-              <button 
-                @click="today" 
-                class="ml-3 px-3 py-1 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                {{ $t('professor.today') }}
-              </button>
-            </div>
           </div>
 
           <!-- Loading State -->
@@ -78,7 +58,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <p class="text-gray-500">{{ $t('student.noAppointmentsThisWeek') }}</p>
+            <p class="text-gray-500">{{ $t('student.noUpcomingAppointments') }}</p>
           </div>
 
           <!-- Schedule Display -->
@@ -426,7 +406,7 @@
 </template>
 
 <script>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
@@ -434,8 +414,9 @@ import { useScheduleStore } from '../../stores/schedule';
 import { useEvolutionStore } from '../../stores/evolution';
 import { collection, addDoc, query, where, getDocs, orderBy, Timestamp, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
-import { formatISO, addDays, startOfWeek, endOfWeek, format, parseISO, add } from 'date-fns';
+import { formatISO, format, parseISO, add, startOfDay, isAfter, isToday, parse } from 'date-fns';
 import { ptBR, enUS, es as esLocale, fr as frLocale } from 'date-fns/locale';
+import { firebaseTimestampToLocalDate } from '@/utils/dateUtils';
 import Breadcrumb from '@/components/Breadcrumb.vue';
 
 export default {
@@ -451,7 +432,6 @@ export default {
     const evolutionStore = useEvolutionStore();
 
     const userProfile = computed(() => authStore.userProfile);
-    const currentWeek = ref(new Date());
     const upcomingAppointments = ref([]);
     const loadingSchedule = ref(false);
     const loadingEvolutions = ref(false);
@@ -493,28 +473,16 @@ export default {
       return localeMap[locale.value] || ptBR;
     });
 
-    // Format the week range for display
-    const formattedWeekRange = computed(() => {
-      const start = startOfWeek(currentWeek.value, { weekStartsOn: 0 });
-      const end = endOfWeek(currentWeek.value, { weekStartsOn: 0 });
-      
-      if (locale.value === 'en') {
-        return `${format(start, 'MM/dd', { locale: dateFnsLocale.value })} - ${format(end, 'MM/dd/yyyy', { locale: dateFnsLocale.value })}`;
-      } else if (locale.value === 'es') {
-        return `${format(start, 'dd/MM', { locale: dateFnsLocale.value })} - ${format(end, 'dd/MM/yyyy', { locale: dateFnsLocale.value })}`;
-      } else if (locale.value === 'fr') {
-        return `${format(start, 'dd/MM', { locale: dateFnsLocale.value })} - ${format(end, 'dd/MM/yyyy', { locale: dateFnsLocale.value })}`;
-      } else {
-        return `${format(start, 'dd/MM', { locale: dateFnsLocale.value })} - ${format(end, 'dd/MM/yyyy', { locale: dateFnsLocale.value })}`;
-      }
-    });
 
     // Group appointments by date for easier display
     const groupedAppointments = computed(() => {
       const grouped = {};
       
       for (const appointment of upcomingAppointments.value) {
-        const dateKey = format(new Date(appointment.date), 'yyyy-MM-dd');
+        // Use startOfDay to ensure we're grouping by the correct local date
+        const appointmentDate = appointment.date instanceof Date ? appointment.date : new Date(appointment.date);
+        const normalizedDate = startOfDay(appointmentDate);
+        const dateKey = format(normalizedDate, 'yyyy-MM-dd');
         if (!grouped[dateKey]) {
           grouped[dateKey] = [];
         }
@@ -533,7 +501,15 @@ export default {
 
     // Format functions
     const formatDateToDisplay = (dateStr) => {
-      const date = new Date(dateStr);
+      // Parse the YYYY-MM-DD string properly to avoid timezone issues
+      let date;
+      if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        // Parse YYYY-MM-DD format without timezone conversion
+        date = parse(dateStr, 'yyyy-MM-dd', new Date());
+      } else {
+        date = new Date(dateStr);
+      }
+      
       const formatString = locale.value === 'en' 
         ? "EEEE, MMMM dd"
         : locale.value === 'es'
@@ -669,31 +645,13 @@ export default {
       return format(date, formatString, { locale: dateFnsLocale.value });
     };
 
-    // Calendar Navigation
-    const previousWeek = () => {
-      currentWeek.value = addDays(currentWeek.value, -7);
-      fetchStudentSchedule();
-    };
 
-    const nextWeek = () => {
-      currentWeek.value = addDays(currentWeek.value, 7);
-      fetchStudentSchedule();
-    };
-
-    const today = () => {
-      currentWeek.value = new Date();
-      fetchStudentSchedule();
-    };
-
-    // Fetch student's schedule
+    // Fetch student's schedule - show all upcoming classes (today and future)
     const fetchStudentSchedule = async () => {
       if (!authStore.userId) return;
       
       loadingSchedule.value = true;
       try {
-        const start = startOfWeek(currentWeek.value, { weekStartsOn: 0 });
-        const end = endOfWeek(currentWeek.value, { weekStartsOn: 0 });
-        
         // Fetch from scheduledClasses collection where studentId matches
         const classesQuery = query(
           collection(db, 'scheduledClasses'),
@@ -702,17 +660,27 @@ export default {
         
         const classesSnapshot = await getDocs(classesQuery);
         
+        // Get today's date (normalized to start of day for comparison)
+        const today = startOfDay(new Date());
+        
         // Transform into appointment objects
         const appointments = [];
         
         for (const doc of classesSnapshot.docs) {
           const data = doc.data();
           
-          // Convert Firebase Timestamp to JS Date if needed
-          const appointmentDate = data.date instanceof Timestamp ? data.date.toDate() : new Date(data.date);
+          // Use date utility to handle timezone issues properly
+          const appointmentDate = data.date instanceof Timestamp 
+            ? firebaseTimestampToLocalDate(data.date) 
+            : data.date instanceof Date 
+            ? data.date 
+            : new Date(data.date);
           
-          // Only include appointments that fall within the current week
-          if (appointmentDate >= start && appointmentDate <= end) {
+          // Normalize date for comparison (compare only date part, not time)
+          const appointmentDateOnly = startOfDay(appointmentDate);
+          
+          // Only include appointments that are today or in the future
+          if (isToday(appointmentDateOnly) || isAfter(appointmentDateOnly, today)) {
             appointments.push({
               id: doc.id,
               studentId: data.studentId,
@@ -738,7 +706,8 @@ export default {
           return dateA - dateB;
         });
         
-        upcomingAppointments.value = appointments;
+        // Limit to only the next 2 appointments
+        upcomingAppointments.value = appointments.slice(0, 2);
       } catch (error) {
         console.error('Error fetching student schedule:', error);
       } finally {
@@ -982,10 +951,6 @@ export default {
       }
     };
 
-    // Watch for week changes to update schedule
-    watch(currentWeek, () => {
-      fetchStudentSchedule();
-    });
 
     const breadcrumbItems = computed(() => {
       const path = route.path;
@@ -1036,7 +1001,6 @@ export default {
 
     return {
       userProfile,
-      currentWeek,
       upcomingAppointments,
       loadingSchedule,
       loadingEvolutions,
@@ -1049,16 +1013,12 @@ export default {
       messages,
       professorInfo,
       defaultMessages,
-      formattedWeekRange,
       groupedAppointments,
       formatDateToDisplay,
       formatTime,
       getEndTime,
       formatDate,
       formatDateTime,
-      previousWeek,
-      nextWeek,
-      today,
       sendMessage,
       selectDefaultMessage,
       selectAndSendMessage,

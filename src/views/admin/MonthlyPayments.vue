@@ -157,40 +157,32 @@
         
         <ul v-else role="list" class="divide-y divide-gray-200">
           <li v-for="payment in filteredPayments" :key="payment.id" class="px-4 py-4 sm:px-6 hover:bg-gray-50">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gray-200 flex items-center justify-center">
-                    <svg class="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                  </div>
-                  <div class="ml-3 sm:ml-4">
-                    <h4 class="text-base sm:text-lg font-medium text-gray-900">{{ payment.studentName }}</h4>
-                    <p class="text-sm text-gray-500">{{ payment.description }}</p>
-                    <div class="mt-2 sm:flex sm:justify-between">
-                      <div class="sm:flex">
-                        <p class="flex items-center text-sm text-gray-700">
-                          <span class="mr-2">{{ $t('admin.period') }}:</span>
-                          <span class="font-medium">{{ getPaymentPeriodText(payment) }}</span>
-                        </p>
-                      </div>
-                      <div class="mt-2 flex items-center text-sm text-gray-700 sm:mt-0">
-                        <p class="text-sm">
-                          {{ $t('common.date') }}: {{ formatDate(payment.paymentDate) }}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            <div class="flex items-center gap-4">
+              <!-- Icon -->
+              <div class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gray-200 flex items-center justify-center">
+                <svg class="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
               </div>
-              <div class="mt-4 sm:mt-0 sm:ml-4 flex flex-col sm:flex-row gap-2">
-                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+              
+              <!-- Student Info Column (fixed width to align status) -->
+              <div class="flex-shrink-0 w-48 sm:w-56">
+                <h4 class="text-base sm:text-lg font-medium text-indigo-600 truncate">{{ payment.studentName }}</h4>
+                <!-- Status below name -->
+                <p class="mt-1 flex items-center text-sm text-green-600">
+                  <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
                   {{ $t('admin.paid') }}
+                </p>
+                <p class="text-sm text-gray-500 mt-1">{{ formatDate(payment.paymentDate) }}</p>
+              </div>
+              
+              <!-- Amount (flexible, aligned right) -->
+              <div class="flex-shrink-0 ml-auto">
+                <span class="px-3 py-1 inline-flex text-sm leading-4 font-medium rounded-md bg-green-50 text-green-700">
+                  {{ currency }} {{ formatCurrency(payment.finalAmount || payment.amount) }}
                 </span>
-                  <span class="px-2 py-1 inline-flex text-sm leading-4 font-medium">
-                    {{ currency }} {{ formatCurrency(payment.finalAmount || payment.amount) }}
-                  </span>
               </div>
             </div>
           </li>
