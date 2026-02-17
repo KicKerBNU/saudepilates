@@ -12,6 +12,39 @@
         <Breadcrumb :items="breadcrumbItems" />
       </div>
 
+      <!-- List of anamneses (by date) -->
+      <div class="mb-6 bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-4 sm:px-6">
+          <h2 class="text-lg font-medium text-gray-900 mb-3">{{ $t('anamnesis.listTitle') }}</h2>
+          <p v-if="anamnesisListSorted.length === 0" class="text-sm text-gray-500">{{ $t('anamnesis.noAnamnesisYet') }}</p>
+          <div v-else class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{{ $t('anamnesis.performedAt') }}</th>
+                  <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{{ $t('anamnesis.student') }}</th>
+                  <th scope="col" class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">{{ $t('common.actions') }}</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr
+                  v-for="item in anamnesisListSorted"
+                  :key="item.id"
+                  class="hover:bg-gray-50 cursor-pointer"
+                  @click="selectAnamnesis(item)"
+                >
+                  <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">{{ formatAnamnesisDate(item.performedAt || item.updatedAt) }}</td>
+                  <td class="px-4 py-3 text-sm text-gray-900">{{ item.studentName }}</td>
+                  <td class="px-4 py-3 text-sm text-right">
+                    <span class="text-indigo-600 hover:text-indigo-800 font-medium">{{ $t('anamnesis.viewEdit') }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <div class="bg-white shadow overflow-hidden sm:rounded-lg">
         <div class="px-4 py-4 sm:p-6">
           <!-- Student selection -->
@@ -30,6 +63,34 @@
           </div>
 
           <template v-if="selectedStudentId">
+            <!-- List of anamneses for this student + New anamnese -->
+            <div class="mb-6">
+              <h3 class="text-sm font-medium text-gray-700 mb-2">{{ $t('anamnesis.listThisStudent') }}</h3>
+              <div class="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  @click="startNewAnamnesis"
+                  class="inline-flex items-center rounded-md border border-indigo-600 bg-white py-2 px-3 text-sm font-medium text-indigo-600 shadow-sm hover:bg-indigo-50"
+                >
+                  {{ $t('anamnesis.newAnamnesis') }}
+                </button>
+                <template v-for="a in studentAnamnesesList" :key="a.id">
+                  <button
+                    type="button"
+                    @click="selectStudentAnamnesis(a)"
+                    :class="[
+                      'inline-flex items-center rounded-md py-2 px-3 text-sm font-medium',
+                      selectedAnamnesisId === a.id
+                        ? 'border border-indigo-600 bg-indigo-600 text-white'
+                        : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                    ]"
+                  >
+                    {{ formatAnamnesisDate(a.performedAt || a.updatedAt) }}
+                  </button>
+                </template>
+              </div>
+            </div>
+
             <div v-if="anamnesisStore.loading" class="py-8 text-center text-gray-500">
               {{ $t('common.loading') }}
             </div>
@@ -41,6 +102,17 @@
                 </div>
                 <div v-if="saveSuccess" class="rounded-md bg-green-50 p-4 text-sm text-green-700">
                   {{ $t('anamnesis.savedSuccess') }}
+                </div>
+
+                <div>
+                  <label for="performedAt" class="block text-sm font-medium text-gray-700">{{ $t('anamnesis.performedAt') }}</label>
+                  <input
+                    id="performedAt"
+                    v-model="form.performedAt"
+                    type="date"
+                    required
+                    class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3"
+                  />
                 </div>
 
                 <div>
@@ -109,6 +181,17 @@
                   />
                 </div>
 
+                <div>
+                  <label for="treatment" class="block text-sm font-medium text-gray-700">{{ $t('anamnesis.treatment') }}</label>
+                  <textarea
+                    id="treatment"
+                    v-model="form.treatment"
+                    rows="4"
+                    class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3"
+                    :placeholder="$t('anamnesis.treatmentPlaceholder')"
+                  />
+                </div>
+
                 <div class="flex flex-wrap gap-3 pt-4">
                   <button
                     type="submit"
@@ -157,16 +240,14 @@
         </div>
       </div>
 
-      <!-- Print-only content (off-screen until print) -->
-      <div id="anamnesis-print-area" v-if="printData" ref="printArea" class="fixed -left-[9999px] top-0 w-full bg-white p-8 print:static print:left-0">
-        <template v-if="printData">
-          <h1 class="text-2xl font-bold mb-4">{{ printData.title }}</h1>
-          <p class="font-semibold mb-6">{{ $t('anamnesis.student') }}: {{ printData.studentName }}</p>
-          <div v-for="(section, i) in printData.sections" :key="i" class="mb-6">
-            <h2 class="text-lg font-semibold mb-2">{{ section.title }}</h2>
-            <p class="whitespace-pre-wrap text-sm">{{ section.content }}</p>
-          </div>
-        </template>
+      <!-- Fallback print area (only used when popup is blocked) -->
+      <div v-if="printData" id="anamnesis-print-fallback" class="anamnesis-print-document">
+        <h1>{{ printData.title }}</h1>
+        <p class="student-line">{{ printData.studentLabel }}: {{ printData.studentName }}</p>
+        <div v-for="(section, i) in printData.sections" :key="i" class="section-block">
+          <h2 class="section-title">{{ section.title }}</h2>
+          <p class="section-content">{{ section.content }}</p>
+        </div>
       </div>
     </main>
   </div>
@@ -191,20 +272,23 @@ const anamnesisStore = useAnamnesisStore();
 const studentsList = ref([]);
 const loadingStudents = ref(true);
 const selectedStudentId = ref('');
+const selectedAnamnesisId = ref(null);
+const studentAnamnesesList = ref([]);
 const saveError = ref('');
 const saveSuccess = ref(false);
 const loadingAllPdf = ref(false);
 const allAnamnesis = ref([]);
-const printArea = ref(null);
 const printData = ref(null);
 
 const form = reactive({
+  performedAt: '',
   patientIdentification: '',
   mainComplaint: '',
   currentDiseaseHistory: '',
   socialHistory: '',
   perimeterData: '',
-  posturalAssessment: ''
+  posturalAssessment: '',
+  treatment: ''
 });
 
 const breadcrumbItems = computed(() => {
@@ -223,8 +307,75 @@ const selectedStudentName = computed(() => {
 });
 
 const hasAnamnesisData = computed(() => {
-  return form.patientIdentification || form.mainComplaint || form.currentDiseaseHistory || form.socialHistory || form.perimeterData || form.posturalAssessment;
+  return form.patientIdentification || form.mainComplaint || form.currentDiseaseHistory || form.socialHistory || form.perimeterData || form.posturalAssessment || form.treatment;
 });
+
+const anamnesisListSorted = computed(() => {
+  const list = allAnamnesis.value
+    .filter(a => studentsList.value.some(s => s.id === a.studentId))
+    .map(a => ({
+      ...a,
+      studentName: studentsList.value.find(s => s.id === a.studentId)?.name || a.studentId
+    }));
+  list.sort((a, b) => {
+    const dateA = a.performedAt || a.updatedAt || a.createdAt || '';
+    const dateB = b.performedAt || b.updatedAt || b.createdAt || '';
+    return dateB.localeCompare(dateA);
+  });
+  return list;
+});
+
+function formatAnamnesisDate(iso) {
+  if (!iso) return '—';
+  const d = iso.slice(0, 10);
+  const [y, m, day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+
+function resetFormToDefault() {
+  const today = new Date().toISOString().slice(0, 10);
+  form.performedAt = today;
+  form.patientIdentification = '';
+  form.mainComplaint = '';
+  form.currentDiseaseHistory = '';
+  form.socialHistory = '';
+  form.perimeterData = '';
+  form.posturalAssessment = '';
+  form.treatment = '';
+}
+
+function selectAnamnesis(item) {
+  selectedStudentId.value = item.studentId;
+  selectedAnamnesisId.value = item.id;
+  loadAnamnesisIntoForm(item.id);
+  anamnesisStore.getAnamnesesByStudentId(item.studentId).then(list => {
+    studentAnamnesesList.value = list;
+  });
+}
+
+async function loadAnamnesisIntoForm(anamnesisId) {
+  const data = await anamnesisStore.getById(anamnesisId);
+  if (!data) return;
+  const today = new Date().toISOString().slice(0, 10);
+  form.performedAt = (data.performedAt || (data.updatedAt || data.createdAt || '').slice(0, 10) || today).slice(0, 10);
+  form.patientIdentification = data.patientIdentification || '';
+  form.mainComplaint = data.mainComplaint || '';
+  form.currentDiseaseHistory = data.currentDiseaseHistory || '';
+  form.socialHistory = data.socialHistory || '';
+  form.perimeterData = data.perimeterData || '';
+  form.posturalAssessment = data.posturalAssessment || '';
+  form.treatment = data.treatment || '';
+}
+
+function startNewAnamnesis() {
+  selectedAnamnesisId.value = null;
+  resetFormToDefault();
+}
+
+function selectStudentAnamnesis(a) {
+  selectedAnamnesisId.value = a.id;
+  loadAnamnesisIntoForm(a.id);
+}
 
 async function loadStudents() {
   loadingStudents.value = true;
@@ -246,30 +397,15 @@ async function onStudentChange() {
   saveError.value = '';
   saveSuccess.value = false;
   if (!selectedStudentId.value) {
-    form.patientIdentification = '';
-    form.mainComplaint = '';
-    form.currentDiseaseHistory = '';
-    form.socialHistory = '';
-    form.perimeterData = '';
-    form.posturalAssessment = '';
+    studentAnamnesesList.value = [];
+    selectedAnamnesisId.value = null;
+    resetFormToDefault();
     return;
   }
-  const data = await anamnesisStore.getByStudentId(selectedStudentId.value);
-  if (data) {
-    form.patientIdentification = data.patientIdentification || '';
-    form.mainComplaint = data.mainComplaint || '';
-    form.currentDiseaseHistory = data.currentDiseaseHistory || '';
-    form.socialHistory = data.socialHistory || '';
-    form.perimeterData = data.perimeterData || '';
-    form.posturalAssessment = data.posturalAssessment || '';
-  } else {
-    form.patientIdentification = '';
-    form.mainComplaint = '';
-    form.currentDiseaseHistory = '';
-    form.socialHistory = '';
-    form.perimeterData = '';
-    form.posturalAssessment = '';
-  }
+  const list = await anamnesisStore.getAnamnesesByStudentId(selectedStudentId.value);
+  studentAnamnesesList.value = list;
+  selectedAnamnesisId.value = null;
+  resetFormToDefault();
 }
 
 async function save() {
@@ -277,15 +413,23 @@ async function save() {
   saveError.value = '';
   saveSuccess.value = false;
   try {
-    await anamnesisStore.save(selectedStudentId.value, {
+    const payload = {
+      performedAt: form.performedAt,
       patientIdentification: form.patientIdentification,
       mainComplaint: form.mainComplaint,
       currentDiseaseHistory: form.currentDiseaseHistory,
       socialHistory: form.socialHistory,
       perimeterData: form.perimeterData,
-      posturalAssessment: form.posturalAssessment
-    });
+      posturalAssessment: form.posturalAssessment,
+      treatment: form.treatment
+    };
+    const result = await anamnesisStore.save(selectedStudentId.value, payload, selectedAnamnesisId.value);
+    if (!selectedAnamnesisId.value) selectedAnamnesisId.value = result.id;
     saveSuccess.value = true;
+    const list = await anamnesisStore.getAllForCompany();
+    allAnamnesis.value = list;
+    const studentList = await anamnesisStore.getAnamnesesByStudentId(selectedStudentId.value);
+    studentAnamnesesList.value = studentList;
     setTimeout(() => { saveSuccess.value = false; }, 3000);
   } catch (err) {
     saveError.value = err.message || t('common.tryAgain');
@@ -297,11 +441,60 @@ function downloadPdf() {
 }
 
 function printAnamnesis() {
-  printData.value = getPrintContent(selectedStudentName.value, form, t);
+  const content = getPrintContent(selectedStudentName.value, form, t);
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    printData.value = content;
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => { printData.value = null; }, 300);
+      }, 200);
+    });
+    return;
+  }
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${escapeHtml(content.title)} - ${escapeHtml(content.studentName)}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; line-height: 1.5; color: #111; padding: 24px; max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; border-bottom: 2px solid #333; padding-bottom: 8px; }
+    .student { font-size: 15px; font-weight: 600; margin-bottom: 24px; color: #374151; }
+    .section { margin-bottom: 20px; page-break-inside: avoid; }
+    .section-title { font-size: 14px; font-weight: 600; color: #1f2937; margin-bottom: 6px; }
+    .section-content { font-size: 13px; color: #374151; white-space: pre-wrap; word-break: break-word; }
+    .section-content:empty::before { content: "—"; color: #9ca3af; }
+    @media print { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <h1>${escapeHtml(content.title)}</h1>
+  <p class="student">${escapeHtml(content.studentLabel || '')}: ${escapeHtml(content.studentName)}</p>
+  ${content.sections.map(s => `
+  <div class="section">
+    <div class="section-title">${escapeHtml(s.title)}</div>
+    <div class="section-content">${escapeHtml(s.content)}</div>
+  </div>`).join('')}
+</body>
+</html>`;
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.focus();
   setTimeout(() => {
-    window.print();
-    printData.value = null;
-  }, 100);
+    printWindow.print();
+    printWindow.close();
+  }, 250);
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const el = document.createElement('div');
+  el.textContent = text;
+  return el.innerHTML;
 }
 
 async function downloadAllPdf() {
@@ -328,16 +521,66 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* Fallback print document: hidden off-screen when on screen */
+.anamnesis-print-document {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 210mm;
+  max-width: 100%;
+  padding: 20px;
+  background: white;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #111;
+}
+.anamnesis-print-document h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 8px;
+}
+.anamnesis-print-document .student-line {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #374151;
+}
+.anamnesis-print-document .section-block {
+  margin-bottom: 20px;
+}
+.anamnesis-print-document .section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 6px;
+}
+.anamnesis-print-document .section-content {
+  font-size: 13px;
+  color: #374151;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+</style>
+<style>
+/* Global print styles: hide page content, show only anamnesis when printing fallback */
 @media print {
-  body * { visibility: hidden; }
-  #anamnesis-print-area,
-  #anamnesis-print-area * { visibility: visible; }
-  #anamnesis-print-area {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    background: white;
+  body * {
+    visibility: hidden !important;
+  }
+  .anamnesis-print-document,
+  .anamnesis-print-document * {
+    visibility: visible !important;
+  }
+  .anamnesis-print-document {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    padding: 16px !important;
   }
 }
 </style>
