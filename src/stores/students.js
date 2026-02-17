@@ -28,7 +28,8 @@ export const useStudentsStore = defineStore('students', {
     professorStudents: (state) => {
       const authStore = useAuthStore();
       return state.students.filter(student => 
-        student.professorId === authStore.userId
+        student.professorId === authStore.userId ||
+        student.professorId === 'rotation'
       );
     },
     getStudentById: (state) => (id) => {
@@ -105,31 +106,34 @@ export const useStudentsStore = defineStore('students', {
       const authStore = useAuthStore();
       
       try {
-        let studentsQuery;
+        let students;
         
         if (authStore.isAdmin) {
-          // Admin can see all students
-          studentsQuery = query(
+          const snapshot = await getDocs(query(
             collection(db, 'users'),
             where('role', '==', 'student')
-          );
+          ));
+          students = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         } else if (authStore.isProfessor) {
-          // Professor can only see assigned students
-          studentsQuery = query(
-            collection(db, 'users'),
-            where('role', '==', 'student'),
-            where('professorId', '==', authStore.userId)
-          );
+          const [assignedSnapshot, rotationSnapshot] = await Promise.all([
+            getDocs(query(
+              collection(db, 'users'),
+              where('role', '==', 'student'),
+              where('professorId', '==', authStore.userId)
+            )),
+            getDocs(query(
+              collection(db, 'users'),
+              where('role', '==', 'student'),
+              where('professorId', '==', 'rotation')
+            ))
+          ]);
+          const assignedIds = new Set(assignedSnapshot.docs.map(d => d.id));
+          const rotationDocs = rotationSnapshot.docs.filter(d => !assignedIds.has(d.id));
+          const allDocs = [...assignedSnapshot.docs, ...rotationDocs];
+          students = allDocs.map(doc => ({ id: doc.id, ...doc.data() }));
         } else {
-          // Students should not access this store but for safety
           return [];
         }
-        
-        const snapshot = await getDocs(studentsQuery);
-        const students = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
         
         // Get all unique plan IDs
         const planIds = [...new Set(students.filter(s => s.planId).map(s => s.planId))];

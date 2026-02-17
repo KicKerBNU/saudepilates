@@ -543,7 +543,8 @@ const fetchStudents = async () => {
     const fetchedStudents = await studentsStore.fetchStudents();
     students.value = fetchedStudents.filter(student => 
       student.professorId === authStore.userId || 
-      !student.professorId
+      !student.professorId ||
+      student.professorId === 'rotation'
     );
     totalStudents.value = students.value.length;
   } catch (error) {

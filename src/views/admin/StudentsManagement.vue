@@ -145,10 +145,11 @@
                         {{ plansList.find(p => p.id === student.planId)?.title || $t('admin.noPlan') }}
                       </span>
                       <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="{
-                        'bg-blue-100 text-blue-800': student.professorId,
+                        'bg-blue-100 text-blue-800': student.professorId && student.professorId !== ROTATION_VALUE,
+                        'bg-amber-100 text-amber-800': student.professorId === ROTATION_VALUE,
                         'bg-gray-100 text-gray-800': !student.professorId
                       }">
-                        {{ $t('admin.professor') }}: {{ professorsList.find(p => p.id === student.professorId)?.name || $t('admin.professorNotAssigned') }}
+                        {{ $t('admin.professor') }}: {{ student.professorId === ROTATION_VALUE ? $t('admin.studentRotation') : (professorsList.find(p => p.id === student.professorId)?.name || $t('admin.professorNotAssigned')) }}
                       </span>
                     </div>
                   </div>
@@ -295,14 +296,15 @@
             </div>
 
             <div class="mb-4">
-              <label for="professorId" class="block text-sm font-medium text-gray-700 mb-1">Professor *</label>
+              <label for="professorId" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin.professor') }} *</label>
               <select
                 id="professorId"
                 v-model="newStudent.professorId"
                 required
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="" disabled>Selecione um professor</option>
+                <option value="" disabled>{{ $t('admin.selectProfessorOrRotation') }}</option>
+                <option :value="ROTATION_VALUE">{{ $t('admin.studentRotation') }}</option>
                 <option v-for="professor in professorsList" :key="professor.id" :value="professor.id">
                   {{ professor.name }}
                 </option>
@@ -498,14 +500,15 @@
             </div>
 
             <div class="mb-4">
-              <label for="edit-professorId" class="block text-sm font-medium text-gray-700 mb-1">Professor *</label>
+              <label for="edit-professorId" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin.professor') }} *</label>
               <select
                 id="edit-professorId"
                 v-model="editingStudent.professorId"
                 required
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="" disabled>Selecione um professor</option>
+                <option value="" disabled>{{ $t('admin.selectProfessorOrRotation') }}</option>
+                <option :value="ROTATION_VALUE">{{ $t('admin.studentRotation') }}</option>
                 <option v-for="professor in professorsList" :key="professor.id" :value="professor.id">
                   {{ professor.name }}
                 </option>
@@ -551,6 +554,9 @@ const { t } = useI18n();
 const router = useRouter();
 const authStore = useAuthStore();
 const route = useRoute();
+
+// Special value for students who work with rotation (multiple professors)
+const ROTATION_VALUE = 'rotation';
 
 // Add breadcrumb items
 const breadcrumbItems = computed(() => {
@@ -854,8 +860,8 @@ const registerStudent = async () => {
   error.value = '';
   isCreating.value = true;
   
-  // Check if we have plans and professors available
-  if (professorsList.value.length === 0) {
+  // Check if we have plans and professors available (needed for non-rotation students; rotation is always an option)
+  if (professorsList.value.length === 0 && newStudent.professorId !== ROTATION_VALUE) {
     error.value = 'Não é possível adicionar aluno: Nenhum professor cadastrado.';
     isCreating.value = false;
     missingProfessors.value = true;
@@ -883,9 +889,9 @@ const registerStudent = async () => {
     return;
   }
 
-  // Validate professor selection
+  // Validate professor/rotation selection
   if (!newStudent.professorId) {
-    error.value = 'Por favor, selecione um professor';
+    error.value = t('admin.selectProfessorOrRotationValidation');
     isCreating.value = false;
     return;
   }
