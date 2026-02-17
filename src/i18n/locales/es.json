@@ -117,7 +117,9 @@
     "downloadAllPdfDesc": "Genera un único PDF con la anamnesis de todos los alumnos que tengan registro.",
     "allAnamnesisPdf": "Anamnesis",
     "noAnamnesisToExport": "Ninguna anamnesis registrada para exportar.",
-    "quickActionDesc": "Complete e imprima la ficha de anamnesis de los alumnos."
+    "quickActionDesc": "Complete e imprima la ficha de anamnesis de los alumnos.",
+    "adminCardDesc": "Vea y complete la anamnesis de todos los alumnos.",
+    "viewAllAnamnesis": "Ver anamnesis"
   },
   "home": {
     "title": "SaúdePilates - Sistema de Gestión para Estudios de Pilates",

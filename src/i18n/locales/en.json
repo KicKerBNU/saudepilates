@@ -117,7 +117,9 @@
     "downloadAllPdfDesc": "Generates a single PDF with the anamnesis of all students who have a record.",
     "allAnamnesisPdf": "Anamneses",
     "noAnamnesisToExport": "No anamnesis records to export.",
-    "quickActionDesc": "Fill in and print the anamnesis form for students."
+    "quickActionDesc": "Fill in and print the anamnesis form for students.",
+    "adminCardDesc": "View and fill in the anamnesis for all students.",
+    "viewAllAnamnesis": "View all anamneses"
   },
   "home": {
     "title": "SaúdePilates - Pilates Studio Management System",

@@ -117,7 +117,9 @@
     "downloadAllPdfDesc": "Génère un seul PDF avec l'anamnèse de tous les élèves ayant un enregistrement.",
     "allAnamnesisPdf": "Anamnèses",
     "noAnamnesisToExport": "Aucune anamnèse enregistrée à exporter.",
-    "quickActionDesc": "Remplissez et imprimez la fiche d'anamnèse des élèves."
+    "quickActionDesc": "Remplissez et imprimez la fiche d'anamnèse des élèves.",
+    "adminCardDesc": "Consultez et remplissez l'anamnèse de tous les élèves.",
+    "viewAllAnamnesis": "Voir les anamnèses"
   },
   "home": {
     "title": "SaúdePilates - Système de Gestion pour Studios de Pilates",
