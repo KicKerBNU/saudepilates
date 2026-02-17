@@ -23,6 +23,7 @@ import PaymentVisualization from '../views/admin/PaymentVisualization.vue'
 import CompanySettings from '../views/admin/CompanySettings.vue'
 import AdminSchedule from '../views/admin/Schedule.vue'
 import ProfessorMessages from '../views/professor/Messages.vue'
+import Anamnesis from '../views/Anamnesis.vue'
 import NotFound from '../views/NotFound.vue'
 import PrivacyPolicy from '../views/PrivacyPolicy.vue'
 
@@ -123,6 +124,12 @@ const routes = [
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
+    path: '/admin/anamnesis',
+    name: 'AdminAnamnesis',
+    component: Anamnesis,
+    meta: { requiresAuth: true, role: 'admin' }
+  },
+  {
     path: '/professor',
     name: 'ProfessorDashboard',
     component: ProfessorDashboard,
@@ -162,6 +169,12 @@ const routes = [
     path: '/professor/messages',
     name: 'ProfessorMessages',
     component: ProfessorMessages,
+    meta: { requiresAuth: true, role: 'professor' }
+  },
+  {
+    path: '/professor/anamnesis',
+    name: 'ProfessorAnamnesis',
+    component: Anamnesis,
     meta: { requiresAuth: true, role: 'professor' }
   },
   {
