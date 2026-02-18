@@ -49,7 +49,7 @@
         </div>
         
         <!-- Profile dropdown when user is authenticated -->
-        <div v-else class="flex items-center space-x-4">
+        <div v-else class="flex items-center space-x-4 relative z-[9998]">
           <div class="relative">
             <button @click="toggleDropdown" class="flex items-center space-x-2 focus:outline-none cursor-pointer">
               <div class="h-9 w-9 rounded-full bg-indigo-600 flex items-center justify-center text-white text-lg font-medium overflow-hidden">
@@ -62,7 +62,7 @@
               </svg>
             </button>
             <!-- Dropdown menu -->
-            <div v-if="showDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+            <div v-if="showDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-[9999]">
               <!-- Dashboard link based on user role -->
               <router-link 
                 v-if="authStore.isAdmin" 
@@ -106,20 +106,6 @@
                 </div>
               </router-link>
 
-              <!-- Anamnesis link for admin users -->
-              <router-link 
-                v-if="authStore.isAdmin" 
-                :to="{name: 'AdminAnamnesis'}" 
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >
-                <div class="flex items-center">
-                  <svg class="h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  {{ $t('anamnesis.title') }}
-                </div>
-              </router-link>
-              
               <router-link 
                 v-if="authStore.isProfessor" 
                 :to="{name: 'ProfessorDashboard'}" 
@@ -133,20 +119,6 @@
                 </div>
               </router-link>
 
-              <!-- Anamnesis link for professor users -->
-              <router-link 
-                v-if="authStore.isProfessor" 
-                :to="{name: 'ProfessorAnamnesis'}" 
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >
-                <div class="flex items-center">
-                  <svg class="h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  {{ $t('anamnesis.title') }}
-                </div>
-              </router-link>
-              
               <router-link 
                 v-if="authStore.isStudent" 
                 :to="{name: 'StudentDashboard'}" 
