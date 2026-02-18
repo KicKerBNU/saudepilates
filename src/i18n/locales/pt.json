@@ -704,6 +704,12 @@
     "policyUpdatesText": "Podemos atualizar esta política de privacidade periodicamente. Recomendamos que você revise esta página regularmente para se manter informado sobre como protegemos suas informações.",
     "lastUpdate": "Última atualização:"
   },
+  "cookieConsent": {
+    "message": "Usamos cookies para melhorar sua experiência no site. Você pode aceitar todos os cookies ou personalizar suas preferências. Para mais informações, acesse nossa ",
+    "privacyPolicy": "Política de Privacidade",
+    "configurePreferences": "Configurar Preferências",
+    "accept": "Aceitar"
+  },
   "app": {
     "loading": "Carregando..."
   }

@@ -257,12 +257,14 @@
         </div>
       </div>
     </div>
+    <CookieConsentModal />
   </div>
 </template>
 
 <script setup>
 import { useI18n } from 'vue-i18n';
 import MetaTags from '@/components/MetaTags.vue';
+import CookieConsentModal from '@/components/CookieConsentModal.vue';
 
 const { t } = useI18n();
 </script>

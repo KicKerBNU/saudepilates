@@ -703,6 +703,12 @@
     "policyUpdatesText": "We may update this privacy policy periodically. We recommend that you review this page regularly to stay informed about how we protect your information.",
     "lastUpdate": "Last update:"
   },
+  "cookieConsent": {
+    "message": "We use cookies to improve your experience on the site. You can accept all cookies or customize your preferences. For more information, see our ",
+    "privacyPolicy": "Privacy Policy",
+    "configurePreferences": "Configure Preferences",
+    "accept": "Accept"
+  },
   "app": {
     "loading": "Loading..."
   }
