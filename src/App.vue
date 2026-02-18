@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue';
 import NavBar from './components/NavBar.vue';
 import Toast from './components/Toast.vue';
+import LeadModal from './components/LeadModal.vue';
 
 const isLoading = ref(true);
 
@@ -25,6 +26,7 @@ onMounted(() => {
       <router-view></router-view>
       <Toast />
     </div>
+    <LeadModal />
   </div>
 </template>
 

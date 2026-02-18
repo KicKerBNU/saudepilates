@@ -251,7 +251,8 @@
     "messagePlaceholder": "Sua mensagem",
     "sending": "Enviando...",
     "sendMessageButton": "Enviar Mensagem",
-    "errorSending": "Ocorreu um erro ao enviar sua mensagem: {message}"
+    "errorSending": "Ocorreu um erro ao enviar sua mensagem: {message}",
+    "errorGmailReconnect": "O envio está temporariamente indisponível. O administrador precisa reconectar a conta Gmail no EmailJS (emailjs.com)."
   },
   "admin": {
     "dashboard": "Dashboard do Administrador",
@@ -709,6 +710,26 @@
     "privacyPolicy": "Política de Privacidade",
     "configurePreferences": "Configurar Preferências",
     "accept": "Aceitar"
+  },
+  "leadModal": {
+    "title": "Seja bem-vindo!",
+    "subtitle": "Estamos prontos para apresentar a solução que vai transformar o seu negócio.",
+    "namePlaceholder": "Qual o seu nome?",
+    "phoneWithDDD": "Telefone (com DDD/DDI)",
+    "countryCode": "Código do país",
+    "other": "Outro",
+    "otherCodePlaceholder": "+XXX",
+    "phonePlaceholder": "(00) 00000-0000",
+    "emailPlaceholder": "Qual o seu e-mail?",
+    "businessTypePlaceholder": "Qual o tipo do seu negócio?",
+    "instagramPlaceholder": "Qual é o Instagram do seu espaço?",
+    "privacyPrefix": "Ao enviar este formulário, confirmo que li e concordo com a ",
+    "privacyLink": "Política de Privacidade",
+    "privacySuffix": " do SaúdePilates.*",
+    "submit": "Enviar",
+    "sending": "Enviando...",
+    "errorSending": "Não foi possível enviar. Tente novamente.",
+    "errorGmailReconnect": "O envio está temporariamente indisponível. O administrador precisa reconectar a conta Gmail no EmailJS (emailjs.com)."
   },
   "app": {
     "loading": "Carregando..."

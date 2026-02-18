@@ -251,7 +251,8 @@
     "messagePlaceholder": "Your message",
     "sending": "Sending...",
     "sendMessageButton": "Send Message",
-    "errorSending": "An error occurred while sending your message: {message}"
+    "errorSending": "An error occurred while sending your message: {message}",
+    "errorGmailReconnect": "Sending is temporarily unavailable. The administrator needs to reconnect the Gmail account in EmailJS (emailjs.com)."
   },
   "admin": {
     "dashboard": "Admin Dashboard",
@@ -708,6 +709,26 @@
     "privacyPolicy": "Privacy Policy",
     "configurePreferences": "Configure Preferences",
     "accept": "Accept"
+  },
+  "leadModal": {
+    "title": "Welcome!",
+    "subtitle": "We are ready to present the solution that will transform your business.",
+    "namePlaceholder": "What is your name?",
+    "phoneWithDDD": "Phone (with area/country code)",
+    "countryCode": "Country code",
+    "other": "Other",
+    "otherCodePlaceholder": "+XXX",
+    "phonePlaceholder": "(00) 00000-0000",
+    "emailPlaceholder": "What is your email?",
+    "businessTypePlaceholder": "What type of business do you have?",
+    "instagramPlaceholder": "What is your space's Instagram?",
+    "privacyPrefix": "By submitting this form, I confirm that I have read and agree with the ",
+    "privacyLink": "Privacy Policy",
+    "privacySuffix": " of SaúdePilates.*",
+    "submit": "Send",
+    "sending": "Sending...",
+    "errorSending": "Could not send. Please try again.",
+    "errorGmailReconnect": "Sending is temporarily unavailable. The administrator needs to reconnect the Gmail account in EmailJS (emailjs.com)."
   },
   "app": {
     "loading": "Loading..."

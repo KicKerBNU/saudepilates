@@ -251,7 +251,8 @@
     "messagePlaceholder": "Votre message",
     "sending": "Envoi...",
     "sendMessageButton": "Envoyer le Message",
-    "errorSending": "Une erreur s'est produite lors de l'envoi de votre message : {message}"
+    "errorSending": "Une erreur s'est produite lors de l'envoi de votre message : {message}",
+    "errorGmailReconnect": "L'envoi est temporairement indisponible. L'administrateur doit reconnecter le compte Gmail dans EmailJS (emailjs.com)."
   },
   "admin": {
     "dashboard": "Tableau de bord Administrateur",
@@ -709,6 +710,26 @@
     "privacyPolicy": "Politique de confidentialité",
     "configurePreferences": "Configurer les préférences",
     "accept": "Accepter"
+  },
+  "leadModal": {
+    "title": "Bienvenue !",
+    "subtitle": "Nous sommes prêts à vous présenter la solution qui transformera votre entreprise.",
+    "namePlaceholder": "Quel est votre nom ?",
+    "phoneWithDDD": "Téléphone (avec indicatif pays)",
+    "countryCode": "Code pays",
+    "other": "Autre",
+    "otherCodePlaceholder": "+XXX",
+    "phonePlaceholder": "(00) 00000-0000",
+    "emailPlaceholder": "Quel est votre e-mail ?",
+    "businessTypePlaceholder": "Quel type d'entreprise avez-vous ?",
+    "instagramPlaceholder": "Quel est l'Instagram de votre espace ?",
+    "privacyPrefix": "En soumettant ce formulaire, je confirme avoir lu et accepté la ",
+    "privacyLink": "Politique de confidentialité",
+    "privacySuffix": " de SaúdePilates.*",
+    "submit": "Envoyer",
+    "sending": "Envoi en cours...",
+    "errorSending": "Impossible d'envoyer. Veuillez réessayer.",
+    "errorGmailReconnect": "L'envoi est temporairement indisponible. L'administrateur doit reconnecter le compte Gmail dans EmailJS (emailjs.com)."
   },
   "app": {
     "loading": "Chargement..."
