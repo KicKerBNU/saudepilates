@@ -15,10 +15,9 @@ const error = ref(null);
 const success = ref(false);
 const selectedPlan = ref('monthly');
 
-// Map the internal plan IDs to Stripe config plan types
+// Map the internal plan IDs to Stripe config plan types (free tier has no Stripe)
 const planMapping = {
   monthly: 'mensal',
-  quarterly: 'trimestral',
   annual: 'anual'
 };
 
@@ -26,7 +25,7 @@ const plans = [
   {
     id: 'monthly',
     name: 'Mensal',
-    price: 129.90,
+    price: 49.99,
     duration: 1,
     description: 'Acesso a todas as funcionalidades com pagamento mensal.',
     features: [
@@ -34,26 +33,26 @@ const plans = [
       'Até 10 professores',
       'Alunos ilimitados',
       'Suporte prioritário'
-    ]
+    ],
+    isFree: false
   },
   {
-    id: 'quarterly',
-    name: 'Trimestral',
-    price: 349.90,
-    duration: 3,
-    description: 'Economize pagando trimestralmente.',
+    id: 'free',
+    name: 'Gratuito',
+    price: 0,
+    duration: 0,
+    description: 'Grátis somente no primeiro mês. Teste a plataforma sem compromisso.',
     features: [
       'Acesso a todas as funcionalidades',
-      'Até 20 professores',
       'Alunos ilimitados',
-      'Suporte prioritário',
-      'Economia de 10%'
-    ]
+      'Ideal para experimentar'
+    ],
+    isFree: true
   },
   {
     id: 'annual',
     name: 'Anual',
-    price: 1299.90,
+    price: 499,
     duration: 12,
     description: 'Melhor valor! Economize pagando anualmente.',
     features: [
@@ -62,7 +61,8 @@ const plans = [
       'Alunos ilimitados',
       'Suporte VIP',
       'Economia de 20%'
-    ]
+    ],
+    isFree: false
   }
 ];
 
@@ -236,9 +236,13 @@ function redirectToStripePayment(planId) {
           
           <p class="mt-4 text-sm text-gray-500">{{ plan.description }}</p>
           
-          <p class="mt-8">
-            <span class="text-4xl font-extrabold text-gray-900">R$ {{ plan.price.toFixed(2) }}</span>
-            <span class="text-base font-medium text-gray-500">/{{ plan.id === 'annual' ? 'ano' : plan.id === 'quarterly' ? 'trimestre' : 'mês' }}</span>
+          <p class="mt-8 flex flex-wrap items-baseline gap-x-1">
+            <span v-if="plan.isFree" class="text-2xl font-extrabold text-gray-900 sm:text-3xl">Grátis</span>
+            <span v-if="plan.isFree" class="text-sm font-medium text-gray-500 sm:text-base ml-1">(somente 1º mês)</span>
+            <template v-else>
+              <span class="text-2xl font-extrabold text-gray-900 sm:text-3xl">R$ {{ plan.price.toFixed(2) }}</span>
+              <span class="text-sm font-medium text-gray-500 sm:text-base">/{{ plan.id === 'annual' ? 'ano' : 'mês' }}</span>
+            </template>
           </p>
           
           <ul class="mt-6 space-y-4">
@@ -250,9 +254,16 @@ function redirectToStripePayment(planId) {
             </li>
           </ul>
           
-          <!-- Add direct payment button for each plan -->
           <div class="mt-8">
+            <a
+              v-if="plan.isFree"
+              href="/register"
+              class="w-full inline-flex justify-center items-center px-4 py-2 border border-indigo-600 text-sm font-medium rounded-md shadow-sm text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Começar teste grátis (1 mês)
+            </a>
             <button
+              v-else
               @click.stop="redirectToStripePayment(plan.id)"
               class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >

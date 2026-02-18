@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     "operatingSystem": "Web",
     "offers": {
       "@type": "Offer",
-      "price": "129.90",
+      "price": "49.99",
       "priceCurrency": "BRL"
     },
     "description": "Sistema completo de gestão para estúdios de Pilates. Gerencie alunos, professores, aulas e finanças em uma única plataforma.",

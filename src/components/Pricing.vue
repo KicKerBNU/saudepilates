@@ -26,9 +26,9 @@
                   {{ $t('pricing.monthlyPlan') }}
                 </span>
               </div>
-              <div class="mt-4 flex items-baseline justify-center text-6xl font-extrabold text-gray-900">
-                <span>{{ formatCurrency(129.9) }}</span>
-                <span class="ml-1 text-xl font-medium text-gray-500 leading-loose">/mês</span>
+              <div class="mt-4 flex flex-wrap items-baseline justify-center gap-x-1 text-gray-900">
+                <span class="text-3xl font-extrabold sm:text-4xl lg:text-5xl">{{ formatCurrency(49.99) }}</span>
+                <span class="text-base font-medium text-gray-500 sm:text-lg">/mês</span>
               </div>
               <p class="mt-5 text-lg text-gray-500 text-center">
                 {{ $t('pricing.accessAllFeatures') }}
@@ -87,9 +87,9 @@
                   {{ $t('pricing.freePlan') }}
                 </span>
               </div>
-              <div class="mt-4 flex items-baseline justify-center text-6xl font-extrabold text-gray-900">
-                <span>{{ formatCurrency(0) }}</span>
-                <span class="ml-1 text-xl font-medium text-gray-500 leading-loose">/mês</span>
+              <div class="mt-4 flex flex-wrap items-baseline justify-center gap-x-1 text-gray-900">
+                <span class="text-3xl font-extrabold sm:text-4xl lg:text-5xl">{{ formatCurrency(0) }}</span>
+                <span class="text-base font-medium text-gray-500 sm:text-lg">/mês</span>
               </div>
               <p class="mt-5 text-lg text-gray-500 text-center">
                 {{ $t('pricing.freePlanDescription') }}
@@ -136,9 +136,9 @@
                   {{ $t('pricing.annualPlan') }}
                 </span>
               </div>
-              <div class="mt-4 flex items-baseline justify-center text-6xl font-extrabold text-gray-900">
-                <span>{{ formatCurrency(1299.9) }}</span>
-                <span class="ml-1 text-xl font-medium text-gray-500 leading-loose">/ano</span>
+              <div class="mt-4 flex flex-wrap items-baseline justify-center gap-x-1 text-gray-900">
+                <span class="text-3xl font-extrabold sm:text-4xl lg:text-5xl">{{ formatCurrency(499) }}</span>
+                <span class="text-base font-medium text-gray-500 sm:text-lg">/ano</span>
               </div>
               <p class="mt-5 text-lg text-gray-500 text-center">
                 {{ $t('pricing.bestValue') }}
