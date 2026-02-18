@@ -698,7 +698,7 @@
     "withdrawConsent": "Retirer votre consentement à tout moment",
     "contact": "Contact",
     "contactTitle": "6. Contact",
-    "contactText": "Pour les questions liées à la confidentialité, contactez-nous par e-mail : saudepilatess@gmail.com",
+    "contactText": "Pour les questions liées à la confidentialité, contactez-nous par e-mail : {email}",
     "policyUpdates": "Mises à Jour de la Politique",
     "policyUpdatesTitle": "7. Mises à Jour de la Politique",
     "policyUpdatesText": "Nous pouvons mettre à jour cette politique de confidentialité périodiquement. Nous vous recommandons de consulter cette page régulièrement pour rester informé de la façon dont nous protégeons vos informations.",
