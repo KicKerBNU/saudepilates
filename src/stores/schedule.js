@@ -59,16 +59,18 @@ export const useScheduleStore = defineStore('schedule', () => {
         
         // Filter dates in memory - compare only the date part
         if (
-          localAppointmentDate >= new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()) && 
+          localAppointmentDate >= new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()) &&
           localAppointmentDate <= new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate())
         ) {
-          // Fetch student name
           const studentDoc = await getStudentName(data.studentId);
-          
+          if (!studentDoc) {
+            await deleteDoc(doc(db, 'scheduledClasses', document.id));
+            continue;
+          }
           appointmentsList.push({
             id: document.id,
             studentId: data.studentId,
-            studentName: studentDoc?.name || 'Aluno não encontrado',
+            studentName: studentDoc.name || 'Aluno não encontrado',
             professorId: data.professorId,
             date: localAppointmentDate,
             time: data.startTime || data.time || data.date?.toDate().toISOString() || localAppointmentDate.toISOString(),
@@ -96,38 +98,34 @@ export const useScheduleStore = defineStore('schedule', () => {
   };
   
   /**
-   * Get a student's name by ID
+   * Get a student's name by ID. Returns null if the student user no longer exists (e.g. removed).
    * @param {string} studentId - ID of the student (which is the user ID)
-   * @returns {Promise<Object|null>} - Object with user data including name or null if not found
+   * @returns {Promise<Object|null>} - Object with user data including name, or null if student not found
    */
   const getStudentName = async (studentId) => {
     try {
-      // First check if the student exists in the users collection
       const userRef = doc(db, 'users', studentId);
       const userDoc = await getDoc(userRef);
-      
+
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        // Return an object with at least the name property
         return {
           name: userData.displayName || userData.name || 'User ' + studentId.substring(0, 5),
           email: userData.email || '',
           userId: studentId
         };
       }
-      
-      // If not found in users, try the students collection as fallback
+
       const studentRef = doc(db, 'students', studentId);
       const studentDoc = await getDoc(studentRef);
-      
       if (studentDoc.exists()) {
         return studentDoc.data();
       }
-      
-      return { name: 'Aluno ' + studentId.substring(0, 5) };
+
+      return null;
     } catch (err) {
       console.error('Error fetching student name:', err);
-      return { name: 'Aluno (erro)' };
+      return null;
     }
   };
   
@@ -392,17 +390,19 @@ export const useScheduleStore = defineStore('schedule', () => {
         
         // Filter dates in memory - compare only the date part
         if (
-          localAppointmentDate >= new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()) && 
+          localAppointmentDate >= new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()) &&
           localAppointmentDate <= new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate())
         ) {
-          // Fetch student and professor names
           const studentDoc = await getStudentName(data.studentId);
+          if (!studentDoc) {
+            await deleteDoc(doc(db, 'scheduledClasses', document.id));
+            continue;
+          }
           const professorDoc = await getProfessorName(data.professorId);
-          
           appointmentsList.push({
             id: document.id,
             studentId: data.studentId,
-            studentName: studentDoc?.name || 'Aluno não encontrado',
+            studentName: studentDoc.name || 'Aluno não encontrado',
             professorId: data.professorId,
             professorName: professorDoc?.name || 'Professor não encontrado',
             date: localAppointmentDate,
@@ -415,7 +415,7 @@ export const useScheduleStore = defineStore('schedule', () => {
           });
         }
       }
-      
+
       // Sort appointments by date and time
       appointmentsList.sort((a, b) => {
         const dateCompare = a.date - b.date;

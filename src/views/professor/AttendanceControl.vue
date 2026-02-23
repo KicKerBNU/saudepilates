@@ -471,19 +471,21 @@ const fetchScheduledClasses = async () => {
       return result;
     });
     
-    // Get student names for each class
-    const classesWithStudentNames = await Promise.all(
-      filteredDocs.map(async (docSnapshot) => {
-        const classData = { id: docSnapshot.id, ...docSnapshot.data() };
-        const studentDoc = await getDoc(doc(db, 'users', classData.studentId));
-        
-        return {
-          ...classData,
-          studentName: studentDoc.exists() ? studentDoc.data().name : 'Aluno Desconhecido'
-        };
-      })
-    );
-    
+    // Get student names; remove orphan classes (student no longer exists)
+    const classesWithStudentNames = [];
+    for (const docSnapshot of filteredDocs) {
+      const classData = { id: docSnapshot.id, ...docSnapshot.data() };
+      const studentDoc = await getDoc(doc(db, 'users', classData.studentId));
+      if (!studentDoc.exists()) {
+        await deleteDoc(doc(db, 'scheduledClasses', docSnapshot.id));
+        continue;
+      }
+      classesWithStudentNames.push({
+        ...classData,
+        studentName: studentDoc.data().name || studentDoc.data().displayName || 'Aluno'
+      });
+    }
+
     // Sort by start time
     scheduledClasses.value = classesWithStudentNames.sort((a, b) => {
       return a.startTime.localeCompare(b.startTime);
