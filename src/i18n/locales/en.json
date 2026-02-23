@@ -456,7 +456,7 @@
     "noPlan": "No plan",
     "monthlyHistory": "Monthly History",
     "earningsThisMonth": "This month",
-    "earningsThisMonthDesc": "Total received this month (same as the bar for this month in the graph below)",
+    "earningsThisMonthDesc": "Total to be received this month",
     "earningsLast12Months": "Last 12 months",
     "earningsLast12MonthsDesc": "Total earned in the last 12 months",
     "earningsLast12MonthsGraph": "Earnings per month in the last 12 months",
