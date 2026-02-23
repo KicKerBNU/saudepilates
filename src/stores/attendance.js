@@ -69,83 +69,68 @@ export const useAttendanceStore = defineStore('attendance', {
       const authStore = useAuthStore();
       
       try {
-        // Use a simpler query approach that doesn't require compound indexes
-        // First query by professorId only, then filter in JS
+        // Query by single field (professorId or studentId) so we work even when
+        // attendance records don't have companyId (e.g. created from Schedule/AttendanceControl).
+        // Then filter by companyId in JS (include records with no companyId for backward compat).
         let attendanceQuery = collection(db, 'attendanceRecords');
         let mainConstraint;
-        
-        // First, always filter by companyId if available
-        if (!authStore.companyId) {
-          // No company ID available, return empty result
+
+        if (professorId) {
+          mainConstraint = query(attendanceQuery, where('professorId', '==', professorId));
+        } else if (studentId) {
+          mainConstraint = query(attendanceQuery, where('studentId', '==', studentId));
+        } else if (authStore.isProfessor && authStore.userId) {
+          mainConstraint = query(attendanceQuery, where('professorId', '==', authStore.userId));
+        } else if (authStore.isStudent && authStore.userId) {
+          mainConstraint = query(attendanceQuery, where('studentId', '==', authStore.userId));
+        } else if (authStore.companyId) {
+          mainConstraint = query(attendanceQuery, where('companyId', '==', authStore.companyId));
+        } else {
           this.attendanceRecords = [];
           return [];
         }
 
-        // We'll use a compound query with companyId plus one additional constraint
-        if (professorId) {
-          mainConstraint = query(attendanceQuery, 
-            where('companyId', '==', authStore.companyId),
-            where('professorId', '==', professorId)
-          );
-        } else if (studentId) {
-          mainConstraint = query(attendanceQuery, 
-            where('companyId', '==', authStore.companyId),
-            where('studentId', '==', studentId)
-          );
-        } else if (authStore.isProfessor) {
-          mainConstraint = query(attendanceQuery, 
-            where('companyId', '==', authStore.companyId),
-            where('professorId', '==', authStore.userId)
-          );
-        } else if (authStore.isStudent) {
-          mainConstraint = query(attendanceQuery, 
-            where('companyId', '==', authStore.companyId),
-            where('studentId', '==', authStore.userId)
-          );
-        } else {
-          // Just filter by company ID
-          mainConstraint = query(attendanceQuery, 
-            where('companyId', '==', authStore.companyId)
-          );
-        }
-        
-        // Create the query with the single constraint
-        const finalQuery = mainConstraint ? query(attendanceQuery, mainConstraint) : attendanceQuery;
-        
+        const finalQuery = mainConstraint;
         const snapshot = await getDocs(finalQuery);
-        
-        // Process the results - apply remaining filters in JavaScript
-        let results = snapshot.docs.map(doc => {
-          const data = doc.data();
+
+        const toDateString = (val) => {
+          if (!val) return new Date().toISOString();
+          if (typeof val.toDate === 'function') return val.toDate().toISOString();
+          if (typeof val === 'string') return new Date(val).toISOString();
+          return new Date(val).toISOString();
+        };
+
+        let results = snapshot.docs.map(docSnap => {
+          const data = docSnap.data();
           return {
-            id: doc.id,
+            id: docSnap.id,
             ...data,
-            date: data.date.toDate().toISOString(),
-            // Keep the original Timestamp for filtering
+            date: toDateString(data.date),
             rawDate: data.date
           };
         });
-        
-        // Apply additional filters in JavaScript
-        if (studentId && (!mainConstraint || mainConstraint.toString().indexOf('studentId') === -1)) {
+
+        // Filter by company: include records with no companyId (legacy) or matching companyId
+        if (authStore.companyId) {
+          results = results.filter(record => !record.companyId || record.companyId === authStore.companyId);
+        }
+
+        if (studentId) {
           results = results.filter(record => record.studentId === studentId);
         }
-        
-        if (professorId && (!mainConstraint || mainConstraint.toString().indexOf('professorId') === -1)) {
+        if (professorId) {
           results = results.filter(record => record.professorId === professorId);
         }
-        
-        // Apply date filtering in JavaScript
+
         if (startDate && endDate) {
           const startTs = new Date(startDate).getTime();
           const endTs = new Date(endDate).getTime();
-          
           results = results.filter(record => {
             const recordDate = new Date(record.date).getTime();
             return recordDate >= startTs && recordDate <= endTs;
           });
         }
-        
+
         this.attendanceRecords = results;
         
         return this.attendanceRecords;

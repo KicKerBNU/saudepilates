@@ -95,7 +95,7 @@
                     </dt>
                     <dd class="mt-1">
                       <div class="text-2xl font-semibold text-gray-900">
-                        R$ {{ Number(monthlyEarnings).toFixed(2) }}
+                        {{ currency }} {{ formatCurrency(monthlyEarnings) }}
                       </div>
                       <div class="mt-2">
                         <span class="text-sm font-medium text-gray-500">{{ $t('admin.commission') }}:</span>
@@ -396,7 +396,9 @@ import { useScheduleStore } from '../../stores/schedule';
 import { collection, query, where, getDocs, updateDoc, doc, orderBy, limit, Timestamp, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import Breadcrumb from '@/components/Breadcrumb.vue';
+import { useCompanyCurrency } from '@/composables/useCompanyCurrency';
 
+const { currency, formatCurrency } = useCompanyCurrency();
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
@@ -493,60 +495,30 @@ onActivated(async () => {
   }
 });
 
-// Method to fetch professor's earnings
+// Method to fetch professor's earnings (same source as earnings history: payments received this month)
 const fetchEarnings = async () => {
   isLoadingEarnings.value = true;
   try {
-    // Get professor's base commission from their user profile
-    commission.value = authStore.userProfile?.commission || 0;
-    
-    // Get ALL students assigned to the professor
-    const studentsQuery = query(
-      collection(db, 'users'),
-      where('professorId', '==', authStore.userId),
-      where('role', '==', 'student')
-    );
-    
-    const studentsSnapshot = await getDocs(studentsQuery);
-    const allStudents = studentsSnapshot.docs
-      .filter(doc => doc.exists())
-      .map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }))
-      .filter(student => student && student.planId);
-    
-    // Get all plans
-    const planIds = [...new Set(allStudents.map(student => student.planId))];
-    const plansData = await Promise.all(
-      planIds.map(id => getDoc(doc(db, 'plans', id)))
-    );
-    
-    const plansMap = {};
-    plansData.forEach(doc => {
-      if (doc.exists()) {
-        plansMap[doc.id] = { id: doc.id, ...doc.data() };
-      }
-    });
-    
-    // Calculate total earnings (sum of ALL students' plan prices * commission)
+    commission.value = authStore.userProfile?.commission ?? 0;
+    const professorId = authStore.userId;
+    if (!professorId) {
+      monthlyEarnings.value = 0;
+      potentialEarnings.value = 0;
+      return;
+    }
+    await paymentsStore.fetchProfessorPayments(professorId);
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
     let total = 0;
-    for (const student of allStudents) {
-      if (student.planId) {
-        const plan = plansMap[student.planId];
-        if (plan && plan.price) {
-          const price = Number(plan.price) || 0;
-          const earning = price * (commission.value / 100);
-          
-          if (!isNaN(earning)) {
-            total += earning;
-          }
-        }
+    for (const payment of paymentsStore.professorPayments) {
+      const d = new Date(payment.paymentDate);
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+        total += Number(payment.amount) || 0;
       }
     }
     monthlyEarnings.value = total;
     potentialEarnings.value = total;
-    
   } catch (error) {
     console.error('Error fetching earnings:', error);
     monthlyEarnings.value = 0;

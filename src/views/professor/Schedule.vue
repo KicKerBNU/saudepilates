@@ -753,6 +753,7 @@ const markAttendance = async (present) => {
       const attendanceData = {
         studentId: classItem.studentId,
         professorId: classItem.professorId,
+        companyId: authStore.companyId || undefined,
         studentName: studentData.name || 'Unknown',
         studentPlanId: studentData.planId,
         date: dateToFirebaseTimestamp(normalizedDate),

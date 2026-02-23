@@ -12,150 +12,86 @@
         <Breadcrumb :items="breadcrumbItems" />
       </div>
 
-      <!-- Filters Section -->
+      <!-- Two big cards -->
       <div class="px-4 sm:px-0 mb-8">
-        <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6">
-          <h2 class="text-lg font-medium text-gray-900 mb-4">{{ $t('professor.filters') }}</h2>
-          <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
-            <div>
-              <label for="year" class="block text-sm font-medium text-gray-700">{{ $t('professor.year') }}</label>
-              <select id="year" v-model="selectedYear" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
-              </select>
+        <div v-if="loading" class="flex justify-center py-16">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          <p class="mt-4 ml-4 text-gray-500">{{ $t('professor.loadingData') }}</p>
+        </div>
+        <div v-else-if="error" class="rounded-lg border border-red-200 bg-red-50 p-6 text-center text-red-600">
+          {{ error }}
+        </div>
+        <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Card 1: This month -->
+          <div class="rounded-xl shadow-lg bg-white border-2 border-indigo-100 overflow-hidden">
+            <div class="px-6 py-5 bg-indigo-50 border-b border-indigo-100">
+              <h2 class="text-lg font-semibold text-indigo-900">
+                {{ $t('professor.earningsThisMonth') }}
+              </h2>
+              <p class="mt-1 text-sm text-indigo-700">
+                {{ $t('professor.earningsThisMonthDesc') }}
+              </p>
             </div>
-            <div>
-              <label for="month" class="block text-sm font-medium text-gray-700">{{ $t('professor.month') }}</label>
-              <select id="month" v-model="selectedMonth" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                <option v-for="(month, index) in months" :key="index" :value="index">{{ month }}</option>
-              </select>
+            <div class="px-6 py-8 sm:py-10">
+              <p class="text-3xl sm:text-4xl font-bold text-gray-900">
+                {{ currency }} {{ formatCurrency(thisMonthTotal) }}
+              </p>
             </div>
-            <div class="flex items-end">
-              <button @click="applyFilters" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                {{ $t('professor.applyFilters') }}
-              </button>
+          </div>
+
+          <!-- Card 2: Last 12 months -->
+          <div class="rounded-xl shadow-lg bg-white border-2 border-gray-200 overflow-hidden">
+            <div class="px-6 py-5 bg-gray-50 border-b border-gray-200">
+              <h2 class="text-lg font-semibold text-gray-900">
+                {{ $t('professor.earningsLast12Months') }}
+              </h2>
+              <p class="mt-1 text-sm text-gray-600">
+                {{ $t('professor.earningsLast12MonthsDesc') }}
+              </p>
+            </div>
+            <div class="px-6 py-8 sm:py-10">
+              <p class="text-3xl sm:text-4xl font-bold text-gray-900">
+                {{ currency }} {{ formatCurrency(last12MonthsTotal) }}
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Earnings Summary -->
-      <div class="px-4 sm:px-0 mb-8">
-        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-          <div class="px-4 py-5 sm:px-6 bg-green-50">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">
-              {{ $t('professor.earningsSummary') }} - {{ months[selectedMonth] }} {{ selectedYear }}
-            </h3>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">
-              {{ $t('professor.commission') }}: {{ commission }}%
-            </p>
-          </div>
-          <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="bg-white shadow-sm rounded-lg p-4 border border-gray-200">
-                <h4 class="text-sm font-medium text-gray-500">{{ $t('professor.totalEarnings') }}</h4>
-                <p class="mt-1 text-2xl font-semibold text-gray-900">{{ currency }} {{ formatCurrency(totalEarnings) }}</p>
-              </div>
-              <div class="bg-white shadow-sm rounded-lg p-4 border border-gray-200">
-                <h4 class="text-sm font-medium text-gray-500">{{ $t('professor.averagePerClass') }}</h4>
-                <p class="mt-1 text-2xl font-semibold text-gray-900">{{ currency }} {{ formatCurrency(averagePerClass) }}</p>
-              </div>
-              <div class="bg-white shadow-sm rounded-lg p-4 border border-gray-200">
-                <h4 class="text-sm font-medium text-gray-500">{{ $t('professor.totalClasses') }}</h4>
-                <p class="mt-1 text-2xl font-semibold text-gray-900">{{ totalClasses }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Earnings by Student -->
-      <div class="px-4 sm:px-0 mb-8">
-        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-          <div class="px-4 py-5 sm:px-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">
-              {{ $t('professor.earningsByStudent') }}
-            </h3>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">
-              {{ $t('professor.earningsByStudentDesc') }}
-            </p>
-          </div>
-          <div v-if="loading" class="px-4 py-8 text-center">
-            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mx-auto"></div>
-            <p class="mt-2 text-sm text-gray-500">{{ $t('professor.loadingData') }}</p>
-          </div>
-          <div v-else-if="error" class="px-4 py-5 sm:p-6 text-center text-red-500">
-            {{ error }}
-          </div>
-          <div v-else-if="studentEarnings.length === 0" class="px-4 py-5 sm:p-6 text-center">
-            <p class="text-gray-500">{{ $t('professor.noEarningsForPeriod') }}</p>
-          </div>
-          <div v-else class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {{ $t('professor.student') }}
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {{ $t('professor.plan') }}
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {{ $t('professor.classes') }}
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {{ $t('professor.valuePerClass') }}
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {{ $t('professor.total') }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="(earning, index) in studentEarnings" :key="index">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">{{ earning.studentName }}</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">{{ earning.planTitle || $t('professor.noPlan') }}</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ earning.classes }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ currency }} {{ formatCurrency(earning.valuePerClass) }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                    {{ currency }} {{ formatCurrency(earning.total) }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Monthly History Chart -->
-      <div class="px-4 sm:px-0 mb-8">
+      <!-- Monthly history graph (last 12 months) -->
+      <div v-if="!loading && !error" class="px-4 sm:px-0 mb-8">
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">
           <div class="px-4 py-5 sm:px-6">
             <h3 class="text-lg leading-6 font-medium text-gray-900">
               {{ $t('professor.monthlyHistory') }}
             </h3>
             <p class="mt-1 max-w-2xl text-sm text-gray-500">
-              {{ $t('professor.earningsLast12Months') }}
+              {{ $t('professor.earningsLast12MonthsGraph') }}
             </p>
           </div>
-          <div v-if="loadingHistory" class="px-4 py-8 text-center">
-            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mx-auto"></div>
-            <p class="mt-2 text-sm text-gray-500">{{ $t('professor.loadingHistory') }}</p>
-          </div>
-          <div v-else-if="errorHistory" class="px-4 py-5 sm:p-6 text-center text-red-500">
-            {{ errorHistory }}
-          </div>
-          <div v-else class="border-t border-gray-200 px-4 py-5 sm:p-6">
-            <div class="h-64 bg-gray-50 rounded-lg p-4 flex flex-col justify-center items-center">
-              <p class="text-center text-gray-500">{{ $t('professor.earningsChartPlaceholder') }}</p>
-              <p class="text-center text-sm text-gray-400 mt-2">{{ $t('professor.futureImplementation') }}</p>
+          <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+            <div class="space-y-3 min-h-[16rem]">
+              <div
+                v-for="(item, idx) in monthlyHistory"
+                :key="idx"
+                class="flex items-center gap-3"
+              >
+                <div class="w-24 shrink-0 text-sm text-gray-600">
+                  {{ item.monthLabel }} {{ item.year }}
+                </div>
+                <div class="flex-1 flex items-center gap-2">
+                  <div
+                    class="h-8 rounded bg-indigo-500 min-w-[2px] transition-all"
+                    :style="{ width: maxMonthlyEarnings ? (item.earnings / maxMonthlyEarnings * 100) + '%' : '0%' }"
+                  />
+                  <span class="text-sm font-medium text-gray-900 whitespace-nowrap">
+                    {{ currency }} {{ formatCurrency(item.earnings) }}
+                  </span>
+                </div>
+              </div>
+              <p v-if="monthlyHistory.length && !maxMonthlyEarnings" class="text-sm text-gray-500">
+                {{ $t('professor.noEarningsLast12Months') }}
+              </p>
             </div>
           </div>
         </div>
@@ -176,46 +112,32 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { useAttendanceStore } from '../../stores/attendance';
 import { useAuthStore } from '../../stores/auth';
-import { useStudentsStore } from '../../stores/students';
+import { usePaymentsStore } from '../../stores/payments';
 import Breadcrumb from '@/components/Breadcrumb.vue';
 import { useCompanyCurrency } from '@/composables/useCompanyCurrency';
 
 const { t } = useI18n();
-const { currency, formatCurrency, currencyLocale } = useCompanyCurrency();
+const { currency, formatCurrency } = useCompanyCurrency();
 
-// Stores
-const attendanceStore = useAttendanceStore();
 const authStore = useAuthStore();
-const studentsStore = useStudentsStore();
+const paymentsStore = usePaymentsStore();
 const router = useRouter();
-const route = useRoute();
 
-// Breadcrumb items
-const breadcrumbItems = computed(() => {
-  return [
-    { name: t('professor.dashboard'), path: '/professor' },
-    { name: t('professor.earningsHistory'), path: '/professor/earnings' }
-  ];
-});
+const breadcrumbItems = computed(() => [
+  { name: t('professor.dashboard'), path: '/professor' },
+  { name: t('professor.earningsHistory'), path: '/professor/earnings' }
+]);
 
-// State
 const loading = ref(false);
-const loadingHistory = ref(false);
 const error = ref(null);
-const errorHistory = ref(null);
-const studentEarnings = ref([]);
+const thisMonthTotal = ref(0);
+const last12MonthsTotal = ref(0);
 const monthlyHistory = ref([]);
-const commission = ref(0); // Default commission
+const commission = ref(0);
 
-// Filter state
-const currentDate = new Date();
-const selectedYear = ref(currentDate.getFullYear());
-const selectedMonth = ref(currentDate.getMonth());
-const availableYears = ref([]);
 const months = computed(() => [
   t('common.months.january'),
   t('common.months.february'),
@@ -231,163 +153,83 @@ const months = computed(() => [
   t('common.months.december')
 ]);
 
-// Calculated values
-const totalEarnings = computed(() => {
-  return studentEarnings.value.reduce((total, student) => total + student.total, 0);
+const maxMonthlyEarnings = computed(() => {
+  if (!monthlyHistory.value.length) return 0;
+  return Math.max(...monthlyHistory.value.map(m => m.earnings), 0);
 });
 
-const totalClasses = computed(() => {
-  return studentEarnings.value.reduce((total, student) => total + student.classes, 0);
-});
-
-const averagePerClass = computed(() => {
-  if (totalClasses.value === 0) return 0;
-  return totalEarnings.value / totalClasses.value;
-});
-
-// Initialize
 onMounted(async () => {
   try {
-    // Get professor data
-    const user = authStore.user;
-    if (!user) {
+    if (!authStore.isAuthenticated || !authStore.isProfessor) {
       router.push('/login');
       return;
     }
-    
-    // Set commission rate from professor data
-    commission.value = user.commission || 0;
-    
-    // Setup available years (current year and 2 years back)
-    const currentYear = new Date().getFullYear();
-    availableYears.value = [currentYear - 2, currentYear - 1, currentYear];
-    
-    // Fetch data for the current month
-    await fetchEarningsData();
-    
-    // Fetch monthly history data
-    await fetchMonthlyHistory();
+    if (!authStore.userProfile && authStore.userId) {
+      await authStore.fetchUserProfile(authStore.userId);
+    }
+    commission.value = authStore.userProfile?.commission ?? 0;
+    await fetchEarnings();
   } catch (err) {
     console.error('Error initializing earnings page:', err);
     error.value = t('professor.errorInitializingPage', { message: err.message });
   }
 });
 
-// Methods
-const fetchEarningsData = async () => {
+async function fetchEarnings() {
   loading.value = true;
   error.value = null;
-  studentEarnings.value = [];
-  
+  thisMonthTotal.value = 0;
+  last12MonthsTotal.value = 0;
+  monthlyHistory.value = [];
+
+  const professorId = authStore.userId;
+  if (!professorId) {
+    error.value = t('professor.errorProfileNotLoaded');
+    loading.value = false;
+    return;
+  }
+
   try {
-    const user = authStore.user;
-    
-    // Calculate start and end dates for the selected month
-    const startDate = new Date(selectedYear.value, selectedMonth.value, 1);
-    const endDate = new Date(selectedYear.value, selectedMonth.value + 1, 0, 23, 59, 59);
-    
-    // Fetch attendance records for the selected month
-    await attendanceStore.fetchAttendanceRecords(null, user.id, startDate, endDate);
-    
-    const records = attendanceStore.attendanceRecords.filter(record => record.present);
-    
-    if (records.length === 0) {
-      loading.value = false;
-      return;
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    // Build last 12 months from professorPayments (same source for card and graph so they match)
+    await paymentsStore.fetchProfessorPayments(professorId);
+    const byMonth = {};
+    for (let i = 11; i >= 0; i--) {
+      const monthIndex = (currentMonth - i + 120) % 12;
+      const year = currentYear + Math.floor((currentMonth - i) / 12);
+      const key = `${year}-${monthIndex}`;
+      byMonth[key] = { monthIndex, year, monthLabel: months.value[monthIndex], earnings: 0 };
     }
-    
-    // Get all students with attendance
-    const studentIds = [...new Set(records.map(record => record.studentId))];
-    
-    // Count attendance per student
-    const studentAttendance = records.reduce((acc, record) => {
-      acc[record.studentId] = (acc[record.studentId] || 0) + 1;
-      return acc;
-    }, {});
-    
-    // Fetch all students data
-    await Promise.all(studentIds.map(async (studentId) => {
-      try {
-        // Get student data
-        const studentDoc = await studentsStore.fetchStudentById(studentId);
-        if (!studentDoc) return;
-        
-        // Get plan data if available
-        let planData = null;
-        if (studentDoc.planId) {
-          planData = await studentsStore.fetchPlanById(studentDoc.planId);
-        }
-        
-        const attendanceCount = studentAttendance[studentId] || 0;
-        let valuePerClass = 0;
-        let total = 0;
-        
-        if (planData) {
-          // Calculate price per class according to the formula:
-          // Plan price / sessions per week / 4
-          valuePerClass = (planData.price / planData.sessionsPerWeek / 4) * (commission.value / 100);
-          total = valuePerClass * attendanceCount;
-        }
-        
-        studentEarnings.value.push({
-          studentId,
-          studentName: studentDoc.name,
-          planId: studentDoc.planId,
-          planTitle: planData?.title || t('professor.noPlan'),
-          classes: attendanceCount,
-          valuePerClass,
-          total
-        });
-      } catch (err) {
-        console.error(`Error processing student ${studentId}:`, err);
+
+    for (const payment of paymentsStore.professorPayments) {
+      const d = new Date(payment.paymentDate);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      if (byMonth[key]) {
+        byMonth[key].earnings += Number(payment.amount) || 0;
       }
-    }));
-    
-    // Sort by total earnings (highest first)
-    studentEarnings.value.sort((a, b) => b.total - a.total);
-    
+    }
+
+    // 1) This month = same value as current month in the graph (payments received this month)
+    const currentMonthKey = `${currentYear}-${currentMonth}`;
+    thisMonthTotal.value = byMonth[currentMonthKey]?.earnings ?? 0;
+
+    // 2) Last 12 months total
+    let total12 = 0;
+    for (const m of Object.values(byMonth)) total12 += m.earnings;
+    last12MonthsTotal.value = total12;
+    // Sort by year then month descending (most recent first); string keys like "2024-9" vs "2024-10" sort wrong
+    monthlyHistory.value = Object.values(byMonth).sort((a, b) => {
+      if (a.year !== b.year) return b.year - a.year;
+      return b.monthIndex - a.monthIndex;
+    });
   } catch (err) {
-    console.error('Error fetching earnings data:', err);
+    console.error('Error fetching earnings:', err);
     error.value = t('professor.errorLoadingData', { message: err.message });
   } finally {
     loading.value = false;
   }
-};
-
-const fetchMonthlyHistory = async () => {
-  loadingHistory.value = true;
-  errorHistory.value = null;
-  monthlyHistory.value = [];
-  
-  try {
-    const user = authStore.user;
-    
-    // Generate data for the last 12 months
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    
-    // For now just create placeholder data
-    // In a real implementation, this would query attendance records for each month
-    for (let i = 11; i >= 0; i--) {
-      const monthIndex = (currentMonth - i + 12) % 12;
-      const year = currentYear - Math.floor((i - currentMonth) / 12);
-      
-      monthlyHistory.value.push({
-        month: months.value[monthIndex],
-        year,
-        earnings: 0 // Placeholder - would calculate real earnings
-      });
-    }
-    
-  } catch (err) {
-    console.error('Error fetching monthly history:', err);
-    errorHistory.value = t('professor.errorLoadingHistory', { message: err.message });
-  } finally {
-    loadingHistory.value = false;
-  }
-};
-
-const applyFilters = async () => {
-  await fetchEarningsData();
-};
+}
 </script>

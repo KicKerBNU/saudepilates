@@ -255,36 +255,38 @@ export const usePaymentsStore = defineStore('payments', {
         let paymentsQuery;
         
         if (professorId) {
-          // Fetch payments for a specific professor
           paymentsQuery = query(
             collection(db, 'professorPayments'),
-            where('professorId', '==', professorId),
-            orderBy('paymentDate', 'desc')
+            where('professorId', '==', professorId)
           );
         } else if (authStore.isAdmin) {
-          // Admin can see all payments
-          paymentsQuery = query(
-            collection(db, 'professorPayments'),
-            orderBy('paymentDate', 'desc')
-          );
+          paymentsQuery = query(collection(db, 'professorPayments'));
         } else if (authStore.isProfessor) {
-          // Professors can only see their own payments
           paymentsQuery = query(
             collection(db, 'professorPayments'),
-            where('professorId', '==', authStore.userId),
-            orderBy('paymentDate', 'desc')
+            where('professorId', '==', authStore.userId)
           );
         } else {
           return [];
         }
-        
+
         const snapshot = await getDocs(paymentsQuery);
-        this.professorPayments = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          paymentDate: doc.data().paymentDate.toDate().toISOString()
-        }));
-        
+        const toDateString = (val) => {
+          if (!val) return new Date().toISOString();
+          if (typeof val.toDate === 'function') return val.toDate().toISOString();
+          if (typeof val === 'string') return val;
+          return new Date(val).toISOString();
+        };
+        this.professorPayments = snapshot.docs.map(docSnap => {
+          const data = docSnap.data();
+          return {
+            id: docSnap.id,
+            ...data,
+            paymentDate: toDateString(data.paymentDate)
+          };
+        });
+        this.professorPayments.sort((a, b) => new Date(b.paymentDate) - new Date(a.paymentDate));
+
         return this.professorPayments;
       } catch (error) {
         this.error = error.message;

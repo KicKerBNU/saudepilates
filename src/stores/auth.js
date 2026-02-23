@@ -7,7 +7,7 @@ import {
   getAuth,
   connectAuthEmulator
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, collection, addDoc, query, where, getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, addDoc, query, where, getDocs, updateDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
 import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from '../firebase/config';
@@ -381,22 +381,51 @@ export const useAuthStore = defineStore('auth', {
       if (!this.userProfile?.companyId) {
         throw new Error('No company ID found for current user');
       }
-      
+
       if (!this.isAdmin) {
         throw new Error('Only admins can delete users');
       }
-      
+
       this.loading = true;
       this.error = null;
-      
+
       try {
-        // Delete the user document from Firestore
+        const BATCH_SIZE = 500;
+
+        // 1) Delete all scheduled classes for this student (present and future, entire year, etc.)
+        const scheduledClassesRef = collection(db, 'scheduledClasses');
+        const scheduledQuery = query(scheduledClassesRef, where('studentId', '==', userId));
+        const scheduledSnapshot = await getDocs(scheduledQuery);
+        if (!scheduledSnapshot.empty) {
+          const docs = scheduledSnapshot.docs;
+          for (let i = 0; i < docs.length; i += BATCH_SIZE) {
+            const batch = writeBatch(db);
+            const chunk = docs.slice(i, i + BATCH_SIZE);
+            chunk.forEach((d) => batch.delete(d.ref));
+            await batch.commit();
+          }
+        }
+
+        // 2) Delete all attendance records for this student
+        const attendanceRef = collection(db, 'attendanceRecords');
+        const attendanceQuery = query(attendanceRef, where('studentId', '==', userId));
+        const attendanceSnapshot = await getDocs(attendanceQuery);
+        if (!attendanceSnapshot.empty) {
+          const docs = attendanceSnapshot.docs;
+          for (let i = 0; i < docs.length; i += BATCH_SIZE) {
+            const batch = writeBatch(db);
+            const chunk = docs.slice(i, i + BATCH_SIZE);
+            chunk.forEach((d) => batch.delete(d.ref));
+            await batch.commit();
+          }
+        }
+
+        // 3) Delete the user document from Firestore
         const userRef = doc(db, 'users', userId);
         await deleteDoc(userRef);
-        
+
         return true;
       } catch (error) {
-
         this.error = error.message;
         throw error;
       } finally {
