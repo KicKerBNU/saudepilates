@@ -164,7 +164,21 @@
     "communicationDesc": "Send messages, notifications and keep everyone informed about classes and payments.",
     "ctaTitle1": "Start managing your studio today",
     "ctaTitle2": "30 days free trial, no commitment",
-    "startFreeTrialButton": "Start Free Trial"
+    "startFreeTrialButton": "Start Free Trial",
+    "faqLabel": "FAQ",
+    "faqTitle": "Questions about our Pilates studio software",
+    "faq1Question": "What is SaúdePilates?",
+    "faq1Answer": "SaúdePilates is a software for Pilates studios that lets you manage your entire studio operation in one platform. It includes student management, class scheduling, attendance tracking, payments, professor commissions and financial reports.",
+    "faq2Question": "Do I need to install anything on my computer?",
+    "faq2Answer": "No. SaúdePilates is 100% online and works on any browser, computer, tablet or phone. Just access the website and log in to start using the Pilates studio management software.",
+    "faq3Question": "How does attendance tracking and commissions work?",
+    "faq3Answer": "The professor registers student attendance directly on the software calendar. Based on attendance and the student's plan, the system automatically calculates professor commissions, simplifying the financial management of your Pilates studio.",
+    "faq4Question": "How many students and professors can I register?",
+    "faq4Answer": "There is no limit on registered students. You can register up to 10 professors on the current plan. The Pilates studio software is designed to serve small studios up to larger operations.",
+    "faq5Question": "Can I try the software before subscribing?",
+    "faq5Answer": "Yes! We offer a 30-day free trial with full access to all features. You can try the Pilates studio software with no commitment and no credit card required.",
+    "faq6Question": "Does the system work in other languages?",
+    "faq6Answer": "Yes. SaúdePilates is available in Portuguese, English, Spanish and French. You can switch the language at any time in the settings, ideal for studios serving international clients."
   },
   "auth": {
     "loginTitle": "Login to SaúdePilates",

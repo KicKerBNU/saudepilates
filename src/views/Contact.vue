@@ -1,15 +1,15 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-gray-50 to-white py-16 px-4 sm:px-6 lg:px-8">
     <MetaTags
-      title="Entre em Contato - SaúdePilates | Sistema de Gestão para Pilates"
-      description="Entre em contato com a equipe SaúdePilates. Tire suas dúvidas, solicite uma demonstração ou saiba mais sobre nosso sistema de gestão para estúdios de Pilates."
-      keywords="contato pilates, demonstração software pilates, suporte pilates, atendimento estudio pilates"
+      title="Entre em Contato - SaúdePilates | Software para Estúdios de Pilates"
+      description="Entre em contato com a equipe SaúdePilates. Tire suas dúvidas, solicite uma demonstração do nosso software para estúdios de Pilates ou saiba mais sobre o sistema."
+      keywords="contato saudepilates, demonstração software pilates, suporte software pilates, software para estúdios de pilates contato"
     />
     <div class="max-w-lg w-full mx-auto space-y-10">
       <div>
-        <h2 class="mt-6 text-center text-4xl font-extrabold text-gray-900 tracking-tight">
+        <h1 class="mt-6 text-center text-4xl font-extrabold text-gray-900 tracking-tight">
           {{ $t('contact.contactUs') }}
-        </h2>
+        </h1>
         <p class="mt-3 text-center text-lg text-gray-600">
           {{ $t('contact.sendMessage') }}
         </p>

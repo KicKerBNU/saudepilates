@@ -2,9 +2,9 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <MetaTags
-      title="SaúdePilates - Sistema de Gestão para Estúdios de Pilates"
-      description="Gerencie seu estúdio de Pilates com eficiência. Software completo com controle de alunos, agendamento de aulas e gestão financeira."
-      keywords="pilates, gestão de estúdio, sistema para pilates, agendamento, controle financeiro, software pilates, controle de alunos"
+      title="SaúdePilates - Software para Estúdios de Pilates | Gestão Completa"
+      description="Software para estúdios de Pilates completo. Controle de alunos, agendamento de aulas, gestão financeira, presença e comissões. Teste grátis por 30 dias."
+      keywords="software para estúdios de pilates, sistema de gestão pilates, software pilates, gestão de estúdio de pilates, agendamento pilates, controle de alunos pilates, sistema para pilates"
     />
     <!-- Hero Section -->
     <div class="relative overflow-hidden">
@@ -241,6 +241,37 @@
       </div>
     </div>
 
+    <!-- FAQ Section -->
+    <div class="py-16 bg-gray-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">{{ $t('home.faqLabel') }}</h2>
+          <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+            {{ $t('home.faqTitle') }}
+          </p>
+        </div>
+        <div class="space-y-4">
+          <div v-for="(faq, index) in faqs" :key="index" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <button
+              @click="toggleFaq(index)"
+              class="w-full px-6 py-5 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
+            >
+              <h3 class="text-lg font-medium text-gray-900">{{ faq.question }}</h3>
+              <svg
+                :class="['h-5 w-5 text-indigo-500 transform transition-transform', openFaq === index ? 'rotate-180' : '']"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div v-if="openFaq === index" class="px-6 pb-5">
+              <p class="text-base text-gray-600 leading-relaxed">{{ faq.answer }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- CTA Section -->
     <div class="bg-indigo-700">
       <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
@@ -262,9 +293,24 @@
 </template>
 
 <script setup>
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import MetaTags from '@/components/MetaTags.vue';
 import CookieConsentModal from '@/components/CookieConsentModal.vue';
 
 const { t } = useI18n();
+
+const openFaq = ref(null);
+const toggleFaq = (index) => {
+  openFaq.value = openFaq.value === index ? null : index;
+};
+
+const faqs = computed(() => [
+  { question: t('home.faq1Question'), answer: t('home.faq1Answer') },
+  { question: t('home.faq2Question'), answer: t('home.faq2Answer') },
+  { question: t('home.faq3Question'), answer: t('home.faq3Answer') },
+  { question: t('home.faq4Question'), answer: t('home.faq4Answer') },
+  { question: t('home.faq5Question'), answer: t('home.faq5Answer') },
+  { question: t('home.faq6Question'), answer: t('home.faq6Answer') }
+]);
 </script>

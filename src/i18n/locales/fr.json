@@ -164,7 +164,21 @@
     "communicationDesc": "Envoyez des messages, des notifications et tenez tout le monde informé des cours et des paiements.",
     "ctaTitle1": "Commencez à gérer votre studio aujourd'hui",
     "ctaTitle2": "30 jours d'essai gratuit, sans engagement",
-    "startFreeTrialButton": "Commencer l'Essai Gratuit"
+    "startFreeTrialButton": "Commencer l'Essai Gratuit",
+    "faqLabel": "Questions Fréquentes",
+    "faqTitle": "Questions sur notre logiciel pour studios de Pilates",
+    "faq1Question": "Qu'est-ce que SaúdePilates ?",
+    "faq1Answer": "SaúdePilates est un logiciel pour studios de Pilates qui permet de gérer toute l'opération de votre studio sur une seule plateforme. Il comprend la gestion des élèves, la planification des cours, le contrôle de présence, les paiements, les commissions des professeurs et les rapports financiers.",
+    "faq2Question": "Dois-je installer quelque chose sur mon ordinateur ?",
+    "faq2Answer": "Non. SaúdePilates est 100% en ligne et fonctionne sur n'importe quel navigateur, ordinateur, tablette ou téléphone. Il suffit d'accéder au site et de se connecter pour commencer à utiliser le logiciel de gestion de votre studio de Pilates.",
+    "faq3Question": "Comment fonctionne le contrôle de présence et les commissions ?",
+    "faq3Answer": "Le professeur enregistre la présence des élèves directement sur le calendrier du logiciel. En fonction de la présence et du plan de l'élève, le système calcule automatiquement les commissions du professeur, simplifiant la gestion financière du studio de Pilates.",
+    "faq4Question": "Combien d'élèves et de professeurs puis-je inscrire ?",
+    "faq4Answer": "Il n'y a pas de limite d'élèves inscrits. Vous pouvez inscrire jusqu'à 10 professeurs avec le plan actuel. Le logiciel pour studios de Pilates est conçu pour servir les petits studios jusqu'aux opérations plus importantes.",
+    "faq5Question": "Puis-je essayer le logiciel avant de m'abonner ?",
+    "faq5Answer": "Oui ! Nous offrons 30 jours d'essai gratuit avec accès complet à toutes les fonctionnalités. Vous pouvez essayer le logiciel pour studios de Pilates sans engagement et sans carte de crédit.",
+    "faq6Question": "Le système fonctionne-t-il dans d'autres langues ?",
+    "faq6Answer": "Oui. SaúdePilates est disponible en Portugais, Anglais, Espagnol et Français. Vous pouvez changer la langue à tout moment dans les paramètres, idéal pour les studios accueillant des clients internationaux."
   },
   "auth": {
     "loginTitle": "Se connecter à SaúdePilates",

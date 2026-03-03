@@ -164,7 +164,21 @@
     "communicationDesc": "Envíe mensajes, notificaciones y mantenga a todos informados sobre clases y pagos.",
     "ctaTitle1": "Comience a gestionar su estudio hoy",
     "ctaTitle2": "30 días de prueba gratuita, sin compromiso",
-    "startFreeTrialButton": "Comenzar Prueba Gratuita"
+    "startFreeTrialButton": "Comenzar Prueba Gratuita",
+    "faqLabel": "Preguntas Frecuentes",
+    "faqTitle": "Dudas sobre nuestro software para estudios de Pilates",
+    "faq1Question": "¿Qué es SaúdePilates?",
+    "faq1Answer": "SaúdePilates es un software para estudios de Pilates que permite gestionar toda la operación de su estudio en una sola plataforma. Incluye gestión de alumnos, programación de clases, control de asistencia, pagos, comisiones de profesores e informes financieros.",
+    "faq2Question": "¿Necesito instalar algo en mi computadora?",
+    "faq2Answer": "No. SaúdePilates es 100% online y funciona en cualquier navegador, computadora, tablet o celular. Solo acceda al sitio e inicie sesión para empezar a usar el software de gestión de su estudio de Pilates.",
+    "faq3Question": "¿Cómo funciona el control de asistencia y comisiones?",
+    "faq3Answer": "El profesor registra la asistencia de los alumnos directamente en el calendario del software. Basándose en la asistencia y el plan del alumno, el sistema calcula automáticamente las comisiones del profesor, facilitando la gestión financiera del estudio de Pilates.",
+    "faq4Question": "¿Cuántos alumnos y profesores puedo registrar?",
+    "faq4Answer": "No hay límite de alumnos registrados. Puede registrar hasta 10 profesores en el plan actual. El software para estudios de Pilates fue pensado para atender desde estudios pequeños hasta operaciones mayores.",
+    "faq5Question": "¿Puedo probar el software antes de suscribirme?",
+    "faq5Answer": "¡Sí! Ofrecemos 30 días de prueba gratuita con acceso completo a todas las funcionalidades. Puede probar el software para estudios de Pilates sin compromiso y sin necesidad de registrar tarjeta de crédito.",
+    "faq6Question": "¿El sistema funciona en otros idiomas?",
+    "faq6Answer": "Sí. SaúdePilates está disponible en Portugués, Inglés, Español y Francés. Puede cambiar el idioma en cualquier momento en la configuración, ideal para estudios que atienden clientes internacionales."
   },
   "auth": {
     "loginTitle": "Iniciar Sesión en SaúdePilates",

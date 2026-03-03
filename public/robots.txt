@@ -4,6 +4,7 @@ Allow: /
 Allow: /pricing
 Allow: /guia
 Allow: /contact
+Allow: /privacy
 Allow: /login
 Allow: /register
 
