@@ -3,29 +3,6 @@ import Home from '../components/Home.vue'
 import Pricing from '../components/Pricing.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
-import Contact from '../views/Contact.vue'
-import GuideView from '../views/GuideView.vue'
-import AdminDashboard from '../views/admin/Dashboard.vue'
-import ProfessorsManagement from '../views/admin/ProfessorsManagement.vue'
-import StudentsManagement from '../views/admin/StudentsManagement.vue'
-import ProfessorDashboard from '../views/professor/Dashboard.vue'
-import ProfessorStudents from '../views/professor/Students.vue'
-import ProfessorEarnings from '../views/professor/EarningsHistory.vue'
-import ProfessorAttendanceControl from '../views/professor/AttendanceControl.vue'
-import ProfessorEvolution from '../views/professor/Evolution.vue'
-import ProfessorSchedule from '../views/professor/Schedule.vue'
-import StudentDashboard from '../views/student/Dashboard.vue'
-import PlansManagement from '../views/admin/PlansManagement.vue'
-import PaymentRegistration from '../views/admin/PaymentRegistration.vue'
-import MonthlyPayments from '../views/admin/MonthlyPayments.vue'
-import SubscriptionPayment from '../views/admin/SubscriptionPayment.vue'
-import PaymentVisualization from '../views/admin/PaymentVisualization.vue'
-import CompanySettings from '../views/admin/CompanySettings.vue'
-import AdminSchedule from '../views/admin/Schedule.vue'
-import ProfessorMessages from '../views/professor/Messages.vue'
-import Anamnesis from '../views/Anamnesis.vue'
-import NotFound from '../views/NotFound.vue'
-import PrivacyPolicy from '../views/PrivacyPolicy.vue'
 
 const routes = [
   {
@@ -51,142 +28,142 @@ const routes = [
   {
     path: '/contact',
     name: 'Contact',
-    component: Contact
+    component: () => import('../views/Contact.vue')
   },
   {
     path: '/guia',
     name: 'Guide',
-    component: GuideView
+    component: () => import('../views/GuideView.vue')
   },
   {
     path: '/privacy',
     name: 'PrivacyPolicy',
-    component: PrivacyPolicy
+    component: () => import('../views/PrivacyPolicy.vue')
   },
   {
     path: '/admin',
     name: 'AdminDashboard',
-    component: AdminDashboard,
+    component: () => import('../views/admin/Dashboard.vue'),
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
     path: '/admin/professors',
     name: 'ProfessorsManagement',
-    component: ProfessorsManagement,
+    component: () => import('../views/admin/ProfessorsManagement.vue'),
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
     path: '/admin/students',
     name: 'StudentsManagement',
-    component: StudentsManagement,
+    component: () => import('../views/admin/StudentsManagement.vue'),
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
     path: '/admin/plans',
     name: 'PlansManagement',
-    component: PlansManagement,
+    component: () => import('../views/admin/PlansManagement.vue'),
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
     path: '/admin/payments/new',
     name: 'PaymentRegistration',
-    component: PaymentRegistration,
+    component: () => import('../views/admin/PaymentRegistration.vue'),
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
     path: '/admin/payments/monthly',
     name: 'MonthlyPayments',
-    component: MonthlyPayments,
+    component: () => import('../views/admin/MonthlyPayments.vue'),
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
     path: '/admin/subscription',
     name: 'SubscriptionPayment',
-    component: SubscriptionPayment,
+    component: () => import('../views/admin/SubscriptionPayment.vue'),
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
     path: '/admin/payments/visualization',
     name: 'PaymentVisualization',
-    component: PaymentVisualization,
+    component: () => import('../views/admin/PaymentVisualization.vue'),
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
     path: '/admin/settings',
     name: 'CompanySettings',
-    component: CompanySettings,
+    component: () => import('../views/admin/CompanySettings.vue'),
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
     path: '/admin/schedule',
     name: 'AdminSchedule',
-    component: AdminSchedule,
+    component: () => import('../views/admin/Schedule.vue'),
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
     path: '/admin/anamnesis',
     name: 'AdminAnamnesis',
-    component: Anamnesis,
+    component: () => import('../views/Anamnesis.vue'),
     meta: { requiresAuth: true, role: 'admin' }
   },
   {
     path: '/professor',
     name: 'ProfessorDashboard',
-    component: ProfessorDashboard,
+    component: () => import('../views/professor/Dashboard.vue'),
     meta: { requiresAuth: true, role: 'professor' }
   },
   {
     path: '/professor/students',
     name: 'ProfessorStudents',
-    component: ProfessorStudents,
+    component: () => import('../views/professor/Students.vue'),
     meta: { requiresAuth: true, role: 'professor' }
   },
   {
     path: '/professor/earnings',
     name: 'ProfessorEarnings',
-    component: ProfessorEarnings,
+    component: () => import('../views/professor/EarningsHistory.vue'),
     meta: { requiresAuth: true, role: 'professor' }
   },
   {
     path: '/professor/attendance-control',
     name: 'ProfessorAttendanceControl',
-    component: ProfessorAttendanceControl,
+    component: () => import('../views/professor/AttendanceControl.vue'),
     meta: { requiresAuth: true, role: 'professor' }
   },
   {
     path: '/professor/evolution',
     name: 'ProfessorEvolution',
-    component: ProfessorEvolution,
+    component: () => import('../views/professor/Evolution.vue'),
     meta: { requiresAuth: true, role: 'professor' }
   },
   {
     path: '/professor/schedule',
     name: 'ProfessorSchedule',
-    component: ProfessorSchedule,
+    component: () => import('../views/professor/Schedule.vue'),
     meta: { requiresAuth: true, role: 'professor' }
   },
   {
     path: '/professor/messages',
     name: 'ProfessorMessages',
-    component: ProfessorMessages,
+    component: () => import('../views/professor/Messages.vue'),
     meta: { requiresAuth: true, role: 'professor' }
   },
   {
     path: '/professor/anamnesis',
     name: 'ProfessorAnamnesis',
-    component: Anamnesis,
+    component: () => import('../views/Anamnesis.vue'),
     meta: { requiresAuth: true, role: 'professor' }
   },
   {
     path: '/student',
     name: 'StudentDashboard',
-    component: StudentDashboard,
+    component: () => import('../views/student/Dashboard.vue'),
     meta: { requiresAuth: true, role: 'student' }
   },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: NotFound,
+    component: () => import('../views/NotFound.vue'),
     meta: { requiresAuth: false }
   }
 ]
