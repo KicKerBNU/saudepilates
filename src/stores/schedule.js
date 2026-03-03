@@ -54,36 +54,42 @@ export const useScheduleStore = defineStore('schedule', () => {
       for (const document of classesSnapshot.docs) {
         const data = document.data();
         
-        // Use our date utilities to handle dates consistently
         const localAppointmentDate = firebaseTimestampToLocalDate(data.date);
         
-        // Filter dates in memory - compare only the date part
         if (
           localAppointmentDate >= new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()) &&
           localAppointmentDate <= new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate())
         ) {
-          const studentDoc = await getStudentName(data.studentId);
-          if (!studentDoc) {
-            await deleteDoc(doc(db, 'scheduledClasses', document.id));
-            continue;
+          let studentName;
+          if (data.experimental) {
+            studentName = data.experimentalStudentName || 'Experimental';
+          } else {
+            const studentDoc = await getStudentName(data.studentId);
+            if (!studentDoc) {
+              await deleteDoc(doc(db, 'scheduledClasses', document.id));
+              continue;
+            }
+            studentName = studentDoc.name || 'Aluno não encontrado';
           }
           appointmentsList.push({
             id: document.id,
-            studentId: data.studentId,
-            studentName: studentDoc.name || 'Aluno não encontrado',
+            studentId: data.studentId || null,
+            studentName,
             professorId: data.professorId,
             date: localAppointmentDate,
             time: data.startTime || data.time || data.date?.toDate().toISOString() || localAppointmentDate.toISOString(),
             duration: data.duration || 60,
-            type: data.type || 'scheduled',
+            type: data.experimental ? 'experimental' : (data.type || 'scheduled'),
             status: data.status || 'scheduled',
             notes: data.notes || '',
-            source: 'scheduled'
+            source: 'scheduled',
+            experimental: data.experimental || false,
+            experimentalStudentName: data.experimentalStudentName || null,
+            experimentalPrice: data.experimentalPrice || null
           });
         }
       }
       
-      // Sort appointments by date
       appointmentsList.sort((a, b) => a.date - b.date);
       
       appointments.value = appointmentsList;
@@ -380,7 +386,11 @@ export const useScheduleStore = defineStore('schedule', () => {
         
         // Filter by company if not already filtered by student/professor
         if (!studentId && !professorId) {
-          if (!companyUserIds.includes(data.studentId) || !companyUserIds.includes(data.professorId)) {
+          const isExperimental = data.experimental === true;
+          if (!isExperimental && (!companyUserIds.includes(data.studentId) || !companyUserIds.includes(data.professorId))) {
+            continue;
+          }
+          if (isExperimental && !companyUserIds.includes(data.professorId)) {
             continue;
           }
         }
@@ -393,25 +403,34 @@ export const useScheduleStore = defineStore('schedule', () => {
           localAppointmentDate >= new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()) &&
           localAppointmentDate <= new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate())
         ) {
-          const studentDoc = await getStudentName(data.studentId);
-          if (!studentDoc) {
-            await deleteDoc(doc(db, 'scheduledClasses', document.id));
-            continue;
+          let studentName;
+          if (data.experimental) {
+            studentName = data.experimentalStudentName || 'Experimental';
+          } else {
+            const studentDoc = await getStudentName(data.studentId);
+            if (!studentDoc) {
+              await deleteDoc(doc(db, 'scheduledClasses', document.id));
+              continue;
+            }
+            studentName = studentDoc.name || 'Aluno não encontrado';
           }
           const professorDoc = await getProfessorName(data.professorId);
           appointmentsList.push({
             id: document.id,
-            studentId: data.studentId,
-            studentName: studentDoc.name || 'Aluno não encontrado',
+            studentId: data.studentId || null,
+            studentName,
             professorId: data.professorId,
             professorName: professorDoc?.name || 'Professor não encontrado',
             date: localAppointmentDate,
             time: data.startTime || data.time || data.date?.toDate().toISOString() || localAppointmentDate.toISOString(),
             duration: data.duration || 60,
-            type: data.type || 'scheduled',
+            type: data.experimental ? 'experimental' : (data.type || 'scheduled'),
             status: data.status || 'scheduled',
             notes: data.notes || '',
-            source: 'scheduled'
+            source: 'scheduled',
+            experimental: data.experimental || false,
+            experimentalStudentName: data.experimentalStudentName || null,
+            experimentalPrice: data.experimentalPrice || null
           });
         }
       }

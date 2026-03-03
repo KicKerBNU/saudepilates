@@ -106,6 +106,9 @@
                       <span class="text-left">
                         {{ appointment.studentName }}
                       </span>
+                      <span v-if="appointment.experimental" class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800">
+                        {{ $t('professor.experimental') }}
+                      </span>
                       <!-- Dropdown Menu -->
                       <Teleport to="body">
                         <div
@@ -126,6 +129,7 @@
                               {{ $t('professor.registerAttendance') }}
                             </button>
                             <button
+                              v-if="!appointment.experimental"
                               @click.stop="makeEvolution(appointment)"
                               class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
                               role="menuitem"
@@ -161,8 +165,27 @@
           <div class="mt-3">
             <h3 class="text-lg font-medium text-gray-900 mb-4">{{ $t('professor.scheduleNewClass') }}</h3>
             <form @submit.prevent="scheduleClass">
-              <!-- Student Selection -->
+              <!-- Experimental Toggle -->
               <div class="mb-4">
+                <label class="flex items-center cursor-pointer">
+                  <div class="relative">
+                    <input type="checkbox" v-model="isExperimental" class="sr-only" />
+                    <div :class="[
+                      'block w-10 h-6 rounded-full transition-colors',
+                      isExperimental ? 'bg-amber-500' : 'bg-gray-300'
+                    ]"></div>
+                    <div :class="[
+                      'dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform',
+                      isExperimental ? 'translate-x-4' : ''
+                    ]"></div>
+                  </div>
+                  <span class="ml-3 text-sm font-medium text-gray-700">{{ $t('professor.experimentalClass') }}</span>
+                </label>
+                <p class="mt-1 text-xs text-gray-500">{{ $t('professor.experimentalClassDesc') }}</p>
+              </div>
+
+              <!-- Student Selection (regular) -->
+              <div v-if="!isExperimental" class="mb-4">
                 <label for="student" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('professor.selectStudent') }}</label>
                 <select 
                   id="student" 
@@ -175,6 +198,36 @@
                     {{ student.name }}
                   </option>
                 </select>
+              </div>
+
+              <!-- Experimental Student Name + Price -->
+              <div v-if="isExperimental" class="mb-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label for="experimentalName" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('professor.experimentalStudentName') }}</label>
+                    <input 
+                      type="text" 
+                      id="experimentalName"
+                      v-model="experimentalStudentName"
+                      required
+                      :placeholder="$t('professor.experimentalNamePlaceholder')"
+                      class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-lg p-3"
+                    />
+                  </div>
+                  <div>
+                    <label for="experimentalPrice" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('professor.experimentalPrice') }}</label>
+                    <input 
+                      type="number" 
+                      id="experimentalPrice"
+                      v-model.number="experimentalPrice"
+                      required
+                      min="0"
+                      step="0.01"
+                      :placeholder="$t('professor.experimentalPricePlaceholder')"
+                      class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-lg p-3"
+                    />
+                  </div>
+                </div>
               </div>
 
               <!-- Date and Time -->
@@ -241,8 +294,8 @@
                 </div>
               </div>
 
-              <!-- Schedule Period -->
-              <div class="mb-4">
+              <!-- Schedule Period (hidden for experimental - always "once") -->
+              <div v-if="!isExperimental" class="mb-4">
                 <label for="schedulePeriod" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('professor.schedulePeriod') }}</label>
                 <select 
                   id="schedulePeriod" 
@@ -378,6 +431,9 @@ const duration = ref(60);
 const schedulePeriod = ref('once'); // 'once', 'weekly', 'monthly', 'yearly'
 const isSubmitting = ref(false);
 const isCopying = ref(false);
+const isExperimental = ref(false);
+const experimentalStudentName = ref('');
+const experimentalPrice = ref(null);
 
 // Weekly calendar calculations
 const weekDays = computed(() => {
@@ -613,19 +669,18 @@ const formatDate = (dateStr) => {
 
 // Get color class based on appointment type and attendance
 const getAppointmentColor = (type, present) => {
-  // If attendance is marked, use attendance colors
   if (present === true) {
     return 'border-green-500 bg-green-50 text-green-800';
   } else if (present === false) {
     return 'border-red-500 bg-red-50 text-red-800';
   }
   
-  // Otherwise use type-based colors
   const colors = {
     individual: 'border-green-500 bg-green-50 text-green-800',
     group: 'border-blue-500 bg-blue-50 text-blue-800',
     assessment: 'border-purple-500 bg-purple-50 text-purple-800',
     scheduled: 'border-yellow-500 bg-yellow-50 text-yellow-800',
+    experimental: 'border-amber-500 bg-amber-50 text-amber-800',
     default: 'border-gray-300 bg-gray-50 text-gray-800'
   };
   
@@ -676,6 +731,9 @@ const closeScheduleModal = () => {
   startTime.value = '';
   duration.value = 60;
   schedulePeriod.value = 'once';
+  isExperimental.value = false;
+  experimentalStudentName.value = '';
+  experimentalPrice.value = null;
 };
 
 // Register presence
@@ -744,36 +802,47 @@ const markAttendance = async (present) => {
     const attendanceRef = doc(db, 'attendanceRecords', attendanceId);
     const attendanceDoc = await getDoc(attendanceRef);
     
+    const isExperimentalClass = classItem.experimental || selectedAppointment.value.experimental;
+    
     if (present) {
-      // Get student data
-      const studentDoc = await getDoc(doc(db, 'users', classItem.studentId));
-      const studentData = studentDoc.exists() ? studentDoc.data() : {};
+      let studentName, studentPlanId;
       
-      // If marked as present, create/update the attendance record
+      if (isExperimentalClass) {
+        studentName = classItem.experimentalStudentName || selectedAppointment.value.experimentalStudentName || 'Experimental';
+        studentPlanId = null;
+      } else {
+        const studentDoc = await getDoc(doc(db, 'users', classItem.studentId));
+        const studentData = studentDoc.exists() ? studentDoc.data() : {};
+        studentName = studentData.name || 'Unknown';
+        studentPlanId = studentData.planId;
+      }
+      
       const attendanceData = {
         studentId: classItem.studentId,
         professorId: classItem.professorId,
         companyId: authStore.companyId || undefined,
-        studentName: studentData.name || 'Unknown',
-        studentPlanId: studentData.planId,
+        studentName,
+        studentPlanId,
         date: dateToFirebaseTimestamp(normalizedDate),
         present: true,
+        experimental: isExperimentalClass || false,
         updatedAt: Timestamp.now()
       };
       
-      // Only create if it doesn't exist to prevent duplicates
+      if (isExperimentalClass) {
+        attendanceData.experimentalPrice = classItem.experimentalPrice || selectedAppointment.value.experimentalPrice || 0;
+        attendanceData.experimentalStudentName = studentName;
+      }
+      
       if (attendanceDoc.exists()) {
-        // Update existing record instead of creating a new one
         await updateDoc(attendanceRef, {
           present: true,
           updatedAt: Timestamp.now()
         });
       } else {
-        // Create new record only if it doesn't exist
         await setDoc(attendanceRef, attendanceData);
       }
     } else if (present === false) {
-      // If marked as absent, check if record exists and update it
       if (attendanceDoc.exists()) {
         await updateDoc(attendanceRef, {
           present: false,
@@ -782,13 +851,11 @@ const markAttendance = async (present) => {
       }
     }
     
-    // Update local state
     const index = appointments.value.findIndex(item => item.id === classId);
     if (index !== -1) {
       appointments.value[index].present = present;
     }
     
-    // Recalculate earnings
     await attendanceStore.calculateMonthlyEarnings(authStore.userId);
     
     closeAttendanceModal();
@@ -878,8 +945,11 @@ const scheduleClass = async () => {
     // Parse time
     const [hours, minutes] = startTime.value.split(':').map(Number);
     
+    // For experimental classes, force "once"
+    const period = isExperimental.value ? 'once' : schedulePeriod.value;
+    
     // Generate all dates based on the selected period
-    const dates = generateScheduleDates(selectedDate.value, schedulePeriod.value);
+    const dates = generateScheduleDates(selectedDate.value, period);
     
     if (dates.length === 0) {
       window.showErrorToast?.(t('professor.noDatesGenerated') || 'No dates could be generated. Please try again.');
@@ -891,59 +961,69 @@ const scheduleClass = async () => {
     let skippedCount = 0;
     
     for (const date of dates) {
-      // Set the specific time from the time picker
       const classDate = new Date(date);
       classDate.setHours(hours, minutes, 0, 0);
       
-      // Check if a class already exists for this date, student, and time
-      const existingQuery = query(
-        collection(db, 'scheduledClasses'),
-        where('professorId', '==', authStore.userId),
-        where('studentId', '==', selectedStudent.value)
-      );
-      
-      const existingSnapshot = await getDocs(existingQuery);
-      const classDateNormalized = createNormalizedDate(
-        classDate.getFullYear(),
-        classDate.getMonth() + 1,
-        classDate.getDate()
-      );
-      
-      // Check if a similar class already exists
-      let alreadyExists = false;
-      for (const docSnapshot of existingSnapshot.docs) {
-        const existingData = docSnapshot.data();
-        const existingDate = firebaseTimestampToLocalDate(existingData.date);
-        const existingDateNormalized = createNormalizedDate(
-          existingDate.getFullYear(),
-          existingDate.getMonth() + 1,
-          existingDate.getDate()
+      // Skip duplicate check for experimental classes (they're always one-time)
+      if (!isExperimental.value) {
+        const existingQuery = query(
+          collection(db, 'scheduledClasses'),
+          where('professorId', '==', authStore.userId),
+          where('studentId', '==', selectedStudent.value)
         );
         
-        if (
-          isSameDay(existingDateNormalized, classDateNormalized) &&
-          existingData.startTime === startTime.value
-        ) {
-          alreadyExists = true;
-          break;
+        const existingSnapshot = await getDocs(existingQuery);
+        const classDateNormalized = createNormalizedDate(
+          classDate.getFullYear(),
+          classDate.getMonth() + 1,
+          classDate.getDate()
+        );
+        
+        let alreadyExists = false;
+        for (const docSnapshot of existingSnapshot.docs) {
+          const existingData = docSnapshot.data();
+          const existingDate = firebaseTimestampToLocalDate(existingData.date);
+          const existingDateNormalized = createNormalizedDate(
+            existingDate.getFullYear(),
+            existingDate.getMonth() + 1,
+            existingDate.getDate()
+          );
+          
+          if (
+            isSameDay(existingDateNormalized, classDateNormalized) &&
+            existingData.startTime === startTime.value
+          ) {
+            alreadyExists = true;
+            break;
+          }
+        }
+        
+        if (alreadyExists) {
+          skippedCount++;
+          continue;
         }
       }
       
-      if (alreadyExists) {
-        skippedCount++;
-        continue;
-      }
-      
-      // Create the scheduled class
-      await addDoc(collection(db, 'scheduledClasses'), {
-        studentId: selectedStudent.value,
+      // Build the scheduled class document
+      const classData = {
         professorId: authStore.userId,
         date: dateToFirebaseTimestamp(classDate),
         startTime: startTime.value,
         duration: Number(duration.value),
         present: null,
         createdAt: Timestamp.now()
-      });
+      };
+      
+      if (isExperimental.value) {
+        classData.experimental = true;
+        classData.experimentalStudentName = experimentalStudentName.value;
+        classData.experimentalPrice = Number(experimentalPrice.value);
+        classData.studentId = `experimental_${Date.now()}`;
+      } else {
+        classData.studentId = selectedStudent.value;
+      }
+      
+      await addDoc(collection(db, 'scheduledClasses'), classData);
       
       createdCount++;
     }
