@@ -35,7 +35,17 @@
                 </div>
               </div>
               <div class="mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0">
-                <img class="w-full rounded-lg shadow-xl" src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80" alt="Dashboard de gestão de estúdio" />
+                <img
+                  class="w-full rounded-lg shadow-xl"
+                  src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=75"
+                  srcset="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=400&q=75 400w, https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=75 600w, https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=75 800w"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  width="600"
+                  height="400"
+                  alt="Dashboard de gestão de estúdio de Pilates - software SaúdePilates"
+                  loading="eager"
+                  fetchpriority="high"
+                />
               </div>
             </div>
           </main>
@@ -121,7 +131,16 @@
         <div class="mt-10">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
-              <img class="w-full rounded-lg shadow-xl" src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80" alt="Gestão de alunos e aulas" />
+              <img
+                class="w-full rounded-lg shadow-xl"
+                src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=75"
+                srcset="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=400&q=75 400w, https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=75 600w, https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=75 800w"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                width="600"
+                height="400"
+                alt="Gestão de alunos e aulas de Pilates - software para estúdios"
+                loading="lazy"
+              />
             </div>
             <div class="space-y-8">
               <!-- Student Management -->
@@ -234,7 +253,16 @@
               </div>
             </div>
             <div class="order-1 md:order-2">
-              <img class="w-full rounded-lg shadow-xl" src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80" alt="Painel administrativo" />
+              <img
+                class="w-full rounded-lg shadow-xl"
+                src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=75"
+                srcset="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=400&q=75 400w, https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=75 600w, https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=75 800w"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                width="600"
+                height="400"
+                alt="Painel administrativo - software para estúdios de Pilates"
+                loading="lazy"
+              />
             </div>
           </div>
         </div>
