@@ -113,20 +113,55 @@
                 <div 
                   v-for="appointment in day.appointments" 
                   :key="appointment.id"
-                  class="p-2 text-xs rounded-md border-l-4 shadow-sm mb-2"
+                  :data-appointment-id="appointment.id"
+                  class="p-2 text-xs rounded-md border-l-4 shadow-sm mb-2 relative cursor-pointer hover:shadow-md transition-shadow"
                   :class="getAppointmentColor(appointment.type, appointment.present)"
-                  @click.stop
+                  @click.stop="toggleDropdown(appointment.id)"
                 >
-                  <div class="font-medium">
-                    <div class="text-sm">{{ appointment.studentName }}</div>
-                    <div class="text-xs text-gray-600 mt-1">{{ appointment.professorName }}</div>
+                  <div class="font-medium flex items-center justify-between">
+                    <div class="relative flex-1">
+                      <div class="text-sm">{{ appointment.studentName }}</div>
+                      <div class="text-xs text-gray-600 mt-1">{{ appointment.professorName }}</div>
+                      <!-- Dropdown Menu -->
+                      <Teleport to="body">
+                        <div
+                          v-if="openDropdownId === appointment.id"
+                          data-dropdown-menu
+                          class="fixed w-48 rounded-lg bg-white z-[9999]"
+                          :style="{...dropdownStyle, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.05)'}"
+                        >
+                          <div class="py-1" role="menu" @click.stop>
+                            <button
+                              @click.stop="registerPresence(appointment)"
+                              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                              role="menuitem"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                              </svg>
+                              {{ $t('professor.registerAttendance') }}
+                            </button>
+                            <button
+                              @click.stop="deleteAppointment(appointment)"
+                              class="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 flex items-center"
+                              role="menuitem"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                              {{ $t('common.delete') }}
+                            </button>
+                          </div>
+                        </div>
+                      </Teleport>
+                    </div>
+                    <span v-if="appointment.present !== null && appointment.present !== undefined" class="ml-2">
+                      <span v-if="appointment.present" class="text-green-600">✓</span>
+                      <span v-else class="text-red-600">✗</span>
+                    </span>
                   </div>
                   <div class="mt-1">
                     <span class="font-semibold">{{ formatTimeRange(appointment.time, appointment.duration) }}</span>
-                  </div>
-                  <div v-if="appointment.present !== null && appointment.present !== undefined" class="mt-1">
-                    <span v-if="appointment.present" class="text-green-600 text-xs">✓ {{ $t('common.present') }}</span>
-                    <span v-else class="text-red-600 text-xs">✗ {{ $t('common.absent') }}</span>
                   </div>
                 </div>
               </div>
@@ -274,17 +309,59 @@
           </div>
         </div>
       </div>
+      <!-- Attendance Modal -->
+      <div v-if="showAttendanceModal" class="fixed inset-0 overflow-y-auto h-full w-full z-50" @click.self="closeAttendanceModal">
+        <div class="relative top-20 mx-auto p-5 w-96 rounded-lg bg-white" style="box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.05);">
+          <div class="mt-3">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ $t('professor.registerAttendance') }}</h3>
+            <p class="text-sm text-gray-600 mb-2">{{ selectedAppointment?.studentName }}</p>
+            <p class="text-xs text-gray-500 mb-4">{{ selectedAppointment?.professorName }}</p>
+            <div class="flex flex-col space-y-3">
+              <button
+                @click="markAttendance(true)"
+                :class="[
+                  'w-full inline-flex justify-center items-center px-4 py-2 border text-sm font-medium rounded-md',
+                  selectedAppointment?.present === true
+                    ? 'bg-green-100 text-green-800 border-green-300'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-green-50'
+                ]"
+              >
+                {{ $t('common.present') }}
+              </button>
+              <button
+                @click="markAttendance(false)"
+                :class="[
+                  'w-full inline-flex justify-center items-center px-4 py-2 border text-sm font-medium rounded-md',
+                  selectedAppointment?.present === false
+                    ? 'bg-red-100 text-red-800 border-red-300'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-red-50'
+                ]"
+              >
+                {{ $t('common.absent') }}
+              </button>
+              <button
+                @click="closeAttendanceModal"
+                class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                {{ $t('common.cancel') }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { Teleport } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
 import { useScheduleStore } from '../../stores/schedule';
 import { useStudentsStore } from '../../stores/students';
+import { useAttendanceStore } from '../../stores/attendance';
 import Breadcrumb from '@/components/Breadcrumb.vue';
 import { 
   startOfWeek, 
@@ -307,6 +384,7 @@ import {
   dateToFirebaseTimestamp, 
   firebaseTimestampToLocalDate, 
   createNormalizedDate, 
+  formatDateYYYYMMDD,
   isSameDay as dateUtilsIsSameDay 
 } from '../../utils/dateUtils';
 import { 
@@ -315,6 +393,11 @@ import {
   query, 
   where, 
   getDocs, 
+  getDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
+  setDoc,
   Timestamp 
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
@@ -328,6 +411,7 @@ const router = useRouter();
 const authStore = useAuthStore();
 const scheduleStore = useScheduleStore();
 const studentsStore = useStudentsStore();
+const attendanceStore = useAttendanceStore();
 
 // State
 const loading = ref(false);
@@ -336,10 +420,15 @@ const selectedStudentId = ref('');
 const students = ref([]);
 const professors = ref([]);
 const appointments = ref([]);
+const scheduledClasses = ref([]);
 
 // Modal states
 const showScheduleModal = ref(false);
+const showAttendanceModal = ref(false);
+const selectedAppointment = ref(null);
 const selectedDateForSchedule = ref(null);
+const openDropdownId = ref(null);
+const dropdownStyle = ref({});
 
 // Schedule form state
 const selectedStudent = ref('');
@@ -612,14 +701,16 @@ const fetchAppointments = async () => {
     }
     
     const classesSnapshot = await getDocs(classesQuery);
-    const scheduledClasses = classesSnapshot.docs.map(doc => ({
+    const scheduledClassesList = classesSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
     
+    scheduledClasses.value = scheduledClassesList;
+
     // Merge attendance status
     appointments.value = fetchedAppointments.map(appointment => {
-      const classItem = scheduledClasses.find(item => item.id === appointment.id);
+      const classItem = scheduledClassesList.find(item => item.id === appointment.id);
       return {
         ...appointment,
         present: classItem?.present ?? null
@@ -630,6 +721,147 @@ const fetchAppointments = async () => {
     console.error('Error fetching appointments:', error);
   } finally {
     loading.value = false;
+  }
+};
+
+// Toggle dropdown
+const toggleDropdown = async (appointmentId) => {
+  if (openDropdownId.value === appointmentId) {
+    openDropdownId.value = null;
+  } else {
+    openDropdownId.value = appointmentId;
+    await nextTick();
+    const cardElement = document.querySelector(`[data-appointment-id="${appointmentId}"]`);
+    if (cardElement) {
+      const rect = cardElement.getBoundingClientRect();
+      dropdownStyle.value = {
+        top: `${rect.bottom + 4}px`,
+        left: `${rect.left}px`
+      };
+    }
+  }
+};
+
+// Close dropdown
+const closeDropdown = () => {
+  openDropdownId.value = null;
+};
+
+// Register presence
+const registerPresence = (appointment) => {
+  selectedAppointment.value = appointment;
+  closeDropdown();
+  showAttendanceModal.value = true;
+};
+
+// Close attendance modal
+const closeAttendanceModal = () => {
+  showAttendanceModal.value = false;
+};
+
+// Mark attendance
+const markAttendance = async (present) => {
+  if (!selectedAppointment.value) return;
+  
+  try {
+    loading.value = true;
+    
+    const classId = selectedAppointment.value.classId || selectedAppointment.value.id;
+    
+    await updateDoc(doc(db, 'scheduledClasses', classId), {
+      present: present
+    });
+    
+    const classItem = scheduledClasses.value.find(item => item.id === classId) || selectedAppointment.value;
+    
+    let localDate;
+    if (classItem.date instanceof Date) {
+      localDate = classItem.date;
+    } else if (typeof classItem.date === 'string') {
+      localDate = parseISO(classItem.date);
+    } else {
+      localDate = firebaseTimestampToLocalDate(classItem.date);
+    }
+    
+    const dateStr = formatDateYYYYMMDD(localDate);
+    
+    const attendanceId = `${classItem.professorId || selectedAppointment.value.professorId}_${classItem.studentId || selectedAppointment.value.studentId}_${dateStr}`;
+    
+    const attendanceData = {
+      professorId: classItem.professorId || selectedAppointment.value.professorId,
+      studentId: classItem.studentId || selectedAppointment.value.studentId,
+      date: dateToFirebaseTimestamp(localDate),
+      present: present,
+      companyId: authStore.companyId || undefined,
+      updatedAt: Timestamp.now()
+    };
+    
+    const attendanceRef = doc(db, 'attendanceRecords', attendanceId);
+    const attendanceDoc = await getDoc(attendanceRef);
+    
+    if (attendanceDoc.exists()) {
+      await updateDoc(attendanceRef, attendanceData);
+    } else {
+      attendanceData.createdAt = Timestamp.now();
+      await setDoc(attendanceRef, attendanceData);
+    }
+    
+    // Update the local appointment data
+    const appointmentIndex = appointments.value.findIndex(a => a.id === selectedAppointment.value.id);
+    if (appointmentIndex !== -1) {
+      appointments.value[appointmentIndex] = {
+        ...appointments.value[appointmentIndex],
+        present: present
+      };
+    }
+    
+    closeAttendanceModal();
+    
+    window.showSuccessToast?.(t('professor.attendanceRegistered') || 'Attendance registered successfully');
+    
+  } catch (error) {
+    console.error('Error marking attendance:', error);
+    window.showErrorToast?.(t('professor.errorRegisteringAttendance') || 'Error registering attendance');
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Delete appointment
+const deleteAppointment = async (appointment) => {
+  closeDropdown();
+  
+  if (!confirm(t('professor.confirmDeleteClass') || 'Are you sure you want to delete this class?')) {
+    return;
+  }
+  
+  try {
+    loading.value = true;
+    const classId = appointment.classId || appointment.id;
+    await deleteDoc(doc(db, 'scheduledClasses', classId));
+    
+    appointments.value = appointments.value.filter(a => a.id !== appointment.id);
+    
+    window.showSuccessToast?.(t('professor.classDeleted') || 'Class deleted successfully');
+  } catch (error) {
+    console.error('Error deleting appointment:', error);
+    window.showErrorToast?.(t('professor.errorDeletingClass') || 'Error deleting class');
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Close dropdown when clicking outside
+const handleClickOutside = (event) => {
+  if (openDropdownId.value !== null) {
+    const dropdownMenu = document.querySelector('[data-dropdown-menu]');
+    const appointmentCard = document.querySelector(`[data-appointment-id="${openDropdownId.value}"]`);
+    if (
+      dropdownMenu && !dropdownMenu.contains(event.target) &&
+      appointmentCard && !appointmentCard.contains(event.target)
+    ) {
+      closeDropdown();
+    }
   }
 };
 
@@ -831,8 +1063,14 @@ onMounted(async () => {
     return;
   }
   
+  document.addEventListener('click', handleClickOutside);
+  
   await fetchStudents();
   await fetchProfessors();
   await fetchAppointments();
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
 });
 </script>
