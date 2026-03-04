@@ -436,8 +436,8 @@ async function save() {
   }
 }
 
-function downloadPdf() {
-  generateSingleAnamnesisPdf(selectedStudentName.value, form, t);
+async function downloadPdf() {
+  await generateSingleAnamnesisPdf(selectedStudentName.value, form, t);
 }
 
 function printAnamnesis() {
@@ -505,7 +505,7 @@ async function downloadAllPdf() {
     const studentsMap = {};
     studentsList.value.forEach(s => { studentsMap[s.id] = s; });
     if (list.length === 0) return;
-    generateAllAnamnesisPdf(list, studentsMap, t);
+    await generateAllAnamnesisPdf(list, studentsMap, t);
   } catch (err) {
     console.error('Download all PDF:', err);
   } finally {

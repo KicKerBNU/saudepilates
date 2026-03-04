@@ -1,5 +1,3 @@
-import { jsPDF } from 'jspdf';
-
 const FONT_SIZE = 11;
 const TITLE_SIZE = 14;
 const MARGIN = 20;
@@ -29,7 +27,8 @@ function addSection(doc, y, title, content) {
   return y;
 }
 
-export function generateSingleAnamnesisPdf(studentName, data, t) {
+export async function generateSingleAnamnesisPdf(studentName, data, t) {
+  const { jsPDF } = await import('jspdf');
   const doc = new jsPDF();
   let y = 20;
 
@@ -63,7 +62,8 @@ export function generateSingleAnamnesisPdf(studentName, data, t) {
   doc.save(`Anamnese_${safeName}.pdf`);
 }
 
-export function generateAllAnamnesisPdf(studentsWithAnamnesis, studentsMap, t) {
+export async function generateAllAnamnesisPdf(studentsWithAnamnesis, studentsMap, t) {
+  const { jsPDF } = await import('jspdf');
   const doc = new jsPDF();
   let y = 20;
   let isFirst = true;

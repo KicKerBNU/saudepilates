@@ -29,45 +29,42 @@
     </div>
     
     <div class="h-64 sm:h-80">
-      <Line
-        v-if="chartData"
+      <component
+        v-if="chartReady && chartData"
+        :is="LineComponent"
         :data="chartData"
         :options="chartOptions"
       />
+      <div v-else class="flex items-center justify-center h-full">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Line } from 'vue-chartjs';
 import { useCompanyCurrency } from '@/composables/useCompanyCurrency';
 
 const { t } = useI18n();
 const { currency, currencyLocale, formatCurrency } = useCompanyCurrency();
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-} from 'chart.js';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-);
+const LineComponent = shallowRef(null);
+const chartReady = ref(false);
+
+onMounted(async () => {
+  const [{ Line }, chartjs] = await Promise.all([
+    import('vue-chartjs'),
+    import('chart.js')
+  ]);
+  chartjs.Chart.register(
+    chartjs.CategoryScale, chartjs.LinearScale, chartjs.PointElement,
+    chartjs.LineElement, chartjs.Title, chartjs.Tooltip, chartjs.Legend, chartjs.Filler
+  );
+  LineComponent.value = Line;
+  chartReady.value = true;
+});
 
 const props = defineProps({
   payments: {

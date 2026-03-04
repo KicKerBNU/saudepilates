@@ -1,8 +1,8 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { defineAsyncComponent, onMounted, ref } from 'vue';
 import NavBar from './components/NavBar.vue';
 import Toast from './components/Toast.vue';
-import LeadModal from './components/LeadModal.vue';
+const LeadModal = defineAsyncComponent(() => import('./components/LeadModal.vue'));
 
 const isLoading = ref(true);
 

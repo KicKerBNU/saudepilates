@@ -1,11 +1,7 @@
-// Import Firebase modules
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
-import { getAnalytics } from 'firebase/analytics';
 
-// Your Firebase configuration
 export const firebaseConfig = {
   apiKey: "AIzaSyB6xfteJelZLxiszYwiprugoSRSnZn4YGM",
   authDomain: "saudepilates-170df.firebaseapp.com",
@@ -16,11 +12,27 @@ export const firebaseConfig = {
   measurementId: "G-B0KTCDJHD8"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
-const analytics = getAnalytics(app);
 
-export { auth, db, storage, analytics };
+let _storage = null;
+let _analytics = null;
+
+export async function getStorageLazy() {
+  if (!_storage) {
+    const { getStorage } = await import('firebase/storage');
+    _storage = getStorage(app);
+  }
+  return _storage;
+}
+
+export async function getAnalyticsLazy() {
+  if (!_analytics) {
+    const { getAnalytics } = await import('firebase/analytics');
+    _analytics = getAnalytics(app);
+  }
+  return _analytics;
+}
+
+export { auth, db };

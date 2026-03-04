@@ -38,13 +38,14 @@
                 <img
                   class="w-full rounded-lg shadow-xl"
                   src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=75"
-                  srcset="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=400&q=75 400w, https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=75 600w, https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=75 800w"
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  srcset="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=320&q=70 320w, https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=480&q=75 480w, https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=75 600w, https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=75 800w"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
                   width="600"
                   height="400"
                   alt="Dashboard de gestão de estúdio de Pilates - software SaúdePilates"
                   loading="eager"
                   fetchpriority="high"
+                  decoding="async"
                 />
               </div>
             </div>
@@ -134,12 +135,13 @@
               <img
                 class="w-full rounded-lg shadow-xl"
                 src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=75"
-                srcset="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=400&q=75 400w, https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=75 600w, https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=75 800w"
-                sizes="(max-width: 768px) 100vw, 50vw"
+                srcset="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=320&q=70 320w, https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=480&q=75 480w, https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=75 600w, https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=75 800w"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
                 width="600"
                 height="400"
                 alt="Gestão de alunos e aulas de Pilates - software para estúdios"
                 loading="lazy"
+                decoding="async"
               />
             </div>
             <div class="space-y-8">
@@ -256,12 +258,13 @@
               <img
                 class="w-full rounded-lg shadow-xl"
                 src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=75"
-                srcset="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=400&q=75 400w, https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=75 600w, https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=75 800w"
-                sizes="(max-width: 768px) 100vw, 50vw"
+                srcset="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=320&q=70 320w, https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=480&q=75 480w, https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=75 600w, https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=75 800w"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
                 width="600"
                 height="400"
                 alt="Painel administrativo - software para estúdios de Pilates"
                 loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -321,10 +324,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { defineAsyncComponent, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import MetaTags from '@/components/MetaTags.vue';
-import CookieConsentModal from '@/components/CookieConsentModal.vue';
+const CookieConsentModal = defineAsyncComponent(() => import('@/components/CookieConsentModal.vue'));
 
 const { t } = useI18n();
 

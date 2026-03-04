@@ -114,7 +114,6 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import emailjs from '@emailjs/browser';
 
 const { t } = useI18n();
 
@@ -236,6 +235,7 @@ async function submit() {
       message
     };
 
+    const emailjs = (await import('@emailjs/browser')).default;
     if (typeof emailjs.init === 'function') {
       emailjs.init(EMAILJS_PUBLIC_KEY);
     }

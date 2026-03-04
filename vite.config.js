@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import path from 'node:path';
 import fs from 'node:fs';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+import { compression } from 'vite-plugin-compression2';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -11,12 +12,13 @@ export default defineConfig({
   plugins: [
     vue(), 
     tailwindcss(),
+    compression({ algorithm: 'gzip', threshold: 1024 }),
+    compression({ algorithm: 'brotliCompress', threshold: 1024 }),
     {
       name: 'generate-spa-html-files',
       apply: 'build',
       enforce: 'post',
       closeBundle() {
-        // Create HTML files for SPA routes
         const routeFiles = [
           'pricing.html', 
           'contact.html',
@@ -48,13 +50,22 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vue-vendor': ['vue', 'vue-router', 'pinia', '@vueuse/head'],
+          'firebase-core': ['firebase/app', 'firebase/auth'],
+          'firebase-services': ['firebase/firestore', 'firebase/storage', 'firebase/analytics'],
+          'i18n': ['vue-i18n'],
+        }
+      }
+    }
+  },
   server: {
     port: 5199,
     strictPort: false,
-    // You can also set it to open the browser automatically
     open: true,
-    // Uncomment to allow external access (from other devices on your network)
-    // host: '0.0.0.0',
   },
   preview: {
     port: 4173,
