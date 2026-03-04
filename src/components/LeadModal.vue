@@ -264,12 +264,7 @@ async function submit() {
   }
 }
 
-function isMobile() {
-  return window.innerWidth < 768;
-}
-
 onMounted(() => {
-  if (isMobile()) return;
   if (hasAlreadySubmitted()) {
     return;
   }

@@ -79,12 +79,7 @@ function close() {
   visible.value = false;
 }
 
-function isMobile() {
-  return window.innerWidth < 768;
-}
-
 onMounted(() => {
-  if (isMobile()) return;
   if (!getConsent()) {
     visible.value = true;
   }
