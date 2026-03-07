@@ -11,6 +11,9 @@
       <div class="mb-4 sm:mb-6">
         <Breadcrumb :items="breadcrumbItems" />
       </div>
+
+      <!-- Payment Sub-Navigation -->
+      <PaymentNav />
       
       <!-- Loading State -->
       <div v-if="loading" class="flex justify-center items-center py-12">
@@ -98,6 +101,7 @@ import { useAuthStore } from '../../stores/auth';
 import { usePaymentsStore } from '../../stores/payments';
 import PaymentChart from '../../components/admin/PaymentChart.vue';
 import Breadcrumb from '@/components/Breadcrumb.vue';
+import PaymentNav from '@/components/admin/PaymentNav.vue';
 import { useCompanyCurrency } from '@/composables/useCompanyCurrency';
 
 const { t } = useI18n();

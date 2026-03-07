@@ -19,6 +19,7 @@ export const usePaymentsStore = defineStore('payments', {
   state: () => ({
     studentPayments: [],
     professorPayments: [],
+    professorPayouts: [],
     loading: false,
     error: null
   }),
@@ -404,6 +405,49 @@ export const usePaymentsStore = defineStore('payments', {
       } finally {
         this.loading = false;
       }
+    },
+
+    async fetchProfessorPayouts(month, year) {
+      const authStore = useAuthStore();
+      if (!authStore.companyId) return [];
+
+      const q = query(
+        collection(db, 'professorPayouts'),
+        where('companyId', '==', authStore.companyId),
+        where('month', '==', month),
+        where('year', '==', year)
+      );
+      const snapshot = await getDocs(q);
+      this.professorPayouts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      return this.professorPayouts;
+    },
+
+    async markProfessorPaid(professorId, month, year, totalAmount) {
+      const authStore = useAuthStore();
+      if (!authStore.isAdmin) throw new Error('Only admins can mark professors as paid');
+
+      const payoutData = {
+        professorId,
+        companyId: authStore.companyId,
+        month,
+        year,
+        totalAmount,
+        paidAt: Timestamp.now(),
+        paidBy: authStore.userId
+      };
+
+      const docRef = await addDoc(collection(db, 'professorPayouts'), payoutData);
+      const newPayout = { id: docRef.id, ...payoutData };
+      this.professorPayouts.push(newPayout);
+      return newPayout;
+    },
+
+    async unmarkProfessorPaid(payoutId) {
+      const authStore = useAuthStore();
+      if (!authStore.isAdmin) throw new Error('Only admins can update professor payouts');
+
+      await deleteDoc(doc(db, 'professorPayouts', payoutId));
+      this.professorPayouts = this.professorPayouts.filter(p => p.id !== payoutId);
     }
   }
 });

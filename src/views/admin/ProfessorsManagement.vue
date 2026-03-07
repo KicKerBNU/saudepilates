@@ -37,7 +37,8 @@
                 {{ $t('admin.totalProfessorsCount') }}
               </dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {{ professorsList.length }}
+                {{ activeProfessors.length }}
+                <span v-if="inactiveProfessors.length > 0" class="ml-2 text-xs text-gray-400">({{ inactiveProfessors.length }} {{ $t('admin.inactiveCount') }})</span>
               </dd>
             </div>
           </dl>
@@ -93,6 +94,31 @@
               </button>
             </div>
           </div>
+          <!-- Active / Inactive Filter -->
+          <div class="mt-4 flex gap-2">
+            <button
+              @click="statusFilter = 'active'"
+              :class="[
+                'px-4 py-2 rounded-full text-sm font-medium',
+                statusFilter === 'active'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+              ]"
+            >
+              {{ $t('admin.activeProfessors') }} ({{ activeProfessors.length }})
+            </button>
+            <button
+              @click="statusFilter = 'inactive'"
+              :class="[
+                'px-4 py-2 rounded-full text-sm font-medium',
+                statusFilter === 'inactive'
+                  ? 'bg-gray-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+              ]"
+            >
+              {{ $t('admin.inactiveProfessors') }} ({{ inactiveProfessors.length }})
+            </button>
+          </div>
         </div>
         
         <div v-if="loading" class="text-center py-8">
@@ -134,7 +160,10 @@
                     </svg>
                   </div>
                   <div class="ml-3 sm:ml-4">
-                    <h4 class="text-base sm:text-lg font-medium text-gray-900">{{ professor.name }}</h4>
+                    <h4 class="text-base sm:text-lg font-medium" :class="professor.isActive === false ? 'text-gray-400' : 'text-gray-900'">
+                      {{ professor.name }}
+                      <span v-if="professor.isActive === false" class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-500">{{ $t('admin.inactive') }}</span>
+                    </h4>
                     <p class="text-sm text-gray-500">{{ professor.email }}</p>
                     <p v-if="professor.phone" class="text-sm text-gray-500">{{ professor.phone }}</p>
                     <p class="text-sm text-gray-500">
@@ -146,18 +175,34 @@
                 </div>
               </div>
               <div class="mt-4 sm:mt-0 sm:ml-4 flex flex-col sm:flex-row gap-2">
-                <button 
-                  @click="openEditProfessorModal(professor)"
-                  class="w-full sm:w-auto inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  {{ $t('common.edit') }}
-                </button>
-                <button 
-                  @click="confirmDeleteProfessor(professor)"
-                  class="w-full sm:w-auto inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                >
-                  {{ $t('common.remove') }}
-                </button>
+                <template v-if="professor.isActive !== false">
+                  <button 
+                    @click="openEditProfessorModal(professor)"
+                    class="w-full sm:w-auto inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    {{ $t('common.edit') }}
+                  </button>
+                  <button 
+                    @click="confirmDeleteProfessor(professor)"
+                    class="w-full sm:w-auto inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
+                    {{ $t('admin.deactivate') }}
+                  </button>
+                </template>
+                <template v-else>
+                  <button 
+                    @click="openEditProfessorModal(professor)"
+                    class="w-full sm:w-auto inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    {{ $t('common.edit') }}
+                  </button>
+                  <button 
+                    @click="confirmReactivateProfessor(professor)"
+                    class="w-full sm:w-auto inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  >
+                    {{ $t('admin.reactivate') }}
+                  </button>
+                </template>
               </div>
             </div>
           </li>
@@ -303,7 +348,7 @@
       </div>
     </div>
     
-    <!-- Delete Confirmation Modal -->
+    <!-- Deactivate Confirmation Modal -->
     <div v-if="showDeleteConfirmModal" class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 transition-opacity" aria-hidden="true" @click="cancelDelete"></div>
@@ -312,19 +357,18 @@
 
         <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6" style="box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.05);">
           <div>
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-              <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100">
+              <svg class="h-6 w-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
               </svg>
             </div>
             <div class="mt-3 text-center sm:mt-5">
               <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                {{ $t('admin.deleteProfessor') }}
+                {{ $t('admin.deactivateProfessor') }}
               </h3>
               <div class="mt-2">
                 <p class="text-sm text-gray-500">
-                  Tem certeza que deseja remover o professor <span class="font-semibold">{{ professorToDelete?.name }}</span>?
-                  Esta ação não pode ser desfeita.
+                  {{ $t('admin.deactivateProfessorMessage', { name: professorToDelete?.name }) }}
                 </p>
               </div>
             </div>
@@ -338,20 +382,20 @@
               type="button"
               @click="deleteProfessor"
               :disabled="isDeleting"
-              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:col-start-2 sm:text-sm"
+              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-yellow-600 text-base font-medium text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 sm:col-start-2 sm:text-sm"
             >
               <svg v-if="isDeleting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              {{ isDeleting ? $t('common.loading') : $t('common.remove') }}
+              {{ isDeleting ? $t('admin.deactivating') : $t('admin.deactivate') }}
             </button>
             <button
               type="button"
               @click="cancelDelete"
               class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm"
             >
-              Cancelar
+              {{ $t('common.cancel') }}
             </button>
           </div>
         </div>
@@ -490,6 +534,7 @@ const isDeleting = ref(false);
 const professorToDelete = ref(null);
 const searchQuery = ref('');
 const debouncedSearchQuery = ref('');
+const statusFilter = ref('active');
 
 // Data
 const professorsList = ref([]);
@@ -511,10 +556,13 @@ const confirmPassword = ref('');
 
 // Computed properties
 const companyName = computed(() => authStore.companyName || 'Carregando...');
+const activeProfessors = computed(() => professorsList.value.filter(p => p.isActive !== false));
+const inactiveProfessors = computed(() => professorsList.value.filter(p => p.isActive === false));
 
 // Sort professors alphabetically by name
 const sortedProfessorsList = computed(() => {
-  return [...professorsList.value].sort((a, b) => {
+  const base = statusFilter.value === 'active' ? activeProfessors.value : inactiveProfessors.value;
+  return [...base].sort((a, b) => {
     const nameA = (a.name || '').toLowerCase();
     const nameB = (b.name || '').toLowerCase();
     return nameA.localeCompare(nameB);
@@ -736,17 +784,45 @@ const deleteProfessor = async () => {
   error.value = '';
   
   try {
-    // Delete the professor from Firebase
     await authStore.deleteUser(professorToDelete.value.id);
     
-    // Remove from the local list
-    professorsList.value = professorsList.value.filter(p => p.id !== professorToDelete.value.id);
+    const index = professorsList.value.findIndex(p => p.id === professorToDelete.value.id);
+    if (index !== -1) {
+      professorsList.value[index] = { ...professorsList.value[index], isActive: false };
+    }
     
-    // Close the modal
     cancelDelete();
   } catch (err) {
-    console.error('Error deleting professor:', err);
-    error.value = 'Erro ao remover professor: ' + err.message;
+    console.error('Error deactivating professor:', err);
+    error.value = t('admin.errorDeactivating') + ': ' + err.message;
+  } finally {
+    isDeleting.value = false;
+  }
+};
+
+const confirmReactivateProfessor = (professor) => {
+  professorToDelete.value = professor;
+  reactivateProfessor();
+};
+
+const reactivateProfessor = async () => {
+  if (!professorToDelete.value) return;
+  
+  isDeleting.value = true;
+  error.value = '';
+  
+  try {
+    await authStore.reactivateUser(professorToDelete.value.id);
+    
+    const index = professorsList.value.findIndex(p => p.id === professorToDelete.value.id);
+    if (index !== -1) {
+      professorsList.value[index] = { ...professorsList.value[index], isActive: true };
+    }
+    
+    professorToDelete.value = null;
+  } catch (err) {
+    console.error('Error reactivating professor:', err);
+    error.value = t('admin.errorReactivating') + ': ' + err.message;
   } finally {
     isDeleting.value = false;
   }

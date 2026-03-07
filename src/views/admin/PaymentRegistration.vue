@@ -11,6 +11,9 @@
       <div class="mb-4 sm:mb-6">
         <Breadcrumb :items="breadcrumbItems" />
       </div>
+
+      <!-- Payment Sub-Navigation -->
+      <PaymentNav />
       
       <div class="bg-white shadow overflow-hidden sm:rounded-lg">
         <div class="px-4 py-4 sm:p-6">
@@ -179,6 +182,7 @@ import { useAuthStore } from '../../stores/auth';
 import { collection, query, where, getDocs, getDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import Breadcrumb from '@/components/Breadcrumb.vue';
+import PaymentNav from '@/components/admin/PaymentNav.vue';
 import { useCompanyCurrency } from '@/composables/useCompanyCurrency';
 
 const { t } = useI18n();
