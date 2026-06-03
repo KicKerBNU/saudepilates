@@ -93,14 +93,6 @@
         </div>
       </div>
 
-      <!-- Payment Success Message -->
-      <SuccessMessage 
-        :show="showPaymentSuccess"
-        :title="$t('admin.paymentSuccess')"
-        :message="$t('admin.paymentSuccessMessage')"
-        @dismiss="dismissPaymentSuccess"
-      />
-
       <!-- Recent Activity Section -->
       <RecentActivities />
 
@@ -134,7 +126,6 @@ import { useSubscriptionStore } from '../../stores/subscription';
 import Breadcrumb from '@/components/Breadcrumb.vue';
 import RecentActivities from '@/components/admin/RecentActivities.vue';
 import QuickActions from '@/components/admin/QuickActions.vue';
-import SuccessMessage from '@/components/admin/SuccessMessage.vue';
 import SubscriptionAlert from '@/components/admin/SubscriptionAlert.vue';
 import StatsCard from '@/components/admin/StatsCard.vue';
 
@@ -143,7 +134,6 @@ const route = useRoute();
 const router = useRouter();
 
 // Initialize stores
-const showPaymentSuccess = ref(false);
 const authStore = useAuthStore();
 const studentsStore = useStudentsStore();
 const professorsStore = useProfessorsStore();
@@ -177,22 +167,12 @@ const handleTouchEnd = () => {
   }
 };
 
-// Show success message if returning from successful payment registration
-if (route.query.paymentSuccess === 'true') {
-  showPaymentSuccess.value = true;
-}
 
 // Show success message if subscription was renewed
 if (route.query.subscriptionRenewed === 'true') {
   // Display a success toast or notification here
 }
 
-// Method to dismiss the payment success message
-const dismissPaymentSuccess = () => {
-  showPaymentSuccess.value = false;
-  // Update route without the query parameter
-  router.replace({ name: 'AdminDashboard' });
-};
 
 // Method to dismiss the subscription alert
 const dismissSubscriptionAlert = () => {

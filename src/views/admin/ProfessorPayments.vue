@@ -1,32 +1,8 @@
 <template>
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
-      <div class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+      <div class="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $t('admin.professorPaymentsTitle') }}</h1>
-        <div class="flex items-center space-x-3">
-          <span class="text-gray-600 text-sm">{{ currentMonthYear }}</span>
-          <div id="monthSelector" class="relative inline-block text-left">
-            <button @click="toggleMonthSelector" type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              {{ months[selectedMonth] }} {{ selectedYear }}
-              <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </button>
-            <div v-show="isMonthSelectorOpen" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-              <div class="py-1">
-                <button
-                  v-for="(month, index) in months"
-                  :key="index"
-                  @click="selectMonth(index)"
-                  class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                  :class="selectedMonth === index ? 'bg-indigo-100 text-indigo-900 font-medium' : 'text-gray-700'"
-                >
-                  {{ month }} {{ selectedYear }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </header>
 
@@ -141,8 +117,36 @@
         <!-- Payments Table -->
         <div class="bg-white shadow rounded-lg overflow-hidden">
           <div class="px-4 py-4 sm:px-6 sm:py-5 border-b border-gray-200">
-            <h3 class="text-base sm:text-lg font-medium text-gray-900">{{ $t('admin.commissionDetails') }}</h3>
-            <p class="mt-1 text-sm text-gray-500">{{ $t('admin.commissionDetailsDesc') }}</p>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <h3 class="text-base sm:text-lg font-medium text-gray-900">{{ $t('admin.commissionDetails') }}</h3>
+                <p class="mt-1 text-sm text-gray-500">{{ $t('admin.commissionDetailsDesc') }}</p>
+              </div>
+              <div id="monthSelector" class="relative inline-block text-left flex-shrink-0">
+                <button @click="toggleMonthSelector" type="button" class="inline-flex items-center justify-center rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  <svg class="h-4 w-4 mr-2 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  {{ months[selectedMonth] }} {{ selectedYear }}
+                  <svg class="-mr-1 ml-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+                <div v-show="isMonthSelectorOpen" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10 max-h-64 overflow-y-auto">
+                  <div class="py-1">
+                    <button
+                      v-for="(month, index) in months"
+                      :key="index"
+                      @click="selectMonth(index)"
+                      class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                      :class="selectedMonth === index ? 'bg-indigo-100 text-indigo-900 font-medium' : 'text-gray-700'"
+                    >
+                      {{ month }} {{ selectedYear }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div v-if="professorPaymentsForMonth.length === 0" class="text-center py-8">
@@ -360,11 +364,13 @@ const breadcrumbItems = computed(() => {
 
 const professorPaymentsForMonth = computed(() => {
   if (!selectedProfessorId.value) return [];
-  return allProfessorPayments.value.filter(p => {
-    if (p.professorId !== selectedProfessorId.value) return false;
-    const d = new Date(p.paymentDate);
-    return d.getMonth() === selectedMonth.value && d.getFullYear() === selectedYear.value;
-  });
+  return allProfessorPayments.value
+    .filter(p => {
+      if (p.professorId !== selectedProfessorId.value) return false;
+      const d = new Date(p.paymentDate);
+      return d.getMonth() === selectedMonth.value && d.getFullYear() === selectedYear.value;
+    })
+    .sort((a, b) => (a.studentName || '').localeCompare(b.studentName || ''));
 });
 
 const totalCommission = computed(() => {

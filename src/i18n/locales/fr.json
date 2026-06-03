@@ -458,7 +458,12 @@
     "deactivateProfessor": "Désactiver le Professeur",
     "deactivateProfessorMessage": "Êtes-vous sûr de vouloir désactiver le professeur {name} ? Il n'apparaîtra plus dans les listes actives, mais ses données et son historique seront préservés. Vous pourrez le réactiver à tout moment.",
     "errorDeactivating": "Erreur lors de la désactivation",
-    "errorReactivating": "Erreur lors de la réactivation"
+    "errorReactivating": "Erreur lors de la réactivation",
+    "paymentHistory": "Historique des Paiements",
+    "confirmDeletePayment": "Supprimer le Paiement",
+    "confirmDeletePaymentMessage": "Êtes-vous sûr de vouloir supprimer le paiement de {student} d'un montant de {amount} ? Cette action est irréversible.",
+    "paymentDeletedSuccess": "Paiement supprimé avec succès",
+    "paymentRegisteredSuccess": "Paiement enregistré avec succès"
   },
   "professor": {
     "professor": "Professeur",

@@ -152,7 +152,7 @@
         <ul v-else role="list" class="divide-y divide-gray-200">
           <li v-for="student in filteredAndSortedStudents" :key="student.id" class="px-4 py-4 sm:px-6 hover:bg-gray-50">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div class="min-w-0 flex-1">
+              <div class="min-w-0 flex-1 cursor-pointer" @click="openPaymentHistory(student)">
                 <div class="flex items-center">
                   <div class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gray-200 flex items-center justify-center">
                     <svg class="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -160,7 +160,7 @@
                     </svg>
                   </div>
                   <div class="ml-3 sm:ml-4">
-                    <h4 class="text-base sm:text-lg font-medium" :class="student.isActive === false ? 'text-gray-400' : 'text-gray-900'">
+                    <h4 class="text-base sm:text-lg font-medium hover:text-indigo-600 transition-colors" :class="student.isActive === false ? 'text-gray-400' : 'text-gray-900'">
                       {{ student.name }}
                       <span v-if="student.isActive === false" class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-500">{{ $t('admin.inactive') }}</span>
                     </h4>
@@ -583,6 +583,136 @@
         </div>
       </div>
     </div>
+
+    <!-- Payment History Modal -->
+    <div v-if="showPaymentHistoryModal" class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closePaymentHistory"></div>
+
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full" style="box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.05);">
+          <!-- Header -->
+          <div class="px-4 py-4 sm:px-6 sm:py-5 border-b border-gray-200 flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-medium text-gray-900">{{ $t('admin.paymentHistory') }}</h3>
+              <p class="mt-1 text-sm text-gray-500">{{ paymentHistoryStudent?.name }}</p>
+            </div>
+            <button @click="closePaymentHistory" class="text-gray-400 hover:text-gray-500">
+              <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Content -->
+          <div class="px-4 py-4 sm:px-6 max-h-96 overflow-y-auto">
+            <!-- Loading -->
+            <div v-if="loadingPayments" class="text-center py-8">
+              <svg class="animate-spin h-8 w-8 mx-auto text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+
+            <!-- Empty -->
+            <div v-else-if="paymentHistoryList.length === 0" class="text-center py-8">
+              <svg class="mx-auto h-10 w-10 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+              <p class="mt-2 text-sm text-gray-500">{{ $t('admin.noPaymentsFound') }}</p>
+            </div>
+
+            <!-- Payment List -->
+            <ul v-else class="divide-y divide-gray-200">
+              <li v-for="payment in paymentHistoryList" :key="payment.id" class="py-3 flex items-center justify-between gap-3">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-green-50 text-green-700">
+                      {{ currency }} {{ formatCurrency(payment.finalAmount || payment.amount || 0) }}
+                    </span>
+                    <span class="text-sm text-gray-500">{{ formatDate(payment.paymentDate) }}</span>
+                  </div>
+                  <p v-if="payment.paymentPeriod" class="mt-1 text-xs text-gray-400">{{ payment.paymentPeriod }}</p>
+                </div>
+                <button
+                  @click.stop="confirmDeletePayment(payment)"
+                  :disabled="deletingPaymentId === payment.id"
+                  class="flex-shrink-0 inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                >
+                  <svg v-if="deletingPaymentId === payment.id" class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <svg v-else class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Footer -->
+          <div class="px-4 py-3 sm:px-6 border-t border-gray-200 bg-gray-50 flex justify-end">
+            <button
+              @click="closePaymentHistory"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            >
+              {{ $t('common.close') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Payment Confirmation Modal -->
+    <div v-if="showDeletePaymentConfirm" class="fixed z-50 inset-0 overflow-y-auto" aria-labelledby="delete-modal-title" role="dialog" aria-modal="true">
+      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-black/50 transition-opacity" @click="cancelDeletePayment"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="sm:flex sm:items-start">
+              <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                <h3 class="text-lg leading-6 font-medium text-gray-900" id="delete-modal-title">{{ $t('admin.confirmDeletePayment') }}</h3>
+                <div class="mt-2">
+                  <p class="text-sm text-gray-500">
+                    {{ $t('admin.confirmDeletePaymentMessage', { student: paymentHistoryStudent?.name, amount: `${currency} ${formatCurrency(paymentToDelete?.finalAmount || paymentToDelete?.amount || 0)}` }) }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button
+              type="button"
+              @click="executeDeletePayment"
+              :disabled="deletingPaymentId !== null"
+              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+            >
+              <svg v-if="deletingPaymentId !== null" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ $t('common.confirm') }}
+            </button>
+            <button
+              type="button"
+              @click="cancelDeletePayment"
+              :disabled="deletingPaymentId !== null"
+              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+            >
+              {{ $t('common.cancel') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -591,12 +721,20 @@ import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
+import { usePaymentsStore } from '../../stores/payments';
+import { useCompanyCurrency } from '@/composables/useCompanyCurrency';
+import { useToast } from '@/composables/useToast';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '@/firebase/config';
 import Breadcrumb from '@/components/Breadcrumb.vue';
 
 const { t } = useI18n();
+const { currency, formatCurrency, currencyLocale } = useCompanyCurrency();
+const { showSuccess } = useToast();
 
 const router = useRouter();
 const authStore = useAuthStore();
+const paymentsStore = usePaymentsStore();
 const route = useRoute();
 
 // Special value for students who work with rotation (multiple professors)
@@ -1009,5 +1147,79 @@ const registerStudent = async () => {
   } finally {
     isCreating.value = false;
   }
+};
+
+// Payment History
+const showPaymentHistoryModal = ref(false);
+const paymentHistoryStudent = ref(null);
+const paymentHistoryList = ref([]);
+const loadingPayments = ref(false);
+const deletingPaymentId = ref(null);
+
+const openPaymentHistory = async (student) => {
+  paymentHistoryStudent.value = student;
+  showPaymentHistoryModal.value = true;
+  loadingPayments.value = true;
+  try {
+    const authStore2 = useAuthStore();
+    const paymentsQuery = query(
+      collection(db, 'studentPayments'),
+      where('companyId', '==', authStore2.companyId),
+      where('studentId', '==', student.id)
+    );
+    const snapshot = await getDocs(paymentsQuery);
+    const payments = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      paymentDate: doc.data().paymentDate?.toDate?.() ? doc.data().paymentDate.toDate().toISOString() : doc.data().paymentDate
+    }));
+    payments.sort((a, b) => new Date(b.paymentDate) - new Date(a.paymentDate));
+    paymentHistoryList.value = payments;
+  } catch (err) {
+    console.error('Error fetching payment history:', err);
+    paymentHistoryList.value = [];
+  } finally {
+    loadingPayments.value = false;
+  }
+};
+
+const closePaymentHistory = () => {
+  showPaymentHistoryModal.value = false;
+  paymentHistoryStudent.value = null;
+  paymentHistoryList.value = [];
+};
+
+const showDeletePaymentConfirm = ref(false);
+const paymentToDelete = ref(null);
+
+const confirmDeletePayment = (payment) => {
+  paymentToDelete.value = payment;
+  showDeletePaymentConfirm.value = true;
+};
+
+const cancelDeletePayment = () => {
+  showDeletePaymentConfirm.value = false;
+  paymentToDelete.value = null;
+};
+
+const executeDeletePayment = async () => {
+  if (!paymentToDelete.value) return;
+  deletingPaymentId.value = paymentToDelete.value.id;
+  try {
+    await paymentsStore.deleteStudentPayment(paymentToDelete.value.id);
+    paymentHistoryList.value = paymentHistoryList.value.filter(p => p.id !== paymentToDelete.value.id);
+    showDeletePaymentConfirm.value = false;
+    showSuccess(t('admin.paymentDeletedSuccess'));
+    paymentToDelete.value = null;
+  } catch (err) {
+    console.error('Error deleting payment:', err);
+  } finally {
+    deletingPaymentId.value = null;
+  }
+};
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat(currencyLocale.value, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
 };
 </script>

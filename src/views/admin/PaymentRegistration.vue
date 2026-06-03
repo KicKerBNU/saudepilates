@@ -28,12 +28,12 @@
                     id="student"
                     v-model="selectedStudentId"
                     @change="loadStudentDetails"
-                    class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3"
+                    class="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm pl-4 pr-12 py-3 appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%236b7280%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat"
                     required
                     :disabled="loading"
                   >
                     <option value="">Selecione um aluno</option>
-                    <option v-for="student in students" :key="student.id" :value="student.id">
+                    <option v-for="student in availableStudents" :key="student.id" :value="student.id">
                       {{ student.name || `${student.firstName} ${student.lastName}` }}
                     </option>
                   </select>
@@ -184,6 +184,7 @@ import { db } from '../../firebase/config';
 import Breadcrumb from '@/components/Breadcrumb.vue';
 import PaymentNav from '@/components/admin/PaymentNav.vue';
 import { useCompanyCurrency } from '@/composables/useCompanyCurrency';
+import { useToast } from '@/composables/useToast';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -193,11 +194,13 @@ const professorsStore = useProfessorsStore();
 const paymentsStore = usePaymentsStore();
 const authStore = useAuthStore();
 const { currency, formatCurrency } = useCompanyCurrency();
+const { showSuccess } = useToast();
 
 // State
 const loading = ref(false);
 const students = ref([]);
 const professors = ref([]);
+const currentMonthPayments = ref([]);
 const selectedStudentId = ref('');
 const selectedStudent = ref(null);
 const professorName = ref('');
@@ -278,6 +281,29 @@ const canSubmit = computed(() => {
          selectedStudent.value.plan && 
          paymentData.value.paymentDate && 
          finalAmount.value > 0;
+});
+
+const availableStudents = computed(() => {
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  const paidStudentIds = new Set(
+    currentMonthPayments.value
+      .filter(p => {
+        const d = new Date(p.paymentDate);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      })
+      .map(p => p.studentId)
+  );
+
+  return students.value
+    .filter(s => !paidStudentIds.has(s.id))
+    .sort((a, b) => {
+      const nameA = (a.name || `${a.firstName || ''} ${a.lastName || ''}`).toLowerCase();
+      const nameB = (b.name || `${b.firstName || ''} ${b.lastName || ''}`).toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
 });
 
 // Methods
@@ -537,8 +563,8 @@ const registerPayment = async () => {
       await paymentsStore.addProfessorPayment(professorPayment);
     }
     
-    // Redirect back to admin dashboard with success message
-    router.push({ path: '/admin', query: { paymentSuccess: 'true' } });
+    showSuccess(t('admin.paymentRegisteredSuccess'));
+    router.push({ path: '/admin' });
   } catch (error) {
     console.error('Error registering payment:', error);
     window.showErrorToast?.('Erro ao registrar pagamento: ' + error.message);
@@ -579,10 +605,13 @@ onMounted(async () => {
       await loadStudentDetails();
     }
     
-    // Load students and professors in parallel
+    // Load students, professors, and current month payments in parallel
     await Promise.all([
       fetchStudents(),
-      fetchProfessors()
+      fetchProfessors(),
+      paymentsStore.fetchStudentPayments().then(payments => {
+        currentMonthPayments.value = payments;
+      })
     ]);
     
   } catch (error) {
