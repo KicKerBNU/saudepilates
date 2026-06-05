@@ -15,6 +15,74 @@ import {
 import { db } from '../firebase/config';
 import { useAuthStore } from './auth';
 
+const toDate = (val) => {
+  if (!val) return null;
+  if (typeof val.toDate === 'function') return val.toDate();
+  return new Date(val);
+};
+
+const isSameDay = (dateA, dateB) => {
+  const a = toDate(dateA);
+  const b = toDate(dateB);
+  if (!a || !b || Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return false;
+  return a.toDateString() === b.toDateString();
+};
+
+const getStudentPaymentAmount = (payment) => payment.finalAmount ?? payment.amount ?? 0;
+
+const fetchCompanyStudentPayments = async (companyId) => {
+  const paymentsQuery = query(
+    collection(db, 'studentPayments'),
+    where('companyId', '==', companyId)
+  );
+  const snapshot = await getDocs(paymentsQuery);
+
+  return snapshot.docs.map(docSnap => ({
+    id: docSnap.id,
+    ...docSnap.data(),
+    paymentDate: docSnap.data().paymentDate?.toDate?.()
+      ? docSnap.data().paymentDate.toDate().toISOString()
+      : docSnap.data().paymentDate
+  }));
+};
+
+export const filterActiveProfessorPayments = (professorPayments, studentPayments) => {
+  const available = [...studentPayments].sort((a, b) => {
+    const aTime = toDate(a.createdAt)?.getTime() || toDate(a.paymentDate)?.getTime() || 0;
+    const bTime = toDate(b.createdAt)?.getTime() || toDate(b.paymentDate)?.getTime() || 0;
+    return aTime - bTime;
+  });
+
+  const sortedProfessorPayments = [...professorPayments].sort((a, b) => {
+    const aTime = toDate(a.createdAt)?.getTime() || toDate(a.paymentDate)?.getTime() || 0;
+    const bTime = toDate(b.createdAt)?.getTime() || toDate(b.paymentDate)?.getTime() || 0;
+    return aTime - bTime;
+  });
+
+  const active = [];
+
+  for (const professorPayment of sortedProfessorPayments) {
+    let matchIdx = -1;
+
+    if (professorPayment.studentPaymentId) {
+      matchIdx = available.findIndex(studentPayment => studentPayment.id === professorPayment.studentPaymentId);
+    } else {
+      matchIdx = available.findIndex(studentPayment =>
+        studentPayment.studentId === professorPayment.studentId &&
+        isSameDay(studentPayment.paymentDate, professorPayment.paymentDate) &&
+        getStudentPaymentAmount(studentPayment) === professorPayment.originalStudentPayment
+      );
+    }
+
+    if (matchIdx >= 0) {
+      active.push(professorPayment);
+      available.splice(matchIdx, 1);
+    }
+  }
+
+  return active;
+};
+
 export const usePaymentsStore = defineStore('payments', {
   state: () => ({
     studentPayments: [],
@@ -223,6 +291,56 @@ export const usePaymentsStore = defineStore('payments', {
       }
     },
     
+    async deleteLinkedProfessorPayments(studentPayment) {
+      const authStore = useAuthStore();
+
+      if (!authStore.companyId || !studentPayment?.studentId) {
+        return;
+      }
+
+      const linkedPaymentsQuery = query(
+        collection(db, 'professorPayments'),
+        where('companyId', '==', authStore.companyId),
+        where('studentId', '==', studentPayment.studentId)
+      );
+      const snapshot = await getDocs(linkedPaymentsQuery);
+
+      let candidates = snapshot.docs;
+
+      const linkedByStudentPaymentId = candidates.filter(
+        docSnap => docSnap.data().studentPaymentId === studentPayment.id
+      );
+
+      if (linkedByStudentPaymentId.length > 0) {
+        candidates = linkedByStudentPaymentId;
+      } else {
+        const studentAmount = getStudentPaymentAmount(studentPayment);
+        candidates = candidates.filter(docSnap => {
+          const data = docSnap.data();
+          if (data.studentPaymentId) return false;
+          return isSameDay(data.paymentDate, studentPayment.paymentDate) &&
+            data.originalStudentPayment === studentAmount;
+        });
+      }
+
+      if (candidates.length === 0) {
+        return;
+      }
+
+      const studentCreatedAt = toDate(studentPayment.createdAt)?.getTime() || 0;
+      candidates.sort((a, b) => {
+        const aTime = toDate(a.data().createdAt)?.getTime() || 0;
+        const bTime = toDate(b.data().createdAt)?.getTime() || 0;
+        return Math.abs(aTime - studentCreatedAt) - Math.abs(bTime - studentCreatedAt);
+      });
+
+      const linkedProfessorPaymentId = candidates[0].id;
+      await deleteDoc(doc(db, 'professorPayments', linkedProfessorPaymentId));
+      this.professorPayments = this.professorPayments.filter(
+        payment => payment.id !== linkedProfessorPaymentId
+      );
+    },
+
     async deleteStudentPayment(paymentId) {
       this.loading = true;
       this.error = null;
@@ -233,8 +351,21 @@ export const usePaymentsStore = defineStore('payments', {
         if (!authStore.isAdmin) {
           throw new Error('Only admins can delete payments');
         }
-        
-        await deleteDoc(doc(db, 'studentPayments', paymentId));
+
+        const paymentRef = doc(db, 'studentPayments', paymentId);
+        const paymentSnap = await getDoc(paymentRef);
+
+        if (!paymentSnap.exists()) {
+          throw new Error('Payment not found');
+        }
+
+        const studentPayment = {
+          id: paymentSnap.id,
+          ...paymentSnap.data()
+        };
+
+        await this.deleteLinkedProfessorPayments(studentPayment);
+        await deleteDoc(paymentRef);
         
         // Remove from local state
         this.studentPayments = this.studentPayments.filter(payment => payment.id !== paymentId);
@@ -261,7 +392,13 @@ export const usePaymentsStore = defineStore('payments', {
             where('professorId', '==', professorId)
           );
         } else if (authStore.isAdmin) {
-          paymentsQuery = query(collection(db, 'professorPayments'));
+          if (!authStore.companyId) {
+            return [];
+          }
+          paymentsQuery = query(
+            collection(db, 'professorPayments'),
+            where('companyId', '==', authStore.companyId)
+          );
         } else if (authStore.isProfessor) {
           paymentsQuery = query(
             collection(db, 'professorPayments'),
@@ -278,7 +415,7 @@ export const usePaymentsStore = defineStore('payments', {
           if (typeof val === 'string') return val;
           return new Date(val).toISOString();
         };
-        this.professorPayments = snapshot.docs.map(docSnap => {
+        const professorPayments = snapshot.docs.map(docSnap => {
           const data = docSnap.data();
           return {
             id: docSnap.id,
@@ -286,6 +423,11 @@ export const usePaymentsStore = defineStore('payments', {
             paymentDate: toDateString(data.paymentDate)
           };
         });
+
+        const studentPayments = authStore.companyId
+          ? await fetchCompanyStudentPayments(authStore.companyId)
+          : [];
+        this.professorPayments = filterActiveProfessorPayments(professorPayments, studentPayments);
         this.professorPayments.sort((a, b) => new Date(b.paymentDate) - new Date(a.paymentDate));
 
         return this.professorPayments;

@@ -545,13 +545,14 @@ const registerPayment = async () => {
     };
     
     // Register student payment
-    await paymentsStore.addStudentPayment(paymentToSave);
+    const savedStudentPayment = await paymentsStore.addStudentPayment(paymentToSave);
     
     // Also create a professor payment record if there's a professor assigned
     if (selectedStudent.value.professorId && commissionAmount.value > 0) {
       const professorPayment = {
         professorId: selectedStudent.value.professorId,
         studentId: selectedStudent.value.id,
+        studentPaymentId: savedStudentPayment.id,
         planId: selectedStudent.value.planId,
         paymentDate: paymentData.value.paymentDate,
         amount: paymentData.value.commissionAmount,
