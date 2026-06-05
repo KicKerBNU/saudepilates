@@ -217,7 +217,7 @@ const fetchStudents = async () => {
   try {
     // Use authStore to get students for the current company
     const students = await authStore.getUsersByCompany('student');
-    totalStudents.value = students.length;
+    totalStudents.value = students.filter(student => student.isActive !== false).length;
     loadingStudents.value = false;
   } catch (error) {
     console.error('Error fetching students:', error);

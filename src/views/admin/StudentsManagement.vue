@@ -38,7 +38,6 @@
               </dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {{ activeStudents.length }}
-                <span v-if="inactiveStudents.length > 0" class="ml-2 text-xs text-gray-400">({{ inactiveStudents.length }} {{ $t('admin.inactiveCount') }})</span>
               </dd>
             </div>
           </dl>
