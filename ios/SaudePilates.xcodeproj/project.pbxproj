@@ -1,0 +1,516 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0C522AC2F0225B679F82A167 /* ScheduleAndAnamnesisViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5097640D0A2341AE6300F370 /* ScheduleAndAnamnesisViews.swift */; };
+		0F93765F0409836A917CEDEE /* ProfessorRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6A9F3235DE8826F338C98B /* ProfessorRootView.swift */; };
+		2C7FAD0A08B1ED385C6F3705 /* FirebaseSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 628A889B166CB27F572BBE46 /* FirebaseSetupView.swift */; };
+		2FA59F2642CDC92B048CF757 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = D1C2668A66270BDD1A3E1FBF /* FirebaseFirestore */; };
+		426221C561361D1E97C00476 /* DateHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E14BA634E4756B2990D632 /* DateHelpers.swift */; };
+		4E64C194AF2CB28F5DC7FEF7 /* SaudePilatesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E1402C73C21251FAF24971F /* SaudePilatesApp.swift */; };
+		55F40C07FACF2AF1E9616A5A /* ToastManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7754ACE54902BB93BCE3766F /* ToastManager.swift */; };
+		561C67019C0FA5BBF5B5CEAD /* ScheduleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9C706126BA422611BC6D00 /* ScheduleService.swift */; };
+		58114D98376F7C7D89CE4DC2 /* ProfessorsViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D000DBC1E567AF27384891B /* ProfessorsViews.swift */; };
+		5A55D0F7C52489A33AAF0F28 /* AdminDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1285546752B8A922538231D1 /* AdminDashboardView.swift */; };
+		6497DB40777F464498EE9780 /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85C6E1FD4380A34F6C72F281 /* CurrencyFormatter.swift */; };
+		6896B62465740842C95B601F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A4FF85E712D569DCF4B28AC5 /* GoogleService-Info.plist */; };
+		77D4A2DBA5B90B53810CD38D /* PaymentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBA9D56F8BB09B030A30C15D /* PaymentService.swift */; };
+		872B989AD7F25FCFCEB190D8 /* PaymentsViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC17692DE019D1638E8EC04 /* PaymentsViews.swift */; };
+		9F71496C806252AE5D418084 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E855A342B8D4107E8B4B80A /* LoginView.swift */; };
+		AA9D21E82EB5ADF6B8F3F248 /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A460B4923705BD26FA2D5F /* UserService.swift */; };
+		BEC859795DE048F051EBD718 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CDD54192BAF1AE5317A2608 /* AuthService.swift */; };
+		C856141CE4928D7C5D91B61D /* StudentRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45862E5A3C07C20035BDAD70 /* StudentRootView.swift */; };
+		C8A6FCCABB0782E101AAEBD0 /* FirebaseConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAFB687190A73D33DD23762 /* FirebaseConfiguration.swift */; };
+		C9ED5B309A7117CC2E75DBE6 /* ToastBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CEA0950EFFE5D91CD33969B /* ToastBannerView.swift */; };
+		CBF7B76C8FF109D3D597C559 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F434081E90C16D94F980421D /* ContentView.swift */; };
+		CD3968E50F92D183A10F4D69 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 64E4684362530F143AB5A45E /* FirebaseAuth */; };
+		D9777FE7F06043325A1F9917 /* AdminRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0CE08366F77261AB1DDE88F /* AdminRootView.swift */; };
+		E2EF944AF331630A68A0B4C6 /* AppModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D216E77EB46DE11951D448E /* AppModels.swift */; };
+		FEFDE654405EB0FA6CB4B7E9 /* StudentsViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48FC7326854458E4F2258D72 /* StudentsViews.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1285546752B8A922538231D1 /* AdminDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminDashboardView.swift; sourceTree = "<group>"; };
+		22781C09D994F6A4851E6844 /* SaudePilates.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SaudePilates.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3BAFB687190A73D33DD23762 /* FirebaseConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseConfiguration.swift; sourceTree = "<group>"; };
+		3E855A342B8D4107E8B4B80A /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		45862E5A3C07C20035BDAD70 /* StudentRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudentRootView.swift; sourceTree = "<group>"; };
+		48FC7326854458E4F2258D72 /* StudentsViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudentsViews.swift; sourceTree = "<group>"; };
+		4E1402C73C21251FAF24971F /* SaudePilatesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaudePilatesApp.swift; sourceTree = "<group>"; };
+		5097640D0A2341AE6300F370 /* ScheduleAndAnamnesisViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleAndAnamnesisViews.swift; sourceTree = "<group>"; };
+		5D216E77EB46DE11951D448E /* AppModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModels.swift; sourceTree = "<group>"; };
+		628A889B166CB27F572BBE46 /* FirebaseSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseSetupView.swift; sourceTree = "<group>"; };
+		65E14BA634E4756B2990D632 /* DateHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateHelpers.swift; sourceTree = "<group>"; };
+		6CEA0950EFFE5D91CD33969B /* ToastBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastBannerView.swift; sourceTree = "<group>"; };
+		7754ACE54902BB93BCE3766F /* ToastManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastManager.swift; sourceTree = "<group>"; };
+		7A6A9F3235DE8826F338C98B /* ProfessorRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfessorRootView.swift; sourceTree = "<group>"; };
+		7CDD54192BAF1AE5317A2608 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		85C6E1FD4380A34F6C72F281 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
+		9D000DBC1E567AF27384891B /* ProfessorsViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfessorsViews.swift; sourceTree = "<group>"; };
+		A4FF85E712D569DCF4B28AC5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		ABC17692DE019D1638E8EC04 /* PaymentsViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentsViews.swift; sourceTree = "<group>"; };
+		CB9C706126BA422611BC6D00 /* ScheduleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleService.swift; sourceTree = "<group>"; };
+		D0CE08366F77261AB1DDE88F /* AdminRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminRootView.swift; sourceTree = "<group>"; };
+		E9A460B4923705BD26FA2D5F /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
+		EBA9D56F8BB09B030A30C15D /* PaymentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentService.swift; sourceTree = "<group>"; };
+		F434081E90C16D94F980421D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		F8F67B99DAF1E46BFF79A5A4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CD9AB71627CC5C08BD81D344 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CD3968E50F92D183A10F4D69 /* FirebaseAuth in Frameworks */,
+				2FA59F2642CDC92B048CF757 /* FirebaseFirestore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		039E779058D8B4D4F26E8E3C /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				7CDD54192BAF1AE5317A2608 /* AuthService.swift */,
+				EBA9D56F8BB09B030A30C15D /* PaymentService.swift */,
+				CB9C706126BA422611BC6D00 /* ScheduleService.swift */,
+				E9A460B4923705BD26FA2D5F /* UserService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		20A807FA1823623789A5185C /* Professor */ = {
+			isa = PBXGroup;
+			children = (
+				7A6A9F3235DE8826F338C98B /* ProfessorRootView.swift */,
+			);
+			path = Professor;
+			sourceTree = "<group>";
+		};
+		49E5B242AF79CC6BEE2374A7 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				3E855A342B8D4107E8B4B80A /* LoginView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		5CD856895C717C61BD29B41F /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				85C6E1FD4380A34F6C72F281 /* CurrencyFormatter.swift */,
+				65E14BA634E4756B2990D632 /* DateHelpers.swift */,
+				3BAFB687190A73D33DD23762 /* FirebaseConfiguration.swift */,
+				7754ACE54902BB93BCE3766F /* ToastManager.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		883ED398791F819415788A4B /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				628A889B166CB27F572BBE46 /* FirebaseSetupView.swift */,
+				6CEA0950EFFE5D91CD33969B /* ToastBannerView.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		8841DBB073836957E1AFB04F /* SaudePilates */ = {
+			isa = PBXGroup;
+			children = (
+				A4FF85E712D569DCF4B28AC5 /* GoogleService-Info.plist */,
+				F8F67B99DAF1E46BFF79A5A4 /* Info.plist */,
+				4E1402C73C21251FAF24971F /* SaudePilatesApp.swift */,
+				DC59BD93F85F37457CC772C8 /* Models */,
+				039E779058D8B4D4F26E8E3C /* Services */,
+				5CD856895C717C61BD29B41F /* Utilities */,
+				DCBC925520BAE9193BA48B9D /* Views */,
+			);
+			path = SaudePilates;
+			sourceTree = "<group>";
+		};
+		98BEB1E72560D27DAB9EFB43 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				22781C09D994F6A4851E6844 /* SaudePilates.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A9F8AECB91290C8FBF944B2E /* Student */ = {
+			isa = PBXGroup;
+			children = (
+				45862E5A3C07C20035BDAD70 /* StudentRootView.swift */,
+			);
+			path = Student;
+			sourceTree = "<group>";
+		};
+		AF667C632DC634C792F7796D /* Admin */ = {
+			isa = PBXGroup;
+			children = (
+				1285546752B8A922538231D1 /* AdminDashboardView.swift */,
+				D0CE08366F77261AB1DDE88F /* AdminRootView.swift */,
+				ABC17692DE019D1638E8EC04 /* PaymentsViews.swift */,
+				9D000DBC1E567AF27384891B /* ProfessorsViews.swift */,
+				5097640D0A2341AE6300F370 /* ScheduleAndAnamnesisViews.swift */,
+				48FC7326854458E4F2258D72 /* StudentsViews.swift */,
+			);
+			path = Admin;
+			sourceTree = "<group>";
+		};
+		B873E04EAF69AF77E284B5A9 = {
+			isa = PBXGroup;
+			children = (
+				8841DBB073836957E1AFB04F /* SaudePilates */,
+				98BEB1E72560D27DAB9EFB43 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DC59BD93F85F37457CC772C8 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				5D216E77EB46DE11951D448E /* AppModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		DCBC925520BAE9193BA48B9D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F434081E90C16D94F980421D /* ContentView.swift */,
+				AF667C632DC634C792F7796D /* Admin */,
+				49E5B242AF79CC6BEE2374A7 /* Auth */,
+				20A807FA1823623789A5185C /* Professor */,
+				883ED398791F819415788A4B /* Shared */,
+				A9F8AECB91290C8FBF944B2E /* Student */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FBBAED402A9D3406CF7CADD6 /* SaudePilates */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3A4E5F8AFA036C6BBAD5721C /* Build configuration list for PBXNativeTarget "SaudePilates" */;
+			buildPhases = (
+				D5AB117E3005CD5612131D80 /* Sources */,
+				19CFA59F0EDFC0D20EA085D5 /* Resources */,
+				CD9AB71627CC5C08BD81D344 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SaudePilates;
+			packageProductDependencies = (
+				64E4684362530F143AB5A45E /* FirebaseAuth */,
+				D1C2668A66270BDD1A3E1FBF /* FirebaseFirestore */,
+			);
+			productName = SaudePilates;
+			productReference = 22781C09D994F6A4851E6844 /* SaudePilates.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		627CFF5C3BC6F787A1B74E36 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2640;
+				TargetAttributes = {
+					FBBAED402A9D3406CF7CADD6 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 4AD6FCF102DDD6A2F410F8FB /* Build configuration list for PBXProject "SaudePilates" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = B873E04EAF69AF77E284B5A9;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2608B95737BB270D8725DB39 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 98BEB1E72560D27DAB9EFB43 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FBBAED402A9D3406CF7CADD6 /* SaudePilates */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		19CFA59F0EDFC0D20EA085D5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6896B62465740842C95B601F /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D5AB117E3005CD5612131D80 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A55D0F7C52489A33AAF0F28 /* AdminDashboardView.swift in Sources */,
+				D9777FE7F06043325A1F9917 /* AdminRootView.swift in Sources */,
+				E2EF944AF331630A68A0B4C6 /* AppModels.swift in Sources */,
+				BEC859795DE048F051EBD718 /* AuthService.swift in Sources */,
+				CBF7B76C8FF109D3D597C559 /* ContentView.swift in Sources */,
+				6497DB40777F464498EE9780 /* CurrencyFormatter.swift in Sources */,
+				426221C561361D1E97C00476 /* DateHelpers.swift in Sources */,
+				C8A6FCCABB0782E101AAEBD0 /* FirebaseConfiguration.swift in Sources */,
+				2C7FAD0A08B1ED385C6F3705 /* FirebaseSetupView.swift in Sources */,
+				9F71496C806252AE5D418084 /* LoginView.swift in Sources */,
+				77D4A2DBA5B90B53810CD38D /* PaymentService.swift in Sources */,
+				872B989AD7F25FCFCEB190D8 /* PaymentsViews.swift in Sources */,
+				0F93765F0409836A917CEDEE /* ProfessorRootView.swift in Sources */,
+				58114D98376F7C7D89CE4DC2 /* ProfessorsViews.swift in Sources */,
+				4E64C194AF2CB28F5DC7FEF7 /* SaudePilatesApp.swift in Sources */,
+				0C522AC2F0225B679F82A167 /* ScheduleAndAnamnesisViews.swift in Sources */,
+				561C67019C0FA5BBF5B5CEAD /* ScheduleService.swift in Sources */,
+				C856141CE4928D7C5D91B61D /* StudentRootView.swift in Sources */,
+				FEFDE654405EB0FA6CB4B7E9 /* StudentsViews.swift in Sources */,
+				C9ED5B309A7117CC2E75DBE6 /* ToastBannerView.swift in Sources */,
+				55F40C07FACF2AF1E9616A5A /* ToastManager.swift in Sources */,
+				AA9D21E82EB5ADF6B8F3F248 /* UserService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4D7EAC72B507904FC695ECBD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 53K55422K6;
+				INFOPLIST_FILE = SaudePilates/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.saudepilates.app;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		96A53BE0A1DF2DA5BB6BD06B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		CEF0F03DAAA81199134CB9ED /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 53K55422K6;
+				INFOPLIST_FILE = SaudePilates/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.saudepilates.app;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E6C52D258E970A148491D47C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3A4E5F8AFA036C6BBAD5721C /* Build configuration list for PBXNativeTarget "SaudePilates" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4D7EAC72B507904FC695ECBD /* Debug */,
+				CEF0F03DAAA81199134CB9ED /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4AD6FCF102DDD6A2F410F8FB /* Build configuration list for PBXProject "SaudePilates" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E6C52D258E970A148491D47C /* Debug */,
+				96A53BE0A1DF2DA5BB6BD06B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2608B95737BB270D8725DB39 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		64E4684362530F143AB5A45E /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2608B95737BB270D8725DB39 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		D1C2668A66270BDD1A3E1FBF /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2608B95737BB270D8725DB39 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 627CFF5C3BC6F787A1B74E36 /* Project object */;
+}

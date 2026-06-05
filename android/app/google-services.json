@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "311012649134",
+    "project_id": "saudepilates-170df",
+    "storage_bucket": "saudepilates-170df.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:311012649134:android:537141f6e7df81e483e53f",
+        "android_client_info": {
+          "package_name": "com.saudepilates.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "311012649134-dbb9rjmqbt9hvs27vab9fcs1qkgsgf18.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBe-QQRdRyOYUyeDq48u8nA52spSXSd-oY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "311012649134-dbb9rjmqbt9hvs27vab9fcs1qkgsgf18.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "311012649134-c3umehj4e7ghvkqqepmhuj5ot0baq3v6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.saudepilates.app"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:311012649134:android:d1fb4b84cdb8b96083e53f",
+        "android_client_info": {
+          "package_name": "om.saudepilates.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "311012649134-dbb9rjmqbt9hvs27vab9fcs1qkgsgf18.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBe-QQRdRyOYUyeDq48u8nA52spSXSd-oY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "311012649134-dbb9rjmqbt9hvs27vab9fcs1qkgsgf18.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "311012649134-c3umehj4e7ghvkqqepmhuj5ot0baq3v6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.saudepilates.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
