@@ -27,7 +27,33 @@
               </svg>
             </button>
           </div>
-          <div class="flex items-center gap-4">
+          <div class="flex flex-wrap items-end gap-4">
+            <!-- View mode -->
+            <div>
+              <span class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin.scheduleViewMode') }}</span>
+              <div class="inline-flex rounded-lg border border-gray-300 bg-white p-1 shadow-sm">
+                <button
+                  type="button"
+                  :class="[
+                    'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                    viewMode === 'cards' ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:text-gray-900'
+                  ]"
+                  @click="setViewMode('cards')"
+                >
+                  {{ $t('admin.scheduleViewCards') }}
+                </button>
+                <button
+                  type="button"
+                  :class="[
+                    'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                    viewMode === 'stacked' ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:text-gray-900'
+                  ]"
+                  @click="setViewMode('stacked')"
+                >
+                  {{ $t('admin.scheduleViewStacked') }}
+                </button>
+              </div>
+            </div>
             <!-- Student Filter -->
             <div class="w-full sm:w-64">
               <label for="studentFilter" class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin.filterByStudent') }}</label>
@@ -95,80 +121,114 @@
               v-for="(day, index) in weekDays" 
               :key="index" 
               :class="[
-                'min-h-[300px] p-3 relative',
+                'p-3 relative',
+                viewMode === 'cards' ? 'min-h-[300px]' : 'min-h-[220px]',
                 { 'bg-indigo-50': day.isToday },
                 { 'bg-white': !day.isToday && index !== 0 && index !== 6 },
                 { 'bg-red-50': !day.isToday && (index === 0 || index === 6) }
               ]"
               @click="handleEmptySpaceClick(day.date, $event)"
             >
-              <!-- Appointments for this day -->
-              <div class="space-y-2 overflow-y-auto pr-1 h-full">
-                <div 
+              <div class="space-y-2 overflow-y-auto pr-1 max-h-[calc(100vh-18rem)]">
+                <div
                   v-if="day.appointments.length === 0"
                   class="text-xs text-gray-400 italic text-center mt-2 cursor-pointer hover:text-gray-600"
                 >
                   {{ $t('professor.noClasses') }} - {{ $t('professor.clickToSchedule') }}
                 </div>
-                <div 
-                  v-for="appointment in day.appointments" 
-                  :key="appointment.id"
-                  :data-appointment-id="appointment.id"
-                  class="p-2 text-xs rounded-md border-l-4 shadow-sm mb-2 relative cursor-pointer hover:shadow-md transition-shadow"
-                  :class="getAppointmentColor(appointment.type, appointment.present)"
-                  @click.stop="toggleDropdown(appointment.id)"
-                >
-                  <div class="font-medium flex items-center justify-between">
-                    <div class="relative flex-1">
-                      <div class="text-sm">
-                        {{ appointment.studentName }}
-                        <span v-if="appointment.experimental" class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800">
-                          {{ $t('professor.experimental') }}
+
+                <!-- Cards view: one card per student -->
+                <template v-if="viewMode === 'cards'">
+                  <div
+                    v-for="appointment in day.appointments"
+                    :key="appointment.id"
+                    data-schedule-item
+                    :data-appointment-id="appointment.id"
+                    class="p-2 text-xs rounded-md border-l-4 shadow-sm mb-2 relative cursor-pointer hover:shadow-md transition-shadow"
+                    :class="getAppointmentColor(appointment.type, appointment.present)"
+                    @click.stop="toggleDropdown(appointment.id)"
+                  >
+                    <div class="font-medium flex items-center justify-between">
+                      <div class="relative flex-1 min-w-0">
+                        <div class="text-sm truncate">
+                          {{ appointment.studentName }}
+                          <span v-if="appointment.experimental" class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800">
+                            {{ $t('professor.experimental') }}
+                          </span>
+                        </div>
+                        <div class="text-xs text-gray-600 mt-1 truncate">{{ appointment.professorName }}</div>
+                        <ScheduleAppointmentMenu
+                          :appointment="appointment"
+                          :open="openDropdownId === appointment.id"
+                          :dropdown-style="dropdownStyle"
+                          @register="registerPresence"
+                          @delete="deleteAppointment"
+                        />
+                      </div>
+                      <span v-if="appointment.present !== null && appointment.present !== undefined" class="ml-2 shrink-0">
+                        <span v-if="appointment.present" class="text-green-600">✓</span>
+                        <span v-else class="text-red-600">✗</span>
+                      </span>
+                    </div>
+                    <div class="mt-1">
+                      <span class="font-semibold">{{ formatTimeRange(appointment.time, appointment.duration) }}</span>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- Stacked view: group students at the same time -->
+                <template v-else>
+                  <div
+                    v-for="group in day.stackedGroups"
+                    :key="group.key"
+                    data-schedule-item
+                    class="rounded-md border border-gray-200 bg-white shadow-sm overflow-hidden"
+                    :class="group.appointments.length > 1 ? 'ring-1 ring-indigo-200' : ''"
+                  >
+                    <div class="flex items-center justify-between gap-2 border-b border-gray-100 bg-gray-50 px-2 py-1.5">
+                      <span class="text-xs font-semibold text-gray-800">
+                        {{ formatTimeRange(group.time, group.duration) }}
+                      </span>
+                      <span
+                        v-if="group.appointments.length > 1"
+                        class="shrink-0 rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-medium text-indigo-700"
+                      >
+                        {{ $t('admin.scheduleStudentsAtTime', { count: group.appointments.length }) }}
+                      </span>
+                    </div>
+                    <div class="divide-y divide-gray-100">
+                      <div
+                        v-for="appointment in group.appointments"
+                        :key="appointment.id"
+                        :data-appointment-id="appointment.id"
+                        class="flex cursor-pointer items-center justify-between gap-2 px-2 py-1.5 text-xs hover:bg-gray-50"
+                        :class="getStackedRowClass(appointment)"
+                        @click.stop="toggleDropdown(appointment.id)"
+                      >
+                        <div class="relative min-w-0 flex-1">
+                          <div class="truncate text-sm font-medium text-gray-900">
+                            {{ appointment.studentName }}
+                            <span v-if="appointment.experimental" class="ml-1 inline-flex items-center rounded bg-amber-100 px-1 py-0.5 text-[10px] font-medium text-amber-800">
+                              {{ $t('professor.experimental') }}
+                            </span>
+                          </div>
+                          <div class="truncate text-[11px] text-gray-500">{{ appointment.professorName }}</div>
+                          <ScheduleAppointmentMenu
+                            :appointment="appointment"
+                            :open="openDropdownId === appointment.id"
+                            :dropdown-style="dropdownStyle"
+                            @register="registerPresence"
+                            @delete="deleteAppointment"
+                          />
+                        </div>
+                        <span v-if="appointment.present !== null && appointment.present !== undefined" class="shrink-0">
+                          <span v-if="appointment.present" class="text-green-600">✓</span>
+                          <span v-else class="text-red-600">✗</span>
                         </span>
                       </div>
-                      <div class="text-xs text-gray-600 mt-1">{{ appointment.professorName }}</div>
-                      <!-- Dropdown Menu -->
-                      <Teleport to="body">
-                        <div
-                          v-if="openDropdownId === appointment.id"
-                          data-dropdown-menu
-                          class="fixed w-48 rounded-lg bg-white z-[9999]"
-                          :style="{...dropdownStyle, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.05)'}"
-                        >
-                          <div class="py-1" role="menu" @click.stop>
-                            <button
-                              @click.stop="registerPresence(appointment)"
-                              class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                              role="menuitem"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                              </svg>
-                              {{ $t('professor.registerAttendance') }}
-                            </button>
-                            <button
-                              @click.stop="deleteAppointment(appointment)"
-                              class="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 flex items-center"
-                              role="menuitem"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                              {{ $t('common.delete') }}
-                            </button>
-                          </div>
-                        </div>
-                      </Teleport>
                     </div>
-                    <span v-if="appointment.present !== null && appointment.present !== undefined" class="ml-2">
-                      <span v-if="appointment.present" class="text-green-600">✓</span>
-                      <span v-else class="text-red-600">✗</span>
-                    </span>
                   </div>
-                  <div class="mt-1">
-                    <span class="font-semibold">{{ formatTimeRange(appointment.time, appointment.duration) }}</span>
-                  </div>
-                </div>
+                </template>
               </div>
             </div>
           </div>
@@ -409,7 +469,6 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
-import { Teleport } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../../stores/auth';
@@ -417,6 +476,7 @@ import { useScheduleStore } from '../../stores/schedule';
 import { useStudentsStore } from '../../stores/students';
 import { useAttendanceStore } from '../../stores/attendance';
 import Breadcrumb from '@/components/Breadcrumb.vue';
+import ScheduleAppointmentMenu from '@/components/admin/ScheduleAppointmentMenu.vue';
 import { 
   startOfWeek, 
   endOfWeek, 
@@ -467,7 +527,10 @@ const scheduleStore = useScheduleStore();
 const studentsStore = useStudentsStore();
 const attendanceStore = useAttendanceStore();
 
+const SCHEDULE_VIEW_MODE_KEY = 'adminScheduleViewMode';
+
 // State
+const viewMode = ref(localStorage.getItem(SCHEDULE_VIEW_MODE_KEY) || 'cards');
 const loading = ref(false);
 const currentDate = ref(new Date());
 const selectedStudentId = ref('');
@@ -507,6 +570,58 @@ const breadcrumbItems = computed(() => {
     return { name, path };
   });
 });
+
+const setViewMode = (mode) => {
+  viewMode.value = mode;
+  localStorage.setItem(SCHEDULE_VIEW_MODE_KEY, mode);
+};
+
+const normalizeTimeKey = (timeString) => {
+  if (!timeString) return 'unknown';
+  if (/^\d{1,2}:\d{2}$/.test(timeString)) {
+    const [hours, minutes] = timeString.split(':');
+    return `${hours.padStart(2, '0')}:${minutes}`;
+  }
+  try {
+    const parsed = typeof timeString === 'string' && timeString.includes('T')
+      ? parseISO(timeString)
+      : new Date(timeString);
+    if (!isNaN(parsed.getTime())) {
+      return format(parsed, 'HH:mm');
+    }
+  } catch {
+    // fall through
+  }
+  return String(timeString);
+};
+
+const groupAppointmentsByTimeSlot = (dayAppointments) => {
+  const groups = new Map();
+  for (const appointment of dayAppointments) {
+    const key = normalizeTimeKey(appointment.time);
+    if (!groups.has(key)) {
+      groups.set(key, {
+        key,
+        time: appointment.time,
+        duration: appointment.duration || 60,
+        appointments: []
+      });
+    }
+    const group = groups.get(key);
+    group.appointments.push(appointment);
+    group.duration = Math.max(group.duration || 60, appointment.duration || 60);
+  }
+  return Array.from(groups.values()).sort((a, b) =>
+    normalizeTimeKey(a.time).localeCompare(normalizeTimeKey(b.time))
+  );
+};
+
+const getStackedRowClass = (appointment) => {
+  if (appointment.present === true) return 'bg-green-50/60';
+  if (appointment.present === false) return 'bg-red-50/60';
+  if (appointment.experimental) return 'bg-amber-50/50';
+  return '';
+};
 
 // Week days calculation
 const weekDays = computed(() => {
@@ -566,7 +681,8 @@ const weekDays = computed(() => {
       dayName: shortDayNamesList[i],
       fullDayName: dayNamesList[i],
       isToday,
-      appointments: dayAppointments
+      appointments: dayAppointments,
+      stackedGroups: groupAppointmentsByTimeSlot(dayAppointments)
     });
   }
   
@@ -957,7 +1073,7 @@ const handleClickOutside = (event) => {
 // Handle empty space click to open schedule modal
 const handleEmptySpaceClick = (dateString, event) => {
   // Only trigger if clicking on the day cell itself, not on appointments
-  const isAppointmentClick = event.target.closest('.border-l-4');
+  const isAppointmentClick = event.target.closest('[data-schedule-item]');
   if (!isAppointmentClick) {
     selectedDateForSchedule.value = dateString;
     // Parse the date string and set it as the selected date
