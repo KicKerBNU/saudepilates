@@ -26,12 +26,13 @@ The app will show a setup screen until Firebase is configured.
 2. Click **Add app** → **iOS**
 3. Bundle ID: `com.saudepilates.app`
 4. Download `GoogleService-Info.plist`
-5. Replace `ios/SaudePilates/GoogleService-Info.plist` with the downloaded file
+5. Save it as `ios/SaudePilates/GoogleService-Info.plist` (this file is **gitignored** — never commit it)
 6. In Xcode: **Product → Clean Build Folder**, then run again
 
-**Alternative:** paste the `GOOGLE_APP_ID` from Firebase into `SaudePilates/Utilities/FirebaseConfiguration.swift` (`iosGoogleAppID`).
+> First-time clone: `cp SaudePilates/GoogleService-Info.plist.example SaudePilates/GoogleService-Info.plist`, then replace with the file from Firebase Console.  
+> If the plist is missing or still has placeholders, the app shows setup instructions instead of crashing.
 
-> The template plist uses a placeholder `GOOGLE_APP_ID`. Firebase rejects it and the app used to crash — now it shows setup instructions instead.
+**Security:** If API keys were ever committed, rotate them in Google Cloud Console. See [docs/FIREBASE-SECRETS.md](../docs/FIREBASE-SECRETS.md).
 
 ### 2. Generate Xcode project
 

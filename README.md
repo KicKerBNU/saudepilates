@@ -30,10 +30,13 @@ All native apps share the same Firebase project, roles (Admin, Professor, Studen
 
 ```bash
 yarn install
+cp .env.example .env   # add VITE_FIREBASE_* from Firebase Console
 yarn dev
 ```
 
 ### Build
+
+Requires `.env` with `VITE_FIREBASE_*` (same as local dev).
 
 ```bash
 yarn build
@@ -70,12 +73,14 @@ See [android/README.md](android/README.md) for emulator/device testing and **Goo
 
 1. Open [Firebase Console → saudepilates-170df](https://console.firebase.google.com/project/saudepilates-170df/settings/general)
 2. Register each platform with package/bundle ID **`com.saudepilates.app`**
-3. Download config files:
-   - **Web** — Firebase SDK config in your env / `firebase` init
+3. Download config files (templates are in the repo; real files stay local and are **gitignored**):
+   - **Web** — copy `.env.example` → `.env` and set `VITE_FIREBASE_*`
    - **iOS** — `GoogleService-Info.plist` → `ios/SaudePilates/`
    - **Android** — `google-services.json` → `android/app/`
 
 Enable **Email/Password** authentication in Firebase Console.
+
+**API key rotation:** If keys were committed to git, rotate them immediately. See [docs/FIREBASE-SECRETS.md](docs/FIREBASE-SECRETS.md).
 
 ---
 

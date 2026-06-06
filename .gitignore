@@ -24,9 +24,13 @@ dist-ssr
 *.sw?
 .firebase
 
-# Environment variables
-.env
-.env.*
+# Environment variables (never commit secrets)
+.env*
+!.env.example
+
+# Firebase client config (download from Firebase Console — never commit real keys)
+ios/SaudePilates/GoogleService-Info.plist
+android/app/google-services.json
 
 # Android
 android/local.properties

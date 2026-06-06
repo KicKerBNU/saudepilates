@@ -26,10 +26,13 @@ The app shows a setup screen until Firebase is configured with a valid app ID.
 2. Click **Add app** → **Android**
 3. Package name: `com.saudepilates.app`
 4. Download `google-services.json`
-5. Replace `android/app/google-services.json` with the downloaded file
+5. Save it as `android/app/google-services.json` (this file is **gitignored** — never commit it)
 6. In Android Studio: **Build → Clean Project**, then **Build → Rebuild Project**, then run
 
-> The template `google-services.json` uses a placeholder `mobilesdk_app_id`. The app detects this and shows setup instructions instead of crashing.
+> First-time clone: `cp app/google-services.json.example app/google-services.json`, then replace with the file from Firebase Console.  
+> If the file is missing or still has placeholders, the app shows setup instructions instead of crashing.
+
+**Security:** If API keys were ever committed, rotate them in Google Cloud Console. See [docs/FIREBASE-SECRETS.md](../docs/FIREBASE-SECRETS.md).
 
 ### 2. Configure Android SDK
 

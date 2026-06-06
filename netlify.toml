@@ -1,8 +1,15 @@
 [build]
   publish = "dist"
-  command = "npm run build"
+  command = "yarn build"
+
+  # Vite replaces VITE_* at build time — Firebase web config is intentionally in dist/*.js.
+  # These are client identifiers, not server secrets. Omit them from Netlify secrets scanning.
+  [build.environment]
+    SECRETS_SCAN_OMIT_KEYS = "VITE_FIREBASE_API_KEY,VITE_FIREBASE_AUTH_DOMAIN,VITE_FIREBASE_PROJECT_ID,VITE_FIREBASE_STORAGE_BUCKET,VITE_FIREBASE_MESSAGING_SENDER_ID,VITE_FIREBASE_APP_ID,VITE_FIREBASE_MEASUREMENT_ID"
+    # Web deploy does not use mobile Firebase config files; skip paths that trigger false positives.
+    SECRETS_SCAN_OMIT_PATHS = "ios/**,android/**,docs/**,**/*.md,**/*.example"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 200 
+  status = 200

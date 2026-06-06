@@ -23,7 +23,7 @@ struct FirebaseSetupView: View {
                         Text("2. Adicione um app iOS com bundle ID: com.saudepilates.app")
                         Text("3. Baixe o GoogleService-Info.plist")
                         Text("4. Substitua o arquivo em ios/SaudePilates/GoogleService-Info.plist")
-                        Text("5. Ou cole o GOOGLE_APP_ID em FirebaseConfiguration.swift")
+                        Text("5. Product → Clean Build Folder e execute novamente")
                     }
                     .font(.subheadline)
 

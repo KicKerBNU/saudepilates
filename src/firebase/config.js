@@ -3,14 +3,20 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 export const firebaseConfig = {
-  apiKey: "AIzaSyB6xfteJelZLxiszYwiprugoSRSnZn4YGM",
-  authDomain: "saudepilates-170df.firebaseapp.com",
-  projectId: "saudepilates-170df",
-  storageBucket: "saudepilates-170df.appspot.com",
-  messagingSenderId: "311012649134",
-  appId: "1:311012649134:web:698eec2274ff1c0583e53f",
-  measurementId: "G-B0KTCDJHD8"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
+
+if (!firebaseConfig.apiKey) {
+  throw new Error(
+    'Missing VITE_FIREBASE_API_KEY. Copy .env.example to .env and add your Firebase web config.'
+  );
+}
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
