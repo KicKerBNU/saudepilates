@@ -24,6 +24,36 @@ struct StudentsListView: View {
             .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
     }
 
+    @ViewBuilder
+    private var studentsEmptyState: some View {
+        if !search.isEmpty {
+            EmptyStateView(
+                title: "Nenhum resultado",
+                message: "Não encontramos alunos para \"\(search)\".",
+                illustrationStyle: showInactive ? .studentsInactive : .studentsActive
+            )
+        } else if showInactive {
+            EmptyStateView(
+                title: "Nenhum aluno inativo",
+                message: "Alunos desativados aparecerão nesta lista. Você pode reativá-los quando necessário.",
+                illustrationStyle: .studentsInactive
+            )
+        } else {
+            EmptyStateView(
+                title: "Nenhum aluno ativo",
+                message: "Cadastre seu primeiro aluno para começar a gerenciar planos, pagamentos e agenda.",
+                illustrationStyle: .studentsActive,
+                actionTitle: "Cadastrar aluno",
+                action: openCreateForm
+            )
+        }
+    }
+
+    private func openCreateForm() {
+        editingStudent = nil
+        showingForm = true
+    }
+
     var body: some View {
         List {
             Picker("Status", selection: $showInactive) {
@@ -32,6 +62,12 @@ struct StudentsListView: View {
             }
             .pickerStyle(.segmented)
             .listRowSeparator(.hidden)
+
+            if filtered.isEmpty && !isLoading {
+                studentsEmptyState
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+            }
 
             ForEach(filtered) { student in
                 Button {
@@ -65,10 +101,7 @@ struct StudentsListView: View {
         .navigationTitle("Alunos")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    editingStudent = nil
-                    showingForm = true
-                } label: {
+                Button(action: openCreateForm) {
                     Image(systemName: "plus")
                 }
             }

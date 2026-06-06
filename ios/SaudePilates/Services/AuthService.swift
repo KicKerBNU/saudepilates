@@ -12,8 +12,8 @@ final class AuthService: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    private let auth = Auth.auth()
-    private let db = Firestore.firestore()
+    private var auth: Auth { Auth.auth() }
+    private var db: Firestore { Firestore.firestore() }
     private var authListener: AuthStateDidChangeListenerHandle?
 
     var isAuthenticated: Bool { firebaseUser != nil }

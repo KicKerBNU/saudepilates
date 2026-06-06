@@ -22,82 +22,94 @@
         @dismiss="dismissSubscriptionAlert"
       />
       
-      <!-- Dashboard Stats Overview -->
-      <div class="px-4 py-6 sm:px-0">
-        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          <!-- Students Stats -->
-          <StatsCard
+      <div class="px-4 pb-6 sm:px-0">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <DashboardFeatureCard
             :title="$t('admin.totalStudents')"
             :value="totalStudents"
             :loading="loadingStudents"
-            iconPath="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-            iconBgColor="bg-indigo-500"
-            :linkTo="{name: 'StudentsManagement'}"
-            :linkText="$t('admin.viewAllStudents')"
+            icon-path="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+            icon-bg-color="bg-indigo-500"
+            :link-to="{ name: 'StudentsManagement' }"
+            :link-text="$t('admin.viewAllStudents')"
           />
 
-          <!-- Professors Stats -->
-          <StatsCard
+          <DashboardFeatureCard
             :title="$t('admin.totalProfessors')"
             :value="totalProfessors"
             :loading="loadingProfessors"
-            iconPath="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-            iconBgColor="bg-green-500"
-            :linkTo="{name: 'ProfessorsManagement'}"
-            :linkText="$t('admin.viewAllProfessors')"
+            icon-path="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+            icon-bg-color="bg-green-500"
+            :link-to="{ name: 'ProfessorsManagement' }"
+            :link-text="$t('admin.viewAllProfessors')"
           />
 
-          <!-- Payments Stats -->
-          <router-link :to="{name: 'MonthlyPayments'}" class="cursor-pointer">
-            <StatsCard
-              :title="$t('admin.monthlyRevenue')"
-              :value="formattedMonthlyRevenue"
-              :loading="loadingMonthlyRevenue"
-              iconPath="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              iconBgColor="bg-yellow-500"
-              :linkTo="{name: 'MonthlyPayments'}"
-              :linkText="$t('admin.viewMonthlyPayments')"
-            />
-          </router-link>
-
-          <!-- Plans Stats -->
-          <StatsCard
+          <DashboardFeatureCard
             :title="$t('admin.totalPlans')"
             :value="totalPlans"
             :loading="loadingPlans"
-            iconPath="M12 4v16m8-8H4"
-            iconBgColor="bg-blue-500"
-            :linkTo="{name: 'PlansManagement'}"
-            :linkText="$t('admin.viewAllPlans')"
+            icon-path="M12 4v16m8-8H4"
+            icon-bg-color="bg-blue-500"
+            :link-to="{ name: 'PlansManagement' }"
+            :link-text="$t('admin.viewAllPlans')"
           />
 
-          <!-- Anamnesis - view all students -->
-          <router-link :to="{name: 'AdminAnamnesis'}" class="bg-white overflow-hidden shadow rounded-lg flex flex-col hover:bg-gray-50" style="height: 100%;">
-            <div class="px-4 py-5 sm:p-6 flex-grow flex items-center">
-              <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
-                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <h3 class="text-lg font-medium text-gray-900">{{ $t('anamnesis.title') }}</h3>
-                <p class="mt-1 text-sm text-gray-500">{{ $t('anamnesis.adminCardDesc') }}</p>
-              </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-4 sm:px-6 mt-auto">
-              <div class="text-sm">
-                <span class="font-medium text-indigo-600 hover:text-indigo-500">{{ $t('anamnesis.viewAllAnamnesis') }} <span aria-hidden="true">&rarr;</span></span>
-              </div>
-            </div>
-          </router-link>
+          <DashboardFeatureCard
+            :title="$t('admin.monthlyRevenue')"
+            :value="formattedMonthlyRevenue"
+            :loading="loadingMonthlyRevenue"
+            icon-path="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            icon-bg-color="bg-yellow-500"
+            :link-to="{ name: 'MonthlyPayments' }"
+            :link-text="$t('admin.viewMonthlyPayments')"
+          />
+
+          <DashboardFeatureCard
+            :title="$t('admin.registerPayment')"
+            :description="$t('admin.registerPaymentDesc')"
+            icon-path="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+            icon-bg-color="bg-amber-500"
+            :link-to="{ name: 'PaymentRegistration' }"
+            :link-text="$t('admin.registerPayment')"
+          />
+
+          <DashboardFeatureCard
+            :title="$t('admin.paymentVisualization')"
+            :description="$t('admin.paymentVisualizationDesc')"
+            icon-path="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            icon-bg-color="bg-purple-500"
+            :link-to="{ name: 'PaymentVisualization' }"
+            :link-text="$t('admin.paymentVisualization')"
+          />
+
+          <DashboardFeatureCard
+            :title="$t('admin.professorPaymentsTitle')"
+            :description="$t('admin.professorPaymentsDesc')"
+            icon-path="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            icon-bg-color="bg-emerald-500"
+            :link-to="{ name: 'ProfessorPayments' }"
+            :link-text="$t('admin.professorPaymentsTitle')"
+          />
+
+          <DashboardFeatureCard
+            :title="$t('admin.classSchedule')"
+            :description="$t('admin.classScheduleDesc')"
+            icon-path="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            icon-bg-color="bg-sky-500"
+            :link-to="{ name: 'AdminSchedule' }"
+            :link-text="$t('admin.classSchedule')"
+          />
+
+          <DashboardFeatureCard
+            :title="$t('anamnesis.title')"
+            :description="$t('anamnesis.adminCardDesc')"
+            icon-path="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            icon-bg-color="bg-indigo-500"
+            :link-to="{ name: 'AdminAnamnesis' }"
+            :link-text="$t('anamnesis.viewAllAnamnesis')"
+          />
         </div>
       </div>
-
-      <!-- Recent Activity Section -->
-      <RecentActivities />
-
-      <!-- Quick Actions -->
-      <QuickActions />
     </main>
   </div>
 </template>
@@ -124,10 +136,8 @@ import { useProfessorsStore } from '../../stores/professors';
 import { usePaymentsStore } from '../../stores/payments';
 import { useSubscriptionStore } from '../../stores/subscription';
 import Breadcrumb from '@/components/Breadcrumb.vue';
-import RecentActivities from '@/components/admin/RecentActivities.vue';
-import QuickActions from '@/components/admin/QuickActions.vue';
+import DashboardFeatureCard from '@/components/admin/DashboardFeatureCard.vue';
 import SubscriptionAlert from '@/components/admin/SubscriptionAlert.vue';
-import StatsCard from '@/components/admin/StatsCard.vue';
 
 // Initialize route and router
 const route = useRoute();

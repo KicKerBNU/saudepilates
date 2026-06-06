@@ -60,8 +60,8 @@ struct PaymentRegistrationView: View {
     private var commissionAmount: Double { finalAmount * commissionPercent / 100 }
 
     var body: some View {
-        Form {
-            Section("Aluno") {
+        List {
+            Section {
                 Picker("Aluno", selection: $selectedStudentId) {
                     Text("Selecione").tag("")
                     ForEach(availableStudents) { student in
@@ -70,7 +70,15 @@ struct PaymentRegistrationView: View {
                 }
             }
 
-            if let student = selectedStudent, let plan = selectedPlan {
+            if selectedStudentId.isEmpty {
+                EmptyStateView(
+                    title: "Selecione um aluno",
+                    message: "Escolha um aluno acima para registrar o pagamento do plano.",
+                    illustrationStyle: .paymentSelectStudent
+                )
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+            } else if let student = selectedStudent, let plan = selectedPlan {
                 Section("Detalhes") {
                     LabeledContent("Plano", value: plan.title)
                     LabeledContent("Professor", value: professorName(for: student))
@@ -273,38 +281,76 @@ struct PaymentVisualizationView: View {
     @EnvironmentObject private var authService: AuthService
     @State private var payments: [StudentPayment] = []
     @State private var isLoading = true
+    @State private var showRegistration = false
     private let paymentService = PaymentService()
 
-    private var chartData: [(month: String, total: Double)] {
+    private struct MonthlyChartItem: Identifiable {
+        let id: String
+        let month: String
+        let total: Double
+    }
+
+    private var chartData: [MonthlyChartItem] {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM/yy"
         formatter.locale = Locale(identifier: "pt_BR")
-        var totals: [String: Double] = [:]
+        let calendar = Calendar.current
+
+        var totals: [String: (label: String, total: Double, sortKey: Int)] = [:]
         for payment in payments {
-            let key = formatter.string(from: payment.paymentDate)
-            totals[key, default: 0] += payment.paidAmount
+            let date = payment.paymentDate
+            let year = calendar.component(.year, from: date)
+            let month = calendar.component(.month, from: date)
+            let key = String(format: "%04d-%02d", year, month)
+            let sortKey = year * 100 + month
+            let label = formatter.string(from: date)
+
+            if var existing = totals[key] {
+                existing.total += payment.paidAmount
+                totals[key] = existing
+            } else {
+                totals[key] = (label, payment.paidAmount, sortKey)
+            }
         }
-        return totals.map { ($0.key, $0.value) }.sorted { $0.month < $1.month }
+
+        return totals
+            .sorted { $0.value.sortKey < $1.value.sortKey }
+            .map { MonthlyChartItem(id: $0.key, month: $0.value.label, total: $0.value.total) }
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                if #available(iOS 16.0, *) {
-                    Chart(chartData, id: \.month) { item in
-                        BarMark(x: .value("Mês", item.month), y: .value("Total", item.total))
+        Group {
+            if !isLoading && payments.isEmpty {
+                EmptyStateView(
+                    title: "Nenhum pagamento registrado",
+                    message: "Registre pagamentos de alunos para visualizar aqui a evolução do valor recebido mês a mês no seu estúdio.",
+                    illustrationStyle: .paymentVisualization,
+                    actionTitle: "Registrar pagamento",
+                    action: { showRegistration = true }
+                )
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        if #available(iOS 16.0, *) {
+                            Chart(chartData) { item in
+                                BarMark(x: .value("Mês", item.month), y: .value("Total", item.total))
+                            }
+                            .frame(height: 240)
+                            .padding()
+                            .background(Color(.secondarySystemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                        }
+                        Text("Total geral: \(CurrencyFormatter.formatWithSymbol(payments.reduce(0) { $0 + $1.paidAmount }, language: authService.company?.language))")
+                            .font(.headline)
                     }
-                    .frame(height: 240)
                     .padding()
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
-                Text("Total geral: \(CurrencyFormatter.formatWithSymbol(payments.reduce(0) { $0 + $1.paidAmount }, language: authService.company?.language))")
-                    .font(.headline)
             }
-            .padding()
         }
         .navigationTitle("Visualização")
+        .navigationDestination(isPresented: $showRegistration) {
+            PaymentRegistrationView()
+        }
         .task { await load() }
         .overlay { LoadingOverlay(isLoading: isLoading) }
     }

@@ -89,7 +89,11 @@ struct StudentScheduleView: View {
             .navigationTitle("Minha agenda")
             .overlay {
                 if classes.isEmpty {
-                    EmptyStateView(title: "Sem aulas agendadas", systemImage: "calendar")
+                    EmptyStateView(
+                        title: "Sem aulas agendadas",
+                        message: "Quando o estúdio agendar suas aulas, elas aparecerão aqui.",
+                        illustrationStyle: .scheduleNoClasses
+                    )
                 }
             }
             .task { await load() }

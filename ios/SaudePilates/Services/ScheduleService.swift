@@ -189,6 +189,10 @@ final class AnamnesisService: ObservableObject {
         return ref.documentID
     }
 
+    func delete(id: String) async throws {
+        try await db.collection("anamnesis").document(id).delete()
+    }
+
     private func mapAnamnesis(_ document: DocumentSnapshot) -> AnamnesisRecord {
         let data = document.data() ?? [:]
         return AnamnesisRecord(

@@ -15,9 +15,17 @@ struct AdminScheduleView: View {
 
     private let scheduleService = ScheduleService()
 
+    private var selectedProfessorName: String {
+        professors.first { $0.id == selectedProfessorId }?.displayName ?? ""
+    }
+
+    private var formattedSelectedDate: String {
+        DateHelpers.shortDate(selectedDate)
+    }
+
     var body: some View {
-        VStack {
-            Form {
+        List {
+            Section {
                 Picker("Professor", selection: $selectedProfessorId) {
                     Text("Selecione").tag("")
                     ForEach(professors.filter(\.isUserActive)) { professor in
@@ -26,17 +34,36 @@ struct AdminScheduleView: View {
                 }
                 DatePicker("Data", selection: $selectedDate, displayedComponents: .date)
             }
-            .frame(maxHeight: 160)
 
-            List(classes) { item in
-                VStack(alignment: .leading) {
-                    Text(item.studentName ?? studentName(for: item.studentId)).font(.headline)
-                    Text(item.startTime ?? "--:--").font(.caption).foregroundStyle(.secondary)
-                }
-                .swipeActions {
-                    Button(role: .destructive) {
-                        Task { await deleteClass(item) }
-                    } label: { Label("Remover", systemImage: "trash") }
+            if selectedProfessorId.isEmpty && !isLoading {
+                EmptyStateView(
+                    title: "Selecione um professor",
+                    message: "Escolha um professor acima para visualizar a agenda e as aulas do dia.",
+                    illustrationStyle: .scheduleSelectProfessor
+                )
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+            } else if classes.isEmpty && !isLoading {
+                EmptyStateView(
+                    title: "Nenhuma aula neste dia",
+                    message: "\(selectedProfessorName) não possui alunos agendados para \(formattedSelectedDate).",
+                    illustrationStyle: .scheduleNoClasses,
+                    actionTitle: "Adicionar aula",
+                    action: { showingForm = true }
+                )
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+            } else {
+                ForEach(classes) { item in
+                    VStack(alignment: .leading) {
+                        Text(item.studentName ?? studentName(for: item.studentId)).font(.headline)
+                        Text(item.startTime ?? "--:--").font(.caption).foregroundStyle(.secondary)
+                    }
+                    .swipeActions {
+                        Button(role: .destructive) {
+                            Task { await deleteClass(item) }
+                        } label: { Label("Remover", systemImage: "trash") }
+                    }
                 }
             }
         }
@@ -73,13 +100,15 @@ struct AdminScheduleView: View {
             async let fetchedStudents = authService.getUsersByCompany(role: .student)
             professors = try await fetchedProfessors
             students = try await fetchedStudents
-            if selectedProfessorId.isEmpty { selectedProfessorId = professors.first?.id ?? "" }
             await loadClasses()
         } catch { toastManager.error(error.localizedDescription) }
     }
 
     private func loadClasses() async {
-        guard !selectedProfessorId.isEmpty else { return }
+        guard !selectedProfessorId.isEmpty else {
+            classes = []
+            return
+        }
         let start = Calendar.current.startOfDay(for: selectedDate)
         let end = Calendar.current.date(byAdding: .day, value: 1, to: start) ?? selectedDate
         do {
@@ -166,11 +195,13 @@ struct ScheduleFormView: View {
 
 struct AnamnesisListView: View {
     @EnvironmentObject private var authService: AuthService
+    @EnvironmentObject private var toastManager: ToastManager
     @State private var students: [UserProfile] = []
     @State private var selectedStudentId = ""
     @State private var records: [AnamnesisRecord] = []
     @State private var selectedRecord: AnamnesisRecord?
     @State private var showingNewForm = false
+    @State private var recordToDelete: AnamnesisRecord?
     @State private var isLoading = true
 
     private let anamnesisService = AnamnesisService()
@@ -189,6 +220,13 @@ struct AnamnesisListView: View {
                     ForEach(records) { record in
                         Button(DateHelpers.shortDate(FirestoreDate.decode(record.performedAt) ?? Date())) {
                             selectedRecord = record
+                        }
+                        .swipeActions {
+                            Button(role: .destructive) {
+                                recordToDelete = record
+                            } label: {
+                                Label("Excluir", systemImage: "trash")
+                            }
                         }
                     }
                 }
@@ -209,9 +247,36 @@ struct AnamnesisListView: View {
                 Task { await loadRecords() }
             }
         }
+        .confirmationDialog(
+            "Excluir anamnese?",
+            isPresented: Binding(
+                get: { recordToDelete != nil },
+                set: { if !$0 { recordToDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("Excluir", role: .destructive) {
+                guard let record = recordToDelete else { return }
+                Task { await deleteRecord(record) }
+            }
+            Button("Cancelar", role: .cancel) { recordToDelete = nil }
+        } message: {
+            Text("Esta ação não pode ser desfeita.")
+        }
         .task { await loadStudents() }
         .onChange(of: selectedStudentId) { _ in Task { await loadRecords() } }
         .overlay { LoadingOverlay(isLoading: isLoading) }
+    }
+
+    private func deleteRecord(_ record: AnamnesisRecord) async {
+        do {
+            try await anamnesisService.delete(id: record.id)
+            toastManager.success("Anamnese excluída")
+            recordToDelete = nil
+            await loadRecords()
+        } catch {
+            toastManager.error(error.localizedDescription)
+        }
     }
 
     private func loadStudents() async {
@@ -236,6 +301,7 @@ struct AnamnesisFormView: View {
     let record: AnamnesisRecord
     let onSaved: () -> Void
 
+    @State private var showingDeleteConfirmation = false
     @State private var mainComplaint = ""
     @State private var medicalHistory = ""
     @State private var surgeries = ""
@@ -260,7 +326,22 @@ struct AnamnesisFormView: View {
             .navigationTitle("Anamnese")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Fechar") { dismiss() } }
+                if !record.id.isEmpty {
+                    ToolbarItem(placement: .destructiveAction) {
+                        Button("Excluir", role: .destructive) { showingDeleteConfirmation = true }
+                    }
+                }
                 ToolbarItem(placement: .confirmationAction) { Button("Salvar") { Task { await save() } } }
+            }
+            .confirmationDialog(
+                "Excluir anamnese?",
+                isPresented: $showingDeleteConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Excluir", role: .destructive) { Task { await deleteRecord() } }
+                Button("Cancelar", role: .cancel) {}
+            } message: {
+                Text("Esta ação não pode ser desfeita.")
             }
             .onAppear {
                 mainComplaint = record.mainComplaint ?? ""
@@ -292,6 +373,16 @@ struct AnamnesisFormView: View {
                 id: record.id.isEmpty ? nil : record.id
             )
             toastManager.success("Anamnese salva")
+            onSaved()
+            dismiss()
+        } catch { toastManager.error(error.localizedDescription) }
+    }
+
+    private func deleteRecord() async {
+        guard !record.id.isEmpty else { return }
+        do {
+            try await anamnesisService.delete(id: record.id)
+            toastManager.success("Anamnese excluída")
             onSaved()
             dismiss()
         } catch { toastManager.error(error.localizedDescription) }

@@ -169,7 +169,11 @@ fun ProfessorScheduleScreen(modifier: Modifier = Modifier) {
                 }
             }
             item {
-                if (classes.isEmpty()) IosEmptyState("Sem aulas neste dia")
+                if (classes.isEmpty()) IosEmptyState(
+                    title = "Nenhuma aula neste dia",
+                    message = "Você não possui alunos agendados para ${DateUtils.shortDate(selectedDate)}.",
+                    illustrationStyle = com.saudepilates.app.ui.components.EmptyIllustrationStyle.ScheduleNoClasses
+                )
                 else IosGroup {
                     classes.forEachIndexed { i, item ->
                         IosListRow(item.studentName ?: "Aluno", item.startTime ?: "--:--", showDivider = i < classes.lastIndex)

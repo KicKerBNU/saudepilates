@@ -119,6 +119,8 @@
     "treatment": "Traitement",
     "treatmentPlaceholder": "Décrivez le traitement (objectifs, approche, etc.)",
     "savedSuccess": "Anamnèse enregistrée avec succès.",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette anamnèse ? Cette action est irréversible.",
+    "deletedSuccess": "Anamnèse supprimée avec succès.",
     "downloadPdf": "Télécharger PDF",
     "print": "Imprimer",
     "downloadAllPdf": "Télécharger PDF de tous",

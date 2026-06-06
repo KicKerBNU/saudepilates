@@ -69,7 +69,10 @@ fun StudentPaymentsScreen(modifier: Modifier = Modifier) {
     IosScreen(title = "Meus pagamentos", modifier = modifier) { padding ->
         LazyColumn(Modifier.padding(padding).fillMaxSize(), contentPadding = PaddingValues(8.dp)) {
             item {
-                if (payments.isEmpty()) IosEmptyState("Nenhum pagamento")
+                if (payments.isEmpty()) IosEmptyState(
+                    title = "Nenhum pagamento",
+                    message = "Seus pagamentos registrados pelo estúdio aparecerão aqui."
+                )
                 else IosGroup {
                     payments.forEachIndexed { i, payment ->
                         IosListRow(
@@ -100,7 +103,11 @@ fun StudentScheduleScreen(modifier: Modifier = Modifier) {
     IosScreen(title = "Minha agenda", modifier = modifier) { padding ->
         LazyColumn(Modifier.padding(padding).fillMaxSize(), contentPadding = PaddingValues(8.dp)) {
             item {
-                if (classes.isEmpty()) IosEmptyState("Sem aulas agendadas")
+                if (classes.isEmpty()) IosEmptyState(
+                    title = "Sem aulas agendadas",
+                    message = "Quando o estúdio agendar suas aulas, elas aparecerão aqui.",
+                    illustrationStyle = com.saudepilates.app.ui.components.EmptyIllustrationStyle.ScheduleNoClasses
+                )
                 else IosGroup {
                     classes.forEachIndexed { i, item ->
                         IosListRow(DateUtils.shortDate(item.date), item.startTime ?: "--:--", showDivider = i < classes.lastIndex)

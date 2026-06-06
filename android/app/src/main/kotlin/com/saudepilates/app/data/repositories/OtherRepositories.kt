@@ -187,6 +187,10 @@ class AnamnesisRepository {
         }
     }
 
+    suspend fun delete(id: String) {
+        db.collection("anamnesis").document(id).delete().await()
+    }
+
     private fun mapAnamnesis(id: String, data: Map<String, Any>?): AnamnesisRecord {
         return AnamnesisRecord(
             id = id,

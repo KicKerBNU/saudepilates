@@ -119,6 +119,8 @@
     "treatment": "Tratamento",
     "treatmentPlaceholder": "Descreva o tratamento (objetivos, conduta, etc.)",
     "savedSuccess": "Anamnese salva com sucesso.",
+    "confirmDelete": "Tem certeza que deseja excluir esta anamnese? Esta ação não pode ser desfeita.",
+    "deletedSuccess": "Anamnese excluída com sucesso.",
     "downloadPdf": "Baixar PDF",
     "print": "Imprimir",
     "downloadAllPdf": "Baixar PDF de todos",

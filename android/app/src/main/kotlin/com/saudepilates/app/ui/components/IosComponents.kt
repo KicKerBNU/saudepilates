@@ -297,17 +297,6 @@ fun IosSegmented(
 }
 
 @Composable
-fun IosEmptyState(title: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(title, style = MaterialTheme.typography.titleMedium, color = IosColors.secondaryLabel)
-    }
-}
-
-@Composable
 fun IosLoadingOverlay(isLoading: Boolean) {
     if (isLoading) {
         Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.08f)), contentAlignment = Alignment.Center) {

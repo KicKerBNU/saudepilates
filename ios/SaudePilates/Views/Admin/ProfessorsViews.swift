@@ -18,6 +18,36 @@ struct ProfessorsListView: View {
             .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
     }
 
+    @ViewBuilder
+    private var professorsEmptyState: some View {
+        if !search.isEmpty {
+            EmptyStateView(
+                title: "Nenhum resultado",
+                message: "Não encontramos professores para \"\(search)\".",
+                illustrationStyle: showInactive ? .professorsInactive : .professorsActive
+            )
+        } else if showInactive {
+            EmptyStateView(
+                title: "Nenhum professor inativo",
+                message: "Professores desativados aparecerão nesta lista. Você pode reativá-los quando necessário.",
+                illustrationStyle: .professorsInactive
+            )
+        } else {
+            EmptyStateView(
+                title: "Nenhum professor ativo",
+                message: "Cadastre professores para vincular alunos, agenda e comissões.",
+                illustrationStyle: .professorsActive,
+                actionTitle: "Cadastrar professor",
+                action: openCreateForm
+            )
+        }
+    }
+
+    private func openCreateForm() {
+        editingProfessor = nil
+        showingForm = true
+    }
+
     var body: some View {
         List {
             Picker("Status", selection: $showInactive) {
@@ -25,6 +55,12 @@ struct ProfessorsListView: View {
                 Text("Inativos").tag(true)
             }
             .pickerStyle(.segmented)
+
+            if filtered.isEmpty && !isLoading {
+                professorsEmptyState
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+            }
 
             ForEach(filtered) { professor in
                 VStack(alignment: .leading) {
@@ -45,7 +81,7 @@ struct ProfessorsListView: View {
         .navigationTitle("Professores")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button { editingProfessor = nil; showingForm = true } label: { Image(systemName: "plus") }
+                Button(action: openCreateForm) { Image(systemName: "plus") }
             }
         }
         .sheet(isPresented: $showingForm) {
@@ -144,21 +180,40 @@ struct PlansListView: View {
 
     private let planService = PlanService()
 
+    private func openCreateForm() {
+        editingPlan = nil
+        showingForm = true
+    }
+
     var body: some View {
-        List(plans) { plan in
-            VStack(alignment: .leading) {
-                Text(plan.title).font(.headline)
-                Text(CurrencyFormatter.formatWithSymbol(plan.price, language: authService.company?.language))
-                    .foregroundStyle(.secondary)
-            }
-            .swipeActions {
-                Button("Editar") { editingPlan = plan; showingForm = true }
+        List {
+            if plans.isEmpty && !isLoading {
+                EmptyStateView(
+                    title: "Nenhum plano cadastrado",
+                    message: "Crie planos para vincular aos alunos e registrar pagamentos com valores corretos.",
+                    illustrationStyle: .plans,
+                    actionTitle: "Criar plano",
+                    action: openCreateForm
+                )
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+            } else {
+                ForEach(plans) { plan in
+                    VStack(alignment: .leading) {
+                        Text(plan.title).font(.headline)
+                        Text(CurrencyFormatter.formatWithSymbol(plan.price, language: authService.company?.language))
+                            .foregroundStyle(.secondary)
+                    }
+                    .swipeActions {
+                        Button("Editar") { editingPlan = plan; showingForm = true }
+                    }
+                }
             }
         }
         .navigationTitle("Planos")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button { editingPlan = nil; showingForm = true } label: { Image(systemName: "plus") }
+                Button(action: openCreateForm) { Image(systemName: "plus") }
             }
         }
         .sheet(isPresented: $showingForm) {

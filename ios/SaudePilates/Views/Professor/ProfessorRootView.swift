@@ -107,17 +107,30 @@ struct ProfessorScheduleView: View {
 
     private let scheduleService = ScheduleService()
 
+    private var formattedSelectedDate: String {
+        DateHelpers.shortDate(selectedDate)
+    }
+
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             DatePicker("Data", selection: $selectedDate, displayedComponents: .date)
                 .datePickerStyle(.graphical)
                 .padding(.horizontal)
 
-            List(classes) { item in
-                VStack(alignment: .leading) {
-                    Text(item.studentName ?? "Aluno").font(.headline)
-                    Text(item.startTime ?? "--:--").foregroundStyle(.secondary)
+            if classes.isEmpty {
+                EmptyStateView(
+                    title: "Nenhuma aula neste dia",
+                    message: "Você não possui alunos agendados para \(formattedSelectedDate).",
+                    illustrationStyle: .scheduleNoClasses
+                )
+            } else {
+                List(classes) { item in
+                    VStack(alignment: .leading) {
+                        Text(item.studentName ?? "Aluno").font(.headline)
+                        Text(item.startTime ?? "--:--").foregroundStyle(.secondary)
+                    }
                 }
+                .listStyle(.insetGrouped)
             }
         }
         .navigationTitle("Agenda")

@@ -36,7 +36,9 @@ import com.saudepilates.app.ui.admin.AdminDashboardScreen
 import com.saudepilates.app.ui.admin.AdminScheduleScreen
 import com.saudepilates.app.ui.admin.AnamnesisScreen
 import com.saudepilates.app.ui.admin.MonthlyPaymentsScreen
+import com.saudepilates.app.ui.admin.AdminPeopleHubScreen
 import com.saudepilates.app.ui.admin.PaymentRegistrationScreen
+import com.saudepilates.app.ui.admin.PaymentVisualizationScreen
 import com.saudepilates.app.ui.admin.PlansScreen
 import com.saudepilates.app.ui.admin.ProfessorPaymentsScreen
 import com.saudepilates.app.ui.admin.ProfessorsScreen
@@ -139,7 +141,11 @@ private fun AdminPeopleNav(modifier: Modifier) {
     val nav = rememberNavController()
     NavHost(nav, "hub", modifier) {
         composable("hub") {
-            IosHubList("Pessoas", listOf("Alunos" to { nav.navigate("students") }, "Professores" to { nav.navigate("professors") }, "Planos" to { nav.navigate("plans") }))
+            AdminPeopleHubScreen(
+                onStudents = { nav.navigate("students") },
+                onProfessors = { nav.navigate("professors") },
+                onPlans = { nav.navigate("plans") }
+            )
         }
         composable("students") { StudentsScreen { nav.popBackStack() } }
         composable("professors") { ProfessorsScreen { nav.popBackStack() } }
@@ -155,11 +161,18 @@ private fun AdminPaymentsNav(modifier: Modifier) {
             IosHubList("Pagamentos", listOf(
                 "Registrar pagamento" to { nav.navigate("register") },
                 "Pagamentos do mês" to { nav.navigate("monthly") },
+                "Visualização" to { nav.navigate("visualization") },
                 "Pagamentos de professores" to { nav.navigate("professor_payments") }
             ))
         }
         composable("register") { PaymentRegistrationScreen { nav.popBackStack() } }
         composable("monthly") { MonthlyPaymentsScreen { nav.popBackStack() } }
+        composable("visualization") {
+            PaymentVisualizationScreen(
+                onBack = { nav.popBackStack() },
+                onRegisterPayment = { nav.navigate("register") }
+            )
+        }
         composable("professor_payments") { ProfessorPaymentsScreen { nav.popBackStack() } }
     }
 }

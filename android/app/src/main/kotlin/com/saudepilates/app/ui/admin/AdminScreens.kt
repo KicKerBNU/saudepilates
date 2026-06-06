@@ -1,6 +1,9 @@
 package com.saudepilates.app.ui.admin
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -41,8 +44,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import java.text.SimpleDateFormat
+import java.util.Locale
 import com.saudepilates.app.AppContainer
 import com.saudepilates.app.BuildConfig
+import com.saudepilates.app.data.models.AnamnesisRecord
 import com.saudepilates.app.data.models.DashboardStats
 import com.saudepilates.app.data.models.Plan
 import com.saudepilates.app.data.models.ProfessorPayment
@@ -54,14 +60,15 @@ import com.saudepilates.app.data.models.UserRole
 import com.saudepilates.app.ui.components.ConfirmDialog
 import com.saudepilates.app.ui.components.IosBadge
 import com.saudepilates.app.ui.components.IosDropdownField
+import com.saudepilates.app.ui.components.EmptyIllustrationStyle
 import com.saudepilates.app.ui.components.IosEmptyState
+import com.saudepilates.app.ui.components.IosNavigationRow
 import com.saudepilates.app.ui.components.IosFormScroll
 import com.saudepilates.app.ui.components.IosGroup
 import com.saudepilates.app.ui.components.IosHubList
 import com.saudepilates.app.ui.components.IosLabeledRow
 import com.saudepilates.app.ui.components.IosListRow
 import com.saudepilates.app.ui.components.IosLoadingOverlay
-import com.saudepilates.app.ui.components.IosNavigationRow
 import com.saudepilates.app.ui.components.IosQuickActionRow
 import com.saudepilates.app.ui.components.IosScreen
 import com.saudepilates.app.ui.components.IosSectionHeader
@@ -214,8 +221,27 @@ fun StudentsScreen(onBack: () -> Unit) {
                         }
                     }
                     item {
-                        if (filtered.isEmpty()) IosEmptyState(if (showInactive) "Nenhum aluno inativo" else "Nenhum aluno ativo")
-                        else IosGroup {
+                        if (filtered.isEmpty() && !loading) {
+                            when {
+                                search.isNotBlank() -> IosEmptyState(
+                                    title = "Nenhum resultado",
+                                    message = "Não encontramos alunos para \"$search\".",
+                                    illustrationStyle = if (showInactive) EmptyIllustrationStyle.StudentsInactive else EmptyIllustrationStyle.StudentsActive
+                                )
+                                showInactive -> IosEmptyState(
+                                    title = "Nenhum aluno inativo",
+                                    message = "Alunos desativados aparecerão nesta lista. Você pode reativá-los quando necessário.",
+                                    illustrationStyle = EmptyIllustrationStyle.StudentsInactive
+                                )
+                                else -> IosEmptyState(
+                                    title = "Nenhum aluno ativo",
+                                    message = "Cadastre seu primeiro aluno para começar a gerenciar planos, pagamentos e agenda.",
+                                    illustrationStyle = EmptyIllustrationStyle.StudentsActive,
+                                    actionTitle = "Cadastrar aluno",
+                                    onAction = { editing = null; showForm = true }
+                                )
+                            }
+                        } else if (filtered.isNotEmpty()) IosGroup {
                             filtered.forEachIndexed { index, student ->
                                 val planName = plans.find { it.id == student.planId }?.title
                                 Row(Modifier.fillMaxWidth()) {
@@ -360,20 +386,76 @@ fun StudentPaymentHistoryScreen(student: UserProfile, language: String?, onBack:
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfessorsScreen(onBack: () -> Unit) {
     val auth = AppContainer.authRepository
     var professors by remember { mutableStateOf<List<UserProfile>>(emptyList()) }
+    var search by remember { mutableStateOf("") }
+    var showInactive by remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(true) }
-    LaunchedEffect(Unit) { loading = true; professors = auth.getUsersByCompany(UserRole.PROFESSOR); loading = false }
+    var showForm by remember { mutableStateOf(false) }
+    var editing by remember { mutableStateOf<UserProfile?>(null) }
+    val scope = rememberCoroutineScope()
 
-    IosScreen(title = "Professores", onBack = onBack) { padding ->
-        BoxWithOverlay(loading) {
-            LazyColumn(Modifier.padding(padding).fillMaxSize(), contentPadding = PaddingValues(8.dp)) {
-                item {
-                    IosGroup {
-                        professors.filter { it.isUserActive }.forEachIndexed { i, p ->
-                            IosListRow(p.displayName, p.email, showDivider = i < professors.lastIndex)
+    fun reload() {
+        scope.launch {
+            loading = true
+            try { professors = auth.getUsersByCompany(UserRole.PROFESSOR) }
+            finally { loading = false }
+        }
+    }
+    LaunchedEffect(Unit) { reload() }
+
+    val filtered = professors
+        .filter { if (showInactive) it.isActive == false else it.isActive != false }
+        .filter { search.isBlank() || it.displayName.contains(search, true) }
+        .sortedBy { it.displayName.lowercase() }
+
+    when {
+        showForm -> ProfessorFormScreen(editing, onClose = { showForm = false; reload() })
+        else -> IosScreen(title = "Professores", onBack = onBack, actions = {
+            IconButton(onClick = { editing = null; showForm = true }) { Icon(Icons.Default.Add, contentDescription = "Novo") }
+        }) { padding ->
+            BoxWithOverlay(loading) {
+                LazyColumn(Modifier.padding(padding).fillMaxSize(), contentPadding = PaddingValues(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    item {
+                        IosGroup {
+                            IosSegmented(listOf("Ativos", "Inativos"), if (showInactive) 1 else 0, { showInactive = it == 1 }, Modifier.padding(12.dp))
+                        }
+                    }
+                    item {
+                        IosGroup {
+                            OutlinedTextField(search, { search = it }, label = { Text("Buscar professor") }, modifier = Modifier.fillMaxWidth().padding(12.dp), singleLine = true)
+                        }
+                    }
+                    item {
+                        if (filtered.isEmpty() && !loading) {
+                            when {
+                                search.isNotBlank() -> IosEmptyState(
+                                    title = "Nenhum resultado",
+                                    message = "Não encontramos professores para \"$search\".",
+                                    illustrationStyle = if (showInactive) EmptyIllustrationStyle.ProfessorsInactive else EmptyIllustrationStyle.ProfessorsActive
+                                )
+                                showInactive -> IosEmptyState(
+                                    title = "Nenhum professor inativo",
+                                    message = "Professores desativados aparecerão nesta lista. Você pode reativá-los quando necessário.",
+                                    illustrationStyle = EmptyIllustrationStyle.ProfessorsInactive
+                                )
+                                else -> IosEmptyState(
+                                    title = "Nenhum professor ativo",
+                                    message = "Cadastre professores para vincular alunos, agenda e comissões.",
+                                    illustrationStyle = EmptyIllustrationStyle.ProfessorsActive,
+                                    actionTitle = "Cadastrar professor",
+                                    onAction = { editing = null; showForm = true }
+                                )
+                            }
+                        } else if (filtered.isNotEmpty()) {
+                            IosGroup {
+                                filtered.forEachIndexed { i, p ->
+                                    IosListRow(p.displayName, p.email, showDivider = i < filtered.lastIndex, onClick = { editing = p; showForm = true })
+                                }
+                            }
                         }
                     }
                 }
@@ -382,19 +464,54 @@ fun ProfessorsScreen(onBack: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlansScreen(onBack: () -> Unit) {
     val auth = AppContainer.authRepository
     val company by auth.company.collectAsState()
     var plans by remember { mutableStateOf<List<Plan>>(emptyList()) }
-    LaunchedEffect(Unit) { auth.companyId?.let { plans = AppContainer.planRepository.fetchPlans(it) } }
+    var loading by remember { mutableStateOf(true) }
+    var showForm by remember { mutableStateOf(false) }
+    var editing by remember { mutableStateOf<Plan?>(null) }
+    val scope = rememberCoroutineScope()
 
-    IosScreen(title = "Planos", onBack = onBack) { padding ->
-        LazyColumn(Modifier.padding(padding).fillMaxSize(), contentPadding = PaddingValues(8.dp)) {
-            item {
-                IosGroup {
-                    plans.forEachIndexed { i, plan ->
-                        IosListRow(plan.title, CurrencyUtils.formatWithSymbol(plan.price, company?.language), showDivider = i < plans.lastIndex)
+    fun reload() {
+        scope.launch {
+            loading = true
+            try { auth.companyId?.let { plans = AppContainer.planRepository.fetchPlans(it) } }
+            finally { loading = false }
+        }
+    }
+    LaunchedEffect(Unit) { reload() }
+
+    when {
+        showForm -> PlanFormScreen(editing, onClose = { showForm = false; reload() })
+        else -> IosScreen(title = "Planos", onBack = onBack, actions = {
+            IconButton(onClick = { editing = null; showForm = true }) { Icon(Icons.Default.Add, contentDescription = "Novo") }
+        }) { padding ->
+            BoxWithOverlay(loading) {
+                LazyColumn(Modifier.padding(padding).fillMaxSize(), contentPadding = PaddingValues(8.dp)) {
+                    item {
+                        if (plans.isEmpty() && !loading) {
+                            IosEmptyState(
+                                title = "Nenhum plano cadastrado",
+                                message = "Crie planos para vincular aos alunos e registrar pagamentos com valores corretos.",
+                                illustrationStyle = EmptyIllustrationStyle.Plans,
+                                actionTitle = "Criar plano",
+                                onAction = { editing = null; showForm = true }
+                            )
+                        } else if (plans.isNotEmpty()) {
+                            IosGroup {
+                                plans.forEachIndexed { i, plan ->
+                                    IosListRow(
+                                        plan.title,
+                                        CurrencyUtils.formatWithSymbol(plan.price, company?.language),
+                                        showDivider = i < plans.lastIndex,
+                                        onClick = { editing = plan; showForm = true }
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -442,7 +559,13 @@ fun PaymentRegistrationScreen(onBack: () -> Unit) {
                 IosGroup {
                     IosDropdownField("Aluno", listOf("Selecione") + available.map { it.displayName }, listOf("") + available.map { it.id }, selectedStudentId, { selectedStudentId = it })
                 }
-                if (plan != null && student != null) {
+                if (selectedStudentId.isBlank()) {
+                    IosEmptyState(
+                        title = "Selecione um aluno",
+                        message = "Escolha um aluno acima para registrar o pagamento do plano.",
+                        illustrationStyle = EmptyIllustrationStyle.PaymentSelectStudent
+                    )
+                } else if (plan != null && student != null) {
                     IosSectionHeader("Detalhes")
                     IosGroup {
                         IosLabeledRow("Plano", plan.title)
@@ -564,8 +687,19 @@ fun ProfessorPaymentsScreen(onBack: () -> Unit) {
             IosGroup {
                 IosDropdownField("Professor", listOf("Selecione") + professors.filter { it.isUserActive }.map { it.displayName }, listOf("") + professors.filter { it.isUserActive }.map { it.id }, selectedProfessorId, { selectedProfessorId = it })
             }
-            if (monthPayments.isEmpty()) IosEmptyState("Nenhuma comissão neste mês")
-            else IosGroup {
+            if (selectedProfessorId.isBlank()) {
+                IosEmptyState(
+                    title = "Selecione um professor",
+                    message = "Escolha um professor acima para visualizar as comissões do mês.",
+                    illustrationStyle = EmptyIllustrationStyle.ScheduleSelectProfessor
+                )
+            } else if (monthPayments.isEmpty()) {
+                IosEmptyState(
+                    title = "Nenhuma comissão neste mês",
+                    message = "Não há comissões registradas para este professor no mês atual.",
+                    illustrationStyle = EmptyIllustrationStyle.PaymentVisualization
+                )
+            } else IosGroup {
                 monthPayments.forEachIndexed { i, payment ->
                     IosListRow(payment.studentName ?: "Aluno", CurrencyUtils.formatWithSymbol(payment.amount, company?.language), showDivider = i < monthPayments.lastIndex)
                 }
@@ -581,32 +715,62 @@ fun AdminScheduleScreen(onBack: () -> Unit) {
     var students by remember { mutableStateOf<List<UserProfile>>(emptyList()) }
     var selectedProfessorId by remember { mutableStateOf("") }
     var classes by remember { mutableStateOf(emptyList<com.saudepilates.app.data.models.ScheduledClass>()) }
+    var loading by remember { mutableStateOf(false) }
+    val selectedDate = remember { Date() }
+    val formattedDate = remember(selectedDate) { DateUtils.shortDate(selectedDate) }
+    val selectedProfessorName = professors.find { it.id == selectedProfessorId }?.displayName ?: "Professor"
 
-    LaunchedEffect(selectedProfessorId) {
-        if (selectedProfessorId.isBlank()) return@LaunchedEffect
-        val start = Date()
-        val end = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 1) }.time
-        classes = AppContainer.scheduleRepository.fetchProfessorSchedule(selectedProfessorId, start, end)
-            .map { c -> c.copy(studentName = students.find { it.id == c.studentId }?.displayName) }
+    LaunchedEffect(selectedProfessorId, students) {
+        if (selectedProfessorId.isBlank()) {
+            classes = emptyList()
+            return@LaunchedEffect
+        }
+        loading = true
+        try {
+            val start = DateUtils.startOfDay(selectedDate)
+            val end = Calendar.getInstance().apply { time = start; add(Calendar.DAY_OF_YEAR, 1) }.time
+            classes = AppContainer.scheduleRepository.fetchProfessorSchedule(selectedProfessorId, start, end)
+                .map { c -> c.copy(studentName = students.find { it.id == c.studentId }?.displayName) }
+        } finally {
+            loading = false
+        }
     }
     LaunchedEffect(Unit) {
-        professors = auth.getUsersByCompany(UserRole.PROFESSOR)
+        professors = auth.getUsersByCompany(UserRole.PROFESSOR).filter { it.isUserActive }
         students = auth.getUsersByCompany(UserRole.STUDENT)
-        selectedProfessorId = professors.firstOrNull()?.id ?: ""
     }
 
     IosScreen(title = "Agenda", onBack = onBack) { padding ->
-        LazyColumn(Modifier.padding(padding).fillMaxSize(), contentPadding = PaddingValues(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            item {
-                IosGroup {
-                    IosDropdownField("Professor", professors.map { it.displayName }, professors.map { it.id }, selectedProfessorId, { selectedProfessorId = it })
+        BoxWithOverlay(loading) {
+            LazyColumn(Modifier.padding(padding).fillMaxSize(), contentPadding = PaddingValues(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                item {
+                    IosGroup {
+                        IosDropdownField(
+                            "Professor",
+                            listOf("Selecione") + professors.map { it.displayName },
+                            listOf("") + professors.map { it.id },
+                            selectedProfessorId,
+                            { selectedProfessorId = it }
+                        )
+                    }
                 }
-            }
-            item {
-                if (classes.isEmpty()) IosEmptyState("Nenhuma aula agendada")
-                else IosGroup {
-                    classes.forEachIndexed { i, item ->
-                        IosListRow(item.studentName ?: "Aluno", item.startTime ?: "", showDivider = i < classes.lastIndex)
+                item {
+                    when {
+                        selectedProfessorId.isBlank() && !loading -> IosEmptyState(
+                            title = "Selecione um professor",
+                            message = "Escolha um professor acima para visualizar a agenda e as aulas do dia.",
+                            illustrationStyle = EmptyIllustrationStyle.ScheduleSelectProfessor
+                        )
+                        classes.isEmpty() && !loading -> IosEmptyState(
+                            title = "Nenhuma aula neste dia",
+                            message = "$selectedProfessorName não possui alunos agendados para $formattedDate.",
+                            illustrationStyle = EmptyIllustrationStyle.ScheduleNoClasses
+                        )
+                        classes.isNotEmpty() -> IosGroup {
+                            classes.forEachIndexed { i, item ->
+                                IosListRow(item.studentName ?: "Aluno", item.startTime ?: "", showDivider = i < classes.lastIndex)
+                            }
+                        }
                     }
                 }
             }
@@ -619,27 +783,166 @@ fun AnamnesisScreen(onBack: () -> Unit) {
     val auth = AppContainer.authRepository
     var students by remember { mutableStateOf<List<UserProfile>>(emptyList()) }
     var selectedStudentId by remember { mutableStateOf("") }
+    var records by remember { mutableStateOf<List<AnamnesisRecord>>(emptyList()) }
+    var editingId by remember { mutableStateOf<String?>(null) }
     var mainComplaint by remember { mutableStateOf("") }
     var observations by remember { mutableStateOf("") }
+    var recordToDelete by remember { mutableStateOf<AnamnesisRecord?>(null) }
+    var loading by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+
+    fun clearForm() {
+        editingId = null
+        mainComplaint = ""
+        observations = ""
+    }
+
+    fun loadRecord(record: AnamnesisRecord) {
+        editingId = record.id
+        mainComplaint = record.mainComplaint ?: ""
+        observations = record.observations ?: ""
+    }
+
     LaunchedEffect(Unit) { students = auth.getUsersByCompany(UserRole.STUDENT) }
 
-    IosScreen(title = "Anamnese", onBack = onBack) { padding ->
-        IosFormScroll(Modifier.padding(padding)) {
-            IosGroup {
-                IosDropdownField("Aluno", listOf("Selecione") + students.filter { it.isUserActive }.map { it.displayName }, listOf("") + students.filter { it.isUserActive }.map { it.id }, selectedStudentId, { selectedStudentId = it })
-            }
-            IosGroup {
-                OutlinedTextField(mainComplaint, { mainComplaint = it }, label = { Text("Queixa principal") }, modifier = Modifier.fillMaxWidth().padding(12.dp), minLines = 2)
-                OutlinedTextField(observations, { observations = it }, label = { Text("Observações") }, modifier = Modifier.fillMaxWidth().padding(12.dp), minLines = 3)
-            }
-            Button(onClick = {
-                scope.launch {
-                    val companyId = auth.companyId ?: return@launch
-                    AppContainer.anamnesisRepository.save(selectedStudentId, companyId, mapOf("mainComplaint" to mainComplaint, "observations" to observations), null)
-                    ToastManager.success("Anamnese salva")
+    LaunchedEffect(selectedStudentId) {
+        if (selectedStudentId.isBlank()) {
+            records = emptyList()
+            clearForm()
+            return@LaunchedEffect
+        }
+        loading = true
+        try {
+            records = AppContainer.anamnesisRepository.fetchByStudent(selectedStudentId)
+        } finally {
+            loading = false
+        }
+    }
+
+    ConfirmDialog(
+        visible = recordToDelete != null,
+        title = "Excluir anamnese",
+        message = "Tem certeza que deseja excluir esta anamnese? Esta ação não pode ser desfeita.",
+        confirmText = "Excluir",
+        onConfirm = {
+            scope.launch {
+                recordToDelete?.let { record ->
+                    AppContainer.anamnesisRepository.delete(record.id)
+                    records = records.filter { it.id != record.id }
+                    if (editingId == record.id) clearForm()
+                    ToastManager.success("Anamnese excluída")
                 }
-            }, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) { Text("Salvar anamnese") }
+                recordToDelete = null
+            }
+        },
+        onDismiss = { recordToDelete = null }
+    )
+
+    IosScreen(title = "Anamnese", onBack = onBack) { padding ->
+        BoxWithOverlay(loading) {
+            IosFormScroll(Modifier.padding(padding)) {
+                IosGroup {
+                    IosDropdownField(
+                        "Aluno",
+                        listOf("Selecione") + students.filter { it.isUserActive }.map { it.displayName },
+                        listOf("") + students.filter { it.isUserActive }.map { it.id },
+                        selectedStudentId,
+                        {
+                            selectedStudentId = it
+                            clearForm()
+                        }
+                    )
+                }
+
+                if (selectedStudentId.isNotBlank()) {
+                    IosSectionHeader("Histórico")
+                    if (records.isEmpty()) {
+                        IosEmptyState("Nenhuma anamnese cadastrada")
+                    } else {
+                        IosGroup {
+                            records.forEachIndexed { index, record ->
+                                IosListRow(
+                                    DateUtils.toDate(record.performedAt)?.let { DateUtils.shortDate(it) }
+                                        ?: DateUtils.toDate("${record.performedAt?.take(10)}T00:00:00")?.let { DateUtils.shortDate(it) }
+                                        ?: "—",
+                                    record.mainComplaint?.takeIf { it.isNotBlank() } ?: "Anamnese",
+                                    showDivider = index < records.lastIndex,
+                                    onClick = { loadRecord(record) },
+                                    trailing = {
+                                        IconButton(onClick = { recordToDelete = record }) {
+                                            Icon(Icons.Default.Delete, contentDescription = "Excluir", tint = IosColors.red)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        TextButton(onClick = { clearForm() }) { Text("Nova anamnese") }
+                    }
+
+                    IosGroup {
+                        OutlinedTextField(
+                            mainComplaint,
+                            { mainComplaint = it },
+                            label = { Text("Queixa principal") },
+                            modifier = Modifier.fillMaxWidth().padding(12.dp),
+                            minLines = 2
+                        )
+                        OutlinedTextField(
+                            observations,
+                            { observations = it },
+                            label = { Text("Observações") },
+                            modifier = Modifier.fillMaxWidth().padding(12.dp),
+                            minLines = 3
+                        )
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                scope.launch {
+                                    val companyId = auth.companyId ?: return@launch
+                                    if (selectedStudentId.isBlank()) return@launch
+                                    val savedId = AppContainer.anamnesisRepository.save(
+                                        selectedStudentId,
+                                        companyId,
+                                        mapOf("mainComplaint" to mainComplaint, "observations" to observations),
+                                        editingId
+                                    )
+                                    editingId = savedId
+                                    records = AppContainer.anamnesisRepository.fetchByStudent(selectedStudentId)
+                                    ToastManager.success("Anamnese salva")
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text(if (editingId == null) "Salvar anamnese" else "Atualizar anamnese") }
+
+                        if (editingId != null) {
+                            Button(
+                                onClick = {
+                                    records.find { it.id == editingId }?.let { recordToDelete = it }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                    containerColor = IosColors.red
+                                )
+                            ) { Text("Excluir anamnese") }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -663,6 +966,263 @@ fun SettingsScreen(onBack: () -> Unit) {
                     ToastManager.success("Configurações salvas")
                 }
             }, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) { Text("Salvar") }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PlanFormScreen(plan: Plan?, onClose: () -> Unit) {
+    val auth = AppContainer.authRepository
+    val company by auth.company.collectAsState()
+    var title by remember { mutableStateOf(plan?.title ?: "") }
+    var price by remember { mutableStateOf(plan?.price?.toString() ?: "") }
+    var description by remember { mutableStateOf(plan?.description ?: "") }
+    var loading by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    IosScreen(
+        title = if (plan == null) "Novo plano" else "Editar plano",
+        onBack = onClose,
+        actions = {
+            TextButton(onClick = {
+                scope.launch {
+                    val companyId = auth.companyId ?: return@launch
+                    val priceValue = price.replace(",", ".").toDoubleOrNull() ?: return@launch
+                    loading = true
+                    try {
+                        AppContainer.planRepository.savePlan(
+                            Plan(id = plan?.id ?: "", title = title, price = priceValue, companyId = companyId, description = description),
+                            companyId
+                        )
+                        ToastManager.success("Plano salvo")
+                        onClose()
+                    } catch (e: Exception) { ToastManager.error(e.message ?: "Erro") }
+                    finally { loading = false }
+                }
+            }) { Text("Salvar") }
+        }
+    ) { padding ->
+        BoxWithOverlay(loading) {
+            IosFormScroll(Modifier.padding(padding)) {
+                IosGroup {
+                    OutlinedTextField(title, { title = it }, label = { Text("Título") }, modifier = Modifier.fillMaxWidth().padding(12.dp))
+                    OutlinedTextField(price, { price = it }, label = { Text("Preço") }, modifier = Modifier.fillMaxWidth().padding(12.dp), singleLine = true)
+                    OutlinedTextField(description, { description = it }, label = { Text("Descrição") }, modifier = Modifier.fillMaxWidth().padding(12.dp), minLines = 2)
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProfessorFormScreen(professor: UserProfile?, onClose: () -> Unit) {
+    val auth = AppContainer.authRepository
+    var name by remember { mutableStateOf(professor?.name ?: "") }
+    var email by remember { mutableStateOf(professor?.email ?: "") }
+    var phone by remember { mutableStateOf(professor?.phone ?: "") }
+    var password by remember { mutableStateOf("") }
+    var loading by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    IosScreen(
+        title = if (professor == null) "Novo professor" else "Editar professor",
+        onBack = onClose,
+        actions = {
+            TextButton(onClick = {
+                scope.launch {
+                    loading = true
+                    try {
+                        if (professor != null) {
+                            auth.updateUser(professor.id, mapOf("name" to name, "phone" to phone))
+                            ToastManager.success("Professor atualizado")
+                        } else {
+                            auth.createUserForCompany(email, password, UserRole.PROFESSOR, mapOf("name" to name, "phone" to phone))
+                            ToastManager.success("Professor criado")
+                        }
+                        onClose()
+                    } catch (e: Exception) { ToastManager.error(e.message ?: "Erro") }
+                    finally { loading = false }
+                }
+            }) { Text("Salvar") }
+        }
+    ) { padding ->
+        BoxWithOverlay(loading) {
+            IosFormScroll(Modifier.padding(padding)) {
+                IosGroup {
+                    OutlinedTextField(name, { name = it }, label = { Text("Nome") }, modifier = Modifier.fillMaxWidth().padding(12.dp))
+                    if (professor == null) {
+                        OutlinedTextField(email, { email = it }, label = { Text("Email") }, modifier = Modifier.fillMaxWidth().padding(12.dp))
+                        OutlinedTextField(password, { password = it }, label = { Text("Senha") }, modifier = Modifier.fillMaxWidth().padding(12.dp), visualTransformation = PasswordVisualTransformation())
+                    }
+                    OutlinedTextField(phone, { phone = it }, label = { Text("Telefone") }, modifier = Modifier.fillMaxWidth().padding(12.dp))
+                }
+            }
+        }
+    }
+}
+
+private enum class PeopleOnboardingStep { NeedsPlan, NeedsProfessor, NeedsStudent }
+
+@Composable
+fun AdminPeopleHubScreen(
+    modifier: Modifier = Modifier,
+    onStudents: () -> Unit,
+    onProfessors: () -> Unit,
+    onPlans: () -> Unit
+) {
+    val auth = AppContainer.authRepository
+    var plans by remember { mutableStateOf<List<Plan>>(emptyList()) }
+    var professors by remember { mutableStateOf<List<UserProfile>>(emptyList()) }
+    var students by remember { mutableStateOf<List<UserProfile>>(emptyList()) }
+    var loading by remember { mutableStateOf(true) }
+    var showPlanForm by remember { mutableStateOf(false) }
+    var showProfessorForm by remember { mutableStateOf(false) }
+    var showStudentForm by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    fun reload() {
+        scope.launch {
+            loading = true
+            try {
+                val companyId = auth.companyId ?: return@launch
+                plans = AppContainer.planRepository.fetchPlans(companyId)
+                professors = auth.getUsersByCompany(UserRole.PROFESSOR)
+                students = auth.getUsersByCompany(UserRole.STUDENT)
+            } finally { loading = false }
+        }
+    }
+    LaunchedEffect(Unit) { reload() }
+
+    val onboardingStep = when {
+        plans.isEmpty() -> PeopleOnboardingStep.NeedsPlan
+        professors.none { it.isUserActive } -> PeopleOnboardingStep.NeedsProfessor
+        students.none { it.isUserActive } -> PeopleOnboardingStep.NeedsStudent
+        else -> null
+    }
+
+    when {
+        showPlanForm -> PlanFormScreen(null) { showPlanForm = false; reload() }
+        showProfessorForm -> ProfessorFormScreen(null) { showProfessorForm = false; reload() }
+        showStudentForm -> StudentFormScreen(null, plans, professors) { showStudentForm = false; reload() }
+        else -> IosScreen(title = "Pessoas", modifier = modifier) { padding ->
+            BoxWithOverlay(loading) {
+                LazyColumn(Modifier.padding(padding).fillMaxSize(), contentPadding = PaddingValues(8.dp)) {
+                    item {
+                        if (onboardingStep != null && !loading) {
+                            when (onboardingStep) {
+                                PeopleOnboardingStep.NeedsPlan -> IosEmptyState(
+                                    title = "Crie seu primeiro plano",
+                                    message = "Antes de cadastrar professores e alunos, defina um plano com o valor das aulas do seu estúdio.",
+                                    illustrationStyle = EmptyIllustrationStyle.Plans,
+                                    actionTitle = "Criar plano",
+                                    onAction = { showPlanForm = true }
+                                )
+                                PeopleOnboardingStep.NeedsProfessor -> IosEmptyState(
+                                    title = "Cadastre um professor",
+                                    message = "Com o plano criado, adicione um professor para vincular alunos, agenda e comissões.",
+                                    illustrationStyle = EmptyIllustrationStyle.ProfessorsActive,
+                                    actionTitle = "Cadastrar professor",
+                                    onAction = { showProfessorForm = true }
+                                )
+                                PeopleOnboardingStep.NeedsStudent -> IosEmptyState(
+                                    title = "Cadastre seu primeiro aluno",
+                                    message = "Tudo pronto para começar. Adicione um aluno para gerenciar planos, pagamentos e agenda.",
+                                    illustrationStyle = EmptyIllustrationStyle.StudentsActive,
+                                    actionTitle = "Cadastrar aluno",
+                                    onAction = { showStudentForm = true }
+                                )
+                            }
+                        } else if (!loading) {
+                            IosGroup {
+                                IosNavigationRow("Alunos", onStudents, showDivider = true)
+                                IosNavigationRow("Professores", onProfessors, showDivider = true)
+                                IosNavigationRow("Planos", onPlans, showDivider = false)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PaymentVisualizationScreen(onBack: () -> Unit, onRegisterPayment: () -> Unit) {
+    val auth = AppContainer.authRepository
+    val company by auth.company.collectAsState()
+    var payments by remember { mutableStateOf<List<StudentPayment>>(emptyList()) }
+    var loading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        loading = true
+        try {
+            auth.companyId?.let { payments = AppContainer.paymentRepository.fetchStudentPayments(it) }
+        } finally { loading = false }
+    }
+
+    val chartData = remember(payments) {
+        val cal = Calendar.getInstance()
+        val formatter = SimpleDateFormat("MMM/yy", Locale("pt", "BR"))
+        val totals = linkedMapOf<String, Triple<String, Double, Int>>()
+        payments.forEach { payment ->
+            cal.time = payment.paymentDate
+            val year = cal.get(Calendar.YEAR)
+            val month = cal.get(Calendar.MONTH) + 1
+            val key = "%04d-%02d".format(year, month)
+            val sortKey = year * 100 + month
+            val label = formatter.format(payment.paymentDate)
+            val existing = totals[key]
+            totals[key] = Triple(label, (existing?.second ?: 0.0) + payment.paidAmount, sortKey)
+        }
+        totals.entries.sortedBy { it.value.third }.map { it.value.first to it.value.second }
+    }
+    val totalRevenue = payments.sumOf { it.paidAmount }
+
+    IosScreen(title = "Visualização", onBack = onBack) { padding ->
+        BoxWithOverlay(loading) {
+            if (!loading && payments.isEmpty()) {
+                IosEmptyState(
+                    title = "Nenhum pagamento registrado",
+                    message = "Registre pagamentos de alunos para visualizar aqui a evolução do valor recebido mês a mês no seu estúdio.",
+                    illustrationStyle = EmptyIllustrationStyle.PaymentVisualization,
+                    actionTitle = "Registrar pagamento",
+                    onAction = onRegisterPayment,
+                    modifier = Modifier.padding(padding).fillMaxSize()
+                )
+            } else {
+                IosFormScroll(Modifier.padding(padding)) {
+                    if (chartData.isNotEmpty()) {
+                        val maxTotal = chartData.maxOf { it.second }.coerceAtLeast(1.0)
+                        IosSectionHeader("Receita por mês")
+                        IosGroup {
+                            chartData.forEachIndexed { index, (month, total) ->
+                                Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp)) {
+                                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                        Text(month, fontWeight = FontWeight.Medium)
+                                        Text(CurrencyUtils.formatWithSymbol(total, company?.language))
+                                    }
+                                    Spacer(Modifier.height(8.dp))
+                                    Box(
+                                        Modifier
+                                            .fillMaxWidth((total / maxTotal).toFloat().coerceIn(0.05f, 1f))
+                                            .height(12.dp)
+                                            .background(IosColors.indigo, RoundedCornerShape(6.dp))
+                                    )
+                                }
+                                if (index < chartData.lastIndex) {
+                                    androidx.compose.material3.HorizontalDivider(color = IosColors.separator.copy(alpha = 0.4f))
+                                }
+                            }
+                        }
+                    }
+                    IosSectionHeader("Resumo")
+                    IosGroup {
+                        IosLabeledRow("Total geral", CurrencyUtils.formatWithSymbol(totalRevenue, company?.language), showDivider = false)
+                    }
+                }
+            }
         }
     }
 }

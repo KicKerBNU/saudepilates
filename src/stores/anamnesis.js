@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { doc, getDoc, setDoc, addDoc, updateDoc, getDocs, collection, query, where } from 'firebase/firestore';
+import { doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, getDocs, collection, query, where } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useAuthStore } from './auth';
 
@@ -109,6 +109,20 @@ export const useAnamnesisStore = defineStore('anamnesis', {
           const docRef = await addDoc(collection(db, 'anamnesis'), payload);
           return { id: docRef.id, ...payload };
         }
+      } catch (err) {
+        this.error = err.message;
+        throw err;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async delete(anamnesisId) {
+      if (!anamnesisId) throw new Error('Anamnesis id is required');
+      this.loading = true;
+      this.error = null;
+      try {
+        await deleteDoc(doc(db, 'anamnesis', anamnesisId));
       } catch (err) {
         this.error = err.message;
         throw err;

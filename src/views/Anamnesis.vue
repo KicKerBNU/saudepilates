@@ -35,8 +35,15 @@
                 >
                   <td class="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">{{ formatAnamnesisDate(item.performedAt || item.updatedAt) }}</td>
                   <td class="px-4 py-3 text-sm text-gray-900">{{ item.studentName }}</td>
-                  <td class="px-4 py-3 text-sm text-right">
+                  <td class="px-4 py-3 text-sm text-right whitespace-nowrap">
                     <span class="text-indigo-600 hover:text-indigo-800 font-medium">{{ $t('anamnesis.viewEdit') }}</span>
+                    <button
+                      type="button"
+                      class="ml-3 text-red-600 hover:text-red-800 font-medium"
+                      @click.stop="confirmDeleteAnamnesis(item)"
+                    >
+                      {{ $t('common.delete') }}
+                    </button>
                   </td>
                 </tr>
               </tbody>
@@ -102,6 +109,9 @@
                 </div>
                 <div v-if="saveSuccess" class="rounded-md bg-green-50 p-4 text-sm text-green-700">
                   {{ $t('anamnesis.savedSuccess') }}
+                </div>
+                <div v-if="deleteSuccess" class="rounded-md bg-green-50 p-4 text-sm text-green-700">
+                  {{ $t('anamnesis.deletedSuccess') }}
                 </div>
 
                 <div>
@@ -201,6 +211,15 @@
                     {{ anamnesisStore.loading ? $t('common.saving') : $t('common.save') }}
                   </button>
                   <button
+                    v-if="selectedAnamnesisId"
+                    type="button"
+                    @click="confirmDeleteSelectedAnamnesis"
+                    :disabled="anamnesisStore.loading"
+                    class="inline-flex justify-center rounded-md border border-red-300 bg-white py-2 px-4 text-sm font-medium text-red-700 shadow-sm hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
+                  >
+                    {{ $t('common.delete') }}
+                  </button>
+                  <button
                     type="button"
                     @click="downloadPdf"
                     :disabled="!hasAnamnesisData"
@@ -276,6 +295,7 @@ const selectedAnamnesisId = ref(null);
 const studentAnamnesesList = ref([]);
 const saveError = ref('');
 const saveSuccess = ref(false);
+const deleteSuccess = ref(false);
 const loadingAllPdf = ref(false);
 const allAnamnesis = ref([]);
 const printData = ref(null);
@@ -408,6 +428,44 @@ async function onStudentChange() {
   resetFormToDefault();
 }
 
+async function refreshAnamnesisLists() {
+  const list = await anamnesisStore.getAllForCompany();
+  allAnamnesis.value = list;
+  if (selectedStudentId.value) {
+    studentAnamnesesList.value = await anamnesisStore.getAnamnesesByStudentId(selectedStudentId.value);
+  }
+}
+
+async function deleteAnamnesis(anamnesisId) {
+  if (!anamnesisId) return;
+  saveError.value = '';
+  saveSuccess.value = false;
+  deleteSuccess.value = false;
+  try {
+    await anamnesisStore.delete(anamnesisId);
+    if (selectedAnamnesisId.value === anamnesisId) {
+      selectedAnamnesisId.value = null;
+      resetFormToDefault();
+    }
+    await refreshAnamnesisLists();
+    deleteSuccess.value = true;
+    setTimeout(() => { deleteSuccess.value = false; }, 3000);
+  } catch (err) {
+    saveError.value = err.message || t('common.tryAgain');
+  }
+}
+
+function confirmDeleteAnamnesis(item) {
+  if (!confirm(t('anamnesis.confirmDelete'))) return;
+  deleteAnamnesis(item.id);
+}
+
+function confirmDeleteSelectedAnamnesis() {
+  if (!selectedAnamnesisId.value) return;
+  if (!confirm(t('anamnesis.confirmDelete'))) return;
+  deleteAnamnesis(selectedAnamnesisId.value);
+}
+
 async function save() {
   if (!selectedStudentId.value) return;
   saveError.value = '';
@@ -426,10 +484,7 @@ async function save() {
     const result = await anamnesisStore.save(selectedStudentId.value, payload, selectedAnamnesisId.value);
     if (!selectedAnamnesisId.value) selectedAnamnesisId.value = result.id;
     saveSuccess.value = true;
-    const list = await anamnesisStore.getAllForCompany();
-    allAnamnesis.value = list;
-    const studentList = await anamnesisStore.getAnamnesesByStudentId(selectedStudentId.value);
-    studentAnamnesesList.value = studentList;
+    await refreshAnamnesisLists();
     setTimeout(() => { saveSuccess.value = false; }, 3000);
   } catch (err) {
     saveError.value = err.message || t('common.tryAgain');

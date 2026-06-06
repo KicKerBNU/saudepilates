@@ -119,6 +119,8 @@
     "treatment": "Treatment",
     "treatmentPlaceholder": "Describe the treatment (goals, approach, etc.)",
     "savedSuccess": "Anamnesis saved successfully.",
+    "confirmDelete": "Are you sure you want to delete this anamnesis? This action cannot be undone.",
+    "deletedSuccess": "Anamnesis deleted successfully.",
     "downloadPdf": "Download PDF",
     "print": "Print",
     "downloadAllPdf": "Download all PDFs",

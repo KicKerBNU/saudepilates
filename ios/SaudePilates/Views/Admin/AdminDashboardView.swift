@@ -14,6 +14,9 @@ struct AdminDashboardView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Text(authService.company?.name ?? "Painel Admin")
                         .font(.title2.bold())
+                    Text(AppVersion.display)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
 
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         StatCard(title: "Alunos ativos", value: "\(stats.totalStudents)", color: .indigo)
